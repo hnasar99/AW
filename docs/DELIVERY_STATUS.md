@@ -115,6 +115,14 @@ La compilación y ejecución iOS no forman parte de los resultados aprobados. La
 | Integración Fluuix/ZonaFranca y criterios de aceptación | **PENDIENTE; sin validación funcional** |
 | Configuración/firma del operador y uso final en producción · Arc Testnet | **PENDIENTE; sujeto a los cierres Android, E2E y Fluuix** |
 
+## Adenda de CI remoto · 18:31 UTC
+
+La revisión `4c28b49e4e3204d9e20340075dd5f98a57231034` se publicó en la rama de trabajo y se abrió el [PR #1](https://github.com/hnasar99/AW/pull/1) como borrador. El [run de push 38075599575](https://github.com/hnasar99/AW/actions/runs/38075599575), job 114281794776, completó checkout, Java, Flutter y preparación de Rust; falló a las 18:27:29 UTC al instalar paquetes Android porque `sdkmanager` no estaba disponible en PATH (salida 127). La compilación de AW no llegó a ejecutarse en ese run.
+
+El workflow ahora prepara explícitamente el SDK mediante `android-actions/setup-android` v4.0.4, fijado al commit `be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd`, con Command-line Tools `15859902` / 22.0 y `platform-tools`. [El código de esa revisión](https://github.com/android-actions/setup-android/blob/be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd/src/main.ts) instala o localiza `sdkmanager`, exporta las rutas del SDK y añade el ejecutable a PATH. La instalación posterior registra ubicación y versión antes de solicitar los paquetes fijados. No solicita el paquete obsoleto `tools`.
+
+Esta corrección de infraestructura no cambia los APK locales, sus fuentes de aplicación/runtime ni los resultados estáticos documentados. El resultado de la nueva ejecución debe comprobarse en el expediente externo vinculado al commit de cierre; todavía no se declara CI remoto satisfactorio en esta adenda.
+
 ## Criterio de aceptación
 
 El procedimiento de pruebas está en [OPERATIONS.md](OPERATIONS.md), el alcance de Fluuix en [FLUUIX_INTEGRATION.md](FLUUIX_INTEGRATION.md) y la preparación de fuentes en [SOURCE_DISTRIBUTION.md](SOURCE_DISTRIBUTION.md). Mantenga los logs y los hashes del artefacto al que se atribuye cada resultado. La inspección estática, la firma de QA y los tests automatizados permiten avanzar en la evaluación, pero la aprobación final requiere cerrar las pruebas del dispositivo y de los servicios que formen parte del uso previsto.
