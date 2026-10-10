@@ -1,0 +1,165 @@
+--- a/crates/tinyinference-llm/src/providers/openai/transport.rs
++++ b/crates/tinyinference-llm/src/providers/openai/transport.rs
+@@ -4,6 +4,7 @@
+ //! Split out of `openai/mod.rs`; see that module's doc comment for the
+ //! full provider overview.
+ 
++use super::host_response_limit::{bounded_response_chunk, bounded_response_text};
+ use super::responses;
+ use super::*;
+ use crate::model::effective_temperature;
+@@ -818,10 +819,7 @@
+             )
+             .await?;
+ 
+-        let text = response
+-            .text()
+-            .await
+-            .map_err(|e| Error::Model(format!("openai response body read failed: {e}")))?;
++        let text = bounded_response_text(response).await?;
+ 
+         let listing: ModelListWire = serde_json::from_str(&text)?;
+         Ok(listing.data)
+@@ -1599,10 +1597,7 @@
+                     .contains("text/event-stream")
+             })
+             .unwrap_or(false);
+-        let text = response
+-            .text()
+-            .await
+-            .map_err(|e| Error::Model(format!("openai responses body read failed: {e}")))?;
++        let text = bounded_response_text(response).await?;
+         if let Some(error) = responses_sse_failure(&text, self) {
+             return Err(Error::Provider(Box::new(error)));
+         }
+@@ -1682,7 +1677,7 @@
+                 .get(reqwest::header::RETRY_AFTER)
+                 .and_then(|value| value.to_str().ok())
+                 .map(str::to_string);
+-            let text = response.text().await.unwrap_or_default();
++            let text = bounded_response_text(response).await?;
+             let error = self.parse_error_body(status.as_u16(), &text, retry_after.as_deref());
+             return Err(Error::Provider(Box::new(error)));
+         }
+@@ -2185,10 +2180,7 @@
+             .post_chat_with_degrade(&request, false, "request")
+             .await?;
+ 
+-        let text = response
+-            .text()
+-            .await
+-            .map_err(|e| Error::Model(format!("openai response body read failed: {e}")))?;
++        let text = bounded_response_text(response).await?;
+ 
+         let value: Value = serde_json::from_str(&text)?;
+         self.request_options.observe_response(&value);
+@@ -2265,9 +2257,7 @@
+             .map(|ct| ct.to_ascii_lowercase().contains("text/event-stream"))
+             .unwrap_or(false);
+         if !is_event_stream {
+-            let text = response.text().await.map_err(|e| {
+-                Error::Model(format!("openai non-stream stream-body read failed: {e}"))
+-            })?;
++            let text = bounded_response_text(response).await?;
+             let value: Value = serde_json::from_str(&text)?;
+             let mut parsed = parse_chat_response(value, self.effective_reasoning_tags())?;
+             self.stamp_origin(&mut parsed, &request, CHAT_COMPLETIONS_API);
+@@ -2295,9 +2285,12 @@
+         // produced (a cheap refcount clone, no per-chunk copy); only the error
+         // type is mapped onto the crate error. `SseState` is crate-internal,
+         // so `bytes` never leaks into the public API.
+-        let bytes = response
+-            .bytes_stream()
+-            .map(|chunk| chunk.map_err(|e| Error::Model(format!("stream chunk failed: {e}"))));
++        let bytes = response.bytes_stream().scan(0usize, |total, chunk| {
++            let bounded = chunk
++                .map_err(|_| Error::Model("provider stream could not be read".into()))
++                .and_then(|chunk| bounded_response_chunk(total, chunk));
++            futures::future::ready(Some(bounded))
++        });
+ 
+         let state = SseState {
+             bytes: Box::pin(bytes),
+--- a/crates/tinyinference-llm/src/providers/openai/mod.rs
++++ b/crates/tinyinference-llm/src/providers/openai/mod.rs
+@@ -85,6 +85,7 @@
+ pub mod codex;
+ mod config;
+ mod convert;
++mod host_response_limit;
+ mod local;
+ mod reasoning_tags;
+ mod responses;
+--- /dev/null
++++ b/crates/tinyinference-llm/src/providers/openai/host_response_limit.rs
+@@ -0,0 +1,46 @@
++//! Wallet-host response limits before JSON/SSE assembly.
++//!
++//! This cap also handles an SSE peer that sends no newline or progress event.
++
++use crate::{Error, Result};
++
++const HOST_MAX_RESPONSE_BYTES: usize = 2 * 1024 * 1024;
++
++pub(super) fn bounded_response_chunk(
++    total: &mut usize,
++    chunk: bytes::Bytes,
++) -> Result<bytes::Bytes> {
++    *total = total.saturating_add(chunk.len());
++    if *total > HOST_MAX_RESPONSE_BYTES {
++        return Err(Error::Model(
++            "provider response exceeded the host byte limit".into(),
++        ));
++    }
++    Ok(chunk)
++}
++
++pub(super) async fn bounded_response_text(mut response: reqwest::Response) -> Result<String> {
++    if response
++        .content_length()
++        .is_some_and(|size| size > HOST_MAX_RESPONSE_BYTES as u64)
++    {
++        return Err(Error::Model(
++            "provider response exceeded the host byte limit".into(),
++        ));
++    }
++    let mut total = 0usize;
++    let mut body = Vec::new();
++    while let Some(chunk) = response
++        .chunk()
++        .await
++        .map_err(|_| Error::Model("provider response body could not be read".into()))?
++    {
++        let chunk = bounded_response_chunk(&mut total, chunk)?;
++        body.extend_from_slice(&chunk);
++    }
++    String::from_utf8(body).map_err(|_| Error::Model("provider response was not UTF-8".into()))
++}
++
++#[cfg(test)]
++#[path = "host_response_limit_tests.rs"]
++mod tests;
+--- /dev/null
++++ b/crates/tinyinference-llm/src/providers/openai/host_response_limit_tests.rs
+@@ -0,0 +1,21 @@
++use super::*;
++
++#[test]
++fn chunk_limit_is_cumulative() {
++    let mut total = HOST_MAX_RESPONSE_BYTES - 1;
++    assert!(bounded_response_chunk(&mut total, bytes::Bytes::from_static(b"a")).is_ok());
++    assert!(bounded_response_chunk(&mut total, bytes::Bytes::from_static(b"b")).is_err());
++}
++
++#[test]
++fn byte_counter_does_not_wrap() {
++    let mut total = usize::MAX;
++    assert!(bounded_response_chunk(&mut total, bytes::Bytes::from_static(b"a")).is_err());
++}
++
++#[test]
++fn a_single_oversized_frame_is_refused_before_accumulation() {
++    let mut total = 0;
++    let bytes = bytes::Bytes::from(vec![b'x'; HOST_MAX_RESPONSE_BYTES + 1]);
++    assert!(bounded_response_chunk(&mut total, bytes).is_err());
++}

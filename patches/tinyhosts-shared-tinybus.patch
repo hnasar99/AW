@@ -1,0 +1,19 @@
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -28,12 +28,14 @@
+ crate-type = ["rlib", "cdylib"]
+ 
+ [dependencies]
++# AW integration resolves these optional dependencies through OpenHuman's
++# TinyBus checkout, keeping one package identity in Cargo.lock.
+ # TinyBus defines the message types, interface macro, and frozen module ABI used
+ # by the generated integration. Socket and CLI features are unnecessary here.
+-tinybus = { path = "vendor/tinybus/crates/tinybus", version = "0.1.0", default-features = false, features = ["macros", "modules"], optional = true }
++tinybus = { path = "../tinybus/crates/tinybus", version = "0.1.0", default-features = false, features = ["macros", "modules"], optional = true }
+ # The module-side SDK owns the isolated runtime and exports the ABI entrypoints
+ # required by TinyBus's dynamic loader.
+-tinybus-module = { path = "vendor/tinybus/crates/tinybus-module", version = "0.1.0", optional = true }
++tinybus-module = { path = "../tinybus/crates/tinybus-module", version = "0.1.0", optional = true }
+ # Derive macros for the crate-wide error type in `src/error/mod.rs`.
+ thiserror = "2"
+ # `Host` is consumed as `dyn Host`, and every method performs network I/O, so

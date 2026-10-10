@@ -1,70 +1,130 @@
-# AW — Arc Wallet + OpenHuman
+# AW · Arc Wallet + OpenHuman
 
-Flutter wallet prototype for Arc Testnet with an embedded OpenHuman Rust agent bridge.
+Aplicación Flutter para **Android y Arc Testnet**, con el runtime Rust de OpenHuman integrado como biblioteca nativa. La inferencia usa un proveedor OpenAI compatible elegido por el operador; los pesos del modelo no se ejecutan en el teléfono. El agente consulta la red y puede proponer una transferencia. La aprobación final y la firma pertenecen a una wallet externa.
 
-## Features
+Esta iteración se identifica como **0.2.0+2**. Consulte [DELIVERY_STATUS.md](DELIVERY_STATUS.md) para conocer las pruebas ejecutadas y las pendientes. `release` describe el modo de compilación; no constituye una aprobación para operar con dinero real.
 
-- Arc Testnet JSON-RPC network check, native balance and USDC balance reads.
-- WalletConnect v2 connection and external-wallet transaction signing for USDC.
-- Transaction review, gas estimation, receipt polling, and ArcScan links.
-- Dart FFI bridge to the pinned upstream `openhuman-embed` Rust runtime.
-- OpenAI-compatible inference endpoint/model configuration; API key stored through OS secure storage.
-- Read-only agent that can draft a structured transfer proposal. The proposal only pre-fills the form; the user must separately review and approve in their external wallet.
+## Capacidades y fronteras
 
-## Repository layout
+- Un único saldo USDC. En Arc, el saldo nativo y la interfaz ERC-20 representan el mismo activo; no se suman.
+- Importes con `BigInt`: hasta seis decimales para la transferencia ERC-20 y dieciocho para saldo nativo/comisión. Una entrada con precisión excesiva se rechaza sin redondearla.
+- Validación de red, simulación, estimación de gas y revisión inmutable con vencimiento de dos minutos. Un cambio de cuenta, sesión o red invalida la revisión.
+- Conexión Reown Sign / WalletConnect y firma externa. La aplicación no pide frases semilla ni importa claves privadas.
+- Estado pendiente persistido antes de pedir la firma. Un resultado incierto no se reenvía automáticamente. El recibo y la transacción se cotejan contra lo revisado antes de declarar confirmación.
+- OpenHuman real, fijado a una revisión de upstream, con ABI C versionada, sesiones en memoria, cancelación y reinicio. Las llamadas bloqueantes se ejecutan fuera del isolate de interfaz de Flutter.
+- Dos herramientas Rust: `arc_network_status` y `arc_balance`. Solo consultan el RPC fijo de Arc Testnet y comprueban el identificador de red.
+- Propuestas del modelo con esquema estricto: únicamente pueden llenar el formulario; nunca autorizan o firman por sí mismas.
+- Vista normal y misiones sobre el mismo estado. Las misiones reflejan eventos observados y no transacciones simuladas.
 
-- `lib/main.dart` — Flutter UI, Arc RPC, WalletConnect transaction flow, agent panel.
-- `lib/openhuman_bridge.dart` — Dart FFI bridge.
-- `rust/arc_openhuman_bridge/` — Rust C ABI bridge and OpenHuman runtime integration.
-- `scripts/` — native Rust build scripts for Android and iOS.
-- `DELIVERY_STATUS.md` — implementation status and unverified items.
-- `THIRD_PARTY_NOTICES.md` — OpenHuman license note.
+**Fluuix/ZonaFranca:** no hay un servidor privado autenticado en esta versión. El contrato para incorporar sus API/MCP está en [docs/FLUUIX_INTEGRATION.md](docs/FLUUIX_INTEGRATION.md). No hace falta clonar sus repositorios privados ni abrir acceso MCP arbitrario.
 
-## Build prerequisites
+## Inicio en Android
 
-- Flutter 3.24+ / Dart 3.5+
-- Rust 1.96.1 (pinned in `rust-toolchain.toml`)
-- Android NDK and Android Rust targets for Android builds
-- Xcode/iOS SDK for iOS builds
-- A WalletConnect/Reown project ID
+1. Instale el APK de QA en un teléfono **ARM64 con Android 8.0 (API 26) o posterior**. Su identificador es `io.fluuix.aw.qa`. La compatibilidad declarada por el manifest requiere complementarse con la prueba del dispositivo concreto.
+2. En **Ajustes**, configure su **Project ID de Reown**. Es un identificador público del proyecto, no una clave privada.
+3. Abra **Wallet** y apruebe una sesión en una wallet que admita WalletConnect y redes EVM personalizadas. Use QR desde otro dispositivo, copie la URI o abra una wallet compatible en el mismo teléfono.
+4. Agregue Arc Testnet cuando sea necesario y obtenga USDC de prueba desde el faucet oficial. Compruebe el saldo, ingrese el destinatario y el importe y revise la comisión máxima.
+5. Verifique de nuevo los campos en la wallet externa antes de firmar. La app comprueba hash, transacción y recibo. Un timeout se muestra como pendiente o incierto, sin autorizar un segundo envío.
+6. En **Agente**, pulse **Verificar ejecución nativa de Rust**. El ABI responde desde la biblioteca cargada; este resultado por sí solo no demuestra inferencia ni una operación on-chain.
+7. Configure en **Ajustes** el endpoint HTTPS, el ID de modelo y su API key autorizada. Use la raíz compatible, como `https://proveedor.example/v1`, sin añadir `/chat/completions`. Inicie el agente y envíe una consulta.
 
-Generate missing platform scaffolding and fetch dependencies:
-
-```bash
-flutter create . --platforms=android,ios
-flutter pub get
-```
-
-Configure the WalletConnect project ID at build time:
-
-```bash
-flutter run --dart-define=WALLETCONNECT_PROJECT_ID=YOUR_PROJECT_ID
-```
-
-Build the Rust bridge for Android (requires `cargo-ndk`, installed with `cargo install cargo-ndk`):
-
-```bash
-./scripts/build_android_rust.sh
-flutter analyze
-flutter test
-```
-
-For iOS, run `./scripts/build_ios_rust.sh`, then link the generated static library into the Runner target and configure its native search path. Device and simulator builds require their respective Rust targets.
-
-In the OpenHuman panel, configure an authorized HTTPS OpenAI-compatible API root (not the `/chat/completions` path), model ID, and API key. Do not commit API keys or pass them via `--dart-define`.
+Recordar la API key es optativo. Se conserva junto con su endpoint mediante almacenamiento seguro de Android; editar el endpoint limpia la clave de la interfaz. Los mensajes y resultados de herramientas necesarios para responder se envían al proveedor. Reiniciar el agente limpia su sesión en memoria, pero no borra registros que un proveedor remoto pueda conservar. La UI distingue el texto del modelo de las lecturas efectivamente registradas por las herramientas.
 
 ## Arc Testnet
 
-- Chain ID: `5042002` (`0x4cef52`)
-- RPC: https://rpc.testnet.arc.network
-- Explorer: https://testnet.arcscan.app
-- USDC contract: `0x3600000000000000000000000000000000000000` (6 decimals)
-- Faucet: https://faucet.circle.com/
+| Parámetro | Valor |
+|---|---|
+| Chain ID decimal / hexadecimal | `5042002` / `0x4cef52` |
+| RPC | `https://rpc.testnet.arc.io` |
+| Explorador | `https://explorer.testnet.arc.io` |
+| Moneda nativa | USDC, 18 decimales para cantidades RPC nativas |
+| Interfaz ERC-20 de USDC | `0x3600000000000000000000000000000000000000`, 6 decimales |
+| Faucet | `https://faucet.circle.com/` |
 
-The app does not request or store a seed phrase or private key. A paired wallet must support EVM WalletConnect and Arc Testnet.
+Fuentes: [conexión a Arc](https://docs.arc.io/arc/references/connect-to-arc) y [gas/comisiones](https://docs.arc.io/arc/references/gas-and-fees). La aplicación opera sobre Arc Testnet en todas sus variantes de firma.
 
-## Status and caveats
+## Compilación con versiones fijadas
 
-This repository contains source code, not a verified APK/IPA. No successful Flutter/Rust compilation, device run, real OpenHuman inference, WalletConnect pairing, or on-chain transfer has yet been verified. The Fluuix/ZonaFranca MCP endpoint and authentication details were not provided, so no live MCP server is configured.
+| Componente | Versión de esta iteración |
+|---|---|
+| Flutter / Dart | 3.47.7 / 3.13.5 |
+| Rust | 1.96.1, fijado en `rust-toolchain.toml` |
+| cargo-ndk | 4.1.2 |
+| Java | JDK 17 |
+| Android SDK / Build-Tools | 36 / 36.0.0; también 35 / 35.0.0 para el plugin JNI |
+| CMake | 3.22.1 |
+| Android NDK | 28.2.13676358 |
+| ABI del APK principal | `arm64-v8a` |
+| OpenHuman | `036b13e79e4e555ae249f6245966f384d15f35ba` |
 
-The upstream OpenHuman crate declares GPL-3.0-only. Review license obligations for the intended distribution before shipping. See `THIRD_PARTY_NOTICES.md`.
+Se incluyen el proyecto Android, `pubspec.lock`, `Cargo.lock`, los submódulos fijados y los hashes de los parches locales. Esto identifica versiones e integridad de fuentes; no garantiza un APK idéntico byte a byte entre entornos, cuyas claves QA y metadata de build pueden diferir. El archivo de fuentes tiene su propio procedimiento determinista, descrito en [SOURCE_DISTRIBUTION.md](docs/SOURCE_DISTRIBUTION.md). No regenere el scaffolding con `flutter create .`: puede reemplazar las decisiones de callback, firma, backup y versiones.
+
+```bash
+git clone --recurse-submodules https://github.com/hnasar99/AW.git
+cd AW
+# Cambie a la revisión exacta de entrega; no asuma que main ya la contiene.
+bash scripts/prepare_upstream.sh
+cargo install cargo-ndk --version 4.1.2 --locked
+rustup target add aarch64-linux-android
+flutter pub get --enforce-lockfile
+```
+
+Instale el SDK y acepte sus licencias mediante las herramientas oficiales de Android. Defina `ANDROID_HOME` y `ANDROID_NDK_HOME` con sus rutas locales. `android/local.properties` se excluye de Git.
+
+```bash
+sdkmanager --install 'platforms;android-35' 'platforms;android-36' \
+  'build-tools;35.0.0' 'build-tools;36.0.0' 'cmake;3.22.1' 'ndk;28.2.13676358'
+```
+
+```bash
+flutter analyze
+flutter test
+cargo fmt -p arc_openhuman_bridge --check
+cargo test --locked -p arc_openhuman_bridge --lib -j 2
+bash scripts/build_android_qa.sh
+```
+
+El APK se genera en `build/app/outputs/flutter-apk/app-qa-release.apk`. El inspector exige Flutter, Dart AOT y la biblioteca OpenHuman para cada ABI incluida; comprueba los seis símbolos C, la arquitectura, segmentos ELF y final de RELRO para páginas de 16 KiB. Compruebe también firma y empaquetado:
+
+```bash
+"$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs \
+  build/app/outputs/flutter-apk/app-qa-release.apk
+"$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 \
+  build/app/outputs/flutter-apk/app-qa-release.apk
+```
+
+Las comprobaciones estáticas no sustituyen la instalación y ejecución en Android. En Windows, use `scripts/build_android.ps1`. El script `scripts/build_ios_rust.sh` se conserva como preparación futura: iOS no está soportado ni validado en esta entrega, y aún requiere resolver compatibilidad upstream, Runner, enlace y firma.
+
+## Firma y distribución
+
+`qa` usa un identificador de aplicación separado y una clave de prueba del entorno. Para `productionRelease`, el operador debe configurar `AW_KEYSTORE_PATH`, `AW_KEYSTORE_PASSWORD`, `AW_KEY_ALIAS` y `AW_KEY_PASSWORD`. La tarea falla si falta la configuración o el keystore; no adopta la firma de QA. Las credenciales de firma se mantienen fuera del repositorio y de los logs.
+
+```bash
+# Con las variables de firma configuradas de forma segura:
+flutter build apk --release --flavor production --target-platform android-arm64
+```
+
+El workflow de GitHub Actions genera **QA**. Un workflow corregido localmente no demuestra que se haya ejecutado: su run y sus artefactos se verifican por separado.
+
+## Mapa del código
+
+| Ruta | Responsabilidad |
+|---|---|
+| `lib/main.dart` | Pantallas, coordinación y revisión explícita |
+| `lib/domain/` | Importes, direcciones, propuestas, revisión, recibos y endpoint |
+| `lib/services/arc_rpc.dart` | RPC, simulación, comisiones y comprobación de transacción |
+| `lib/services/wallet_session.dart` | Sesión Reown, grants, eventos y envío solicitado |
+| `lib/openhuman_bridge.dart` | ABI C, tipos, isolates y propiedad de memoria |
+| `rust/arc_openhuman_bridge/src/` | OpenHuman, ciclo de vida, validación y herramientas |
+| `vendor/openhuman/` | Upstream fijado y sus submódulos |
+| `patches/` | Parches locales con procedencia y hashes |
+| `scripts/` | Preparación, compilación, inspección y evidencia |
+| `docs/` | Operación, integración privada y aceptación |
+
+## Seguridad y licencia
+
+Consulte [docs/OPERATIONS.md](docs/OPERATIONS.md). El agente no tiene herramientas de shell, firma, archivos ni URL arbitraria. Las reglas de ejecución viven en código determinista y la wallet conserva la decisión de firmar.
+
+OpenHuman y el bridge declaran **GPL-3.0-only**. [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) recoge textos y procedencia. La distribución del APK debe acompañarse de las fuentes correspondientes a su revisión exacta, incluidos parches y componentes necesarios para reproducirlo. Un backend independiente consumido por API no se trata aquí como una cesión de sus fuentes.
+
+El uso final en producción se evalúa para Android y Arc Testnet. Los cierres de dispositivo, recorrido E2E, configuración del operador y Fluuix se registran en [DELIVERY_STATUS.md](docs/DELIVERY_STATUS.md).

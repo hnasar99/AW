@@ -1,6 +1,6 @@
 [package]
 name = "arc_openhuman_bridge"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "GPL-3.0-only"
 description = "C ABI bridge from the Arc Wallet Flutter app to OpenHuman's embedded Rust runtime"
@@ -10,8 +10,16 @@ name = "arc_openhuman_bridge"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-openhuman-embed = { git = "https://github.com/tinyhumansai/openhuman", rev = "036b13e79e4e555ae249f6245966f384d15f35ba", package = "openhuman-embed", default-features = false, features = ["inference", "mcp"] }
+openhuman-embed = { path = "../../vendor/openhuman/crates/openhuman-embed", default-features = false }
+tinytools = { path = "../../vendor/openhuman/vendor/tinyagents/vendor/tinytools/crates/tinytools" }
+anyhow = "1"
+async-trait = "0.1"
+num-bigint = "0.4"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tokio = { version = "1", features = ["full"] }
+tempfile = "3.27"
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros"] }
+tokio-util = { version = "0.7", features = ["rt"] }
 url = "2"
+zeroize = "1"
