@@ -1,0 +1,17 @@
+[package]
+name = "arc_openhuman_bridge"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-only"
+description = "C ABI bridge from the Arc Wallet Flutter app to OpenHuman's embedded Rust runtime"
+
+[lib]
+name = "arc_openhuman_bridge"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+openhuman-embed = { git = "https://github.com/tinyhumansai/openhuman", rev = "036b13e79e4e555ae249f6245966f384d15f35ba", package = "openhuman-embed", default-features = false, features = ["inference", "mcp"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+url = "2"
