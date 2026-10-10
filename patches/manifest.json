@@ -1,0 +1,32 @@
+[
+  {
+    "repository": "vendor/openhuman/vendor/tinyagents/vendor/tinyinference",
+    "upstream_commit": "abf90568a24b826d49900150b20856ef166df3f8",
+    "patch": "patches/tinyinference-no-redirect.patch",
+    "sha256": "939ccd7e07aaf18d1e3b90262b42e3be8ce5438802bb69a400e97c90a09d4023"
+  },
+  {
+    "repository": "vendor/openhuman/vendor/tinyagents/vendor/tinyinference",
+    "upstream_commit": "abf90568a24b826d49900150b20856ef166df3f8",
+    "patch": "patches/tinyinference-response-bound.patch",
+    "sha256": "abd70ef0dcadd7d8df5b56d7101c651b0ccfe1b14f48bf387e7a364253744b85"
+  },
+  {
+    "repository": "vendor/openhuman/vendor/tinyhosts",
+    "upstream_commit": "94098349c8d75269438e8903f9042148b1ab4752",
+    "patch": "patches/tinyhosts-shared-tinybus.patch",
+    "sha256": "05296eb2bd03c2f715a50aa734bf445dfcd55faaddfeffd790a6899bd70cd682"
+  },
+  {
+    "repository": "vendor/openhuman/vendor/tinyagents/vendor/tinytools",
+    "upstream_commit": "bd60b9b52f1998b4483b9cf107a72d3338e672f8",
+    "patch": "patches/tinytools-android-executable-access.patch",
+    "sha256": "a1e6637a2ce02c6b2ae0202c11ee2a5d238806c7223a69d42a10e3ec43c899ed"
+  },
+  {
+    "repository": "vendor/openhuman",
+    "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+    "patch": "patches/openhuman-android-updater-policy.patch",
+    "sha256": "f9e2595c33d79d09dc405a68b3daec2498b5e69bef1f36d5b7e94f779158dcf8"
+  }
+]

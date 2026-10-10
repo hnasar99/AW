@@ -1,0 +1,52 @@
+diff --git a/crates/tinytools-std/Cargo.toml b/crates/tinytools-std/Cargo.toml
+index 9feb71a..8b21c0d 100644
+--- a/crates/tinytools-std/Cargo.toml
++++ b/crates/tinytools-std/Cargo.toml
+@@ -33,8 +33,8 @@ regex = { workspace = true }
+ # backend adds it to its own `reqwest` dependency and cargo unifies the features.
+ # `stream` drives `curl`'s chunked download; `multipart` builds the `pushover` form.
+ reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream", "multipart"] }
+-# Safe effective-credential executable checks for Unix PATH candidates.
+-rustix = { version = "1", default-features = false, features = ["fs"] }
++# Safe executable checks; Android also compares real and effective credentials.
++rustix = { version = "1", default-features = false, features = ["fs", "process"] }
+ serde_json = { workspace = true }
+ # `curl` reports the SHA-256 of what it downloaded.
+ sha2 = "0.11"
+diff --git a/crates/tinytools-std/src/detect_tools/mod.rs b/crates/tinytools-std/src/detect_tools/mod.rs
+index d05ff6f..9263a63 100644
+--- a/crates/tinytools-std/src/detect_tools/mod.rs
++++ b/crates/tinytools-std/src/detect_tools/mod.rs
+@@ -63,7 +63,7 @@ fn is_executable_file(path: &std::path::Path) -> bool {
+     }
+     // On Unix, checking mode bits alone ignores the current process's
+     // effective credentials and supplementary groups.
+-    #[cfg(unix)]
++    #[cfg(all(unix, not(target_os = "android")))]
+     {
+         rustix::fs::accessat(
+             rustix::fs::CWD,
+@@ -73,6 +73,23 @@ fn is_executable_file(path: &std::path::Path) -> bool {
+         )
+         .is_ok()
+     }
++    // rustix's Android libc backend does not expose AT_EACCESS. A normal
++    // Android app runs under one app UID/GID, so access() checks the same
++    // credentials. Refuse the probe when real/effective IDs differ instead
++    // of silently substituting a different identity or checking mode bits.
++    #[cfg(target_os = "android")]
++    {
++        if rustix::process::getuid() != rustix::process::geteuid()
++            || rustix::process::getgid() != rustix::process::getegid()
++        {
++            return false;
++        }
++        rustix::fs::access(
++            path.as_os_str().as_encoded_bytes(),
++            rustix::fs::Access::EXEC_OK,
++        )
++        .is_ok()
++    }
+     #[cfg(not(unix))]
+     {
+         true

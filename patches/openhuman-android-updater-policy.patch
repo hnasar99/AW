@@ -1,0 +1,138 @@
+diff --git a/crates/openhuman-core/src/platform/update/README.md b/crates/openhuman-core/src/platform/update/README.md
+index 23e1e7b9c..0d7a08f19 100644
+--- a/crates/openhuman-core/src/platform/update/README.md
++++ b/crates/openhuman-core/src/platform/update/README.md
+@@ -2,6 +2,13 @@
+ 
+ Self-update domain for the `openhuman-core` binary. Checks GitHub Releases (`tinyhumansai/openhuman`, "latest" endpoint) for a newer build of the platform-appropriate core binary, downloads + atomically stages it next to the running executable, and (depending on the configured restart strategy) publishes a self-restart so the Tauri shell/supervisor can swap it in. Also exposes a cheap no-network version probe and a periodic background checker. Network failures are classified so transient transport/HTTP problems don't spam Sentry.
+ 
++Embedded Android builds report the actual Android target triple for version
++metadata, but reject binary update checks and downloads before HTTP or staging.
++The background updater also exits before starting. The embedding Android app
++must distribute native-library updates through its signed app package. Desktop
++update tests apply to desktop targets; `core_android_tests.rs` verifies the
++Android refusal and absence of staging side effects.
++
+ ## Responsibilities
+ - Query the GitHub Releases "latest" API and compare semver-ish tags against the compiled `CARGO_PKG_VERSION` (`is_newer`).
+ - Select the release asset matching this platform's target triple (`openhuman-core-{triple}`, `.exe` on Windows).
+diff --git a/crates/openhuman-core/src/platform/update/core.rs b/crates/openhuman-core/src/platform/update/core.rs
+index 293028d10..94995b065 100644
+--- a/crates/openhuman-core/src/platform/update/core.rs
++++ b/crates/openhuman-core/src/platform/update/core.rs
+@@ -43,6 +43,7 @@ pub fn current_version() -> &'static str {
+ 
+ /// Build the target triple string used in release asset names.
+ /// E.g. `x86_64-apple-darwin`, `aarch64-apple-darwin`, `x86_64-unknown-linux-gnu`, `x86_64-pc-windows-msvc`.
++/// Android reports its real target for metadata; binary self-update is disabled.
+ pub fn platform_triple() -> &'static str {
+     #[cfg(all(target_arch = "x86_64", target_os = "macos"))]
+     {
+@@ -68,6 +69,25 @@ pub fn platform_triple() -> &'static str {
+     {
+         "aarch64-pc-windows-msvc"
+     }
++    #[cfg(all(target_arch = "aarch64", target_os = "android"))]
++    {
++        "aarch64-linux-android"
++    }
++    #[cfg(all(target_arch = "x86_64", target_os = "android"))]
++    {
++        "x86_64-linux-android"
++    }
++}
++
++/// Embedded Android libraries are replaced only with the host app package.
++pub(super) fn ensure_binary_updates_supported() -> Result<(), String> {
++    if cfg!(target_os = "android") {
++        return Err(
++            "Binary self-update is unavailable on Android; update the signed host app package."
++                .to_string(),
++        );
++    }
++    Ok(())
+ }
+ 
+ /// True if the asset name is an archive whose inner binary must be extracted,
+@@ -256,6 +276,7 @@ pub async fn check_available() -> Result<UpdateInfo, String> {
+ /// which points it at a local mock — which is what the note in `scheduler_tests.rs`
+ /// asked for.
+ async fn check_available_with_base_url(base_url: &str) -> Result<UpdateInfo, String> {
++    ensure_binary_updates_supported()?;
+     let current = current_version();
+     log::info!(
+         "[update] checking for updates — current version: {}",
+@@ -404,6 +425,7 @@ pub async fn download_and_stage_with_version(
+     staging_dir: Option<PathBuf>,
+     target_version: Option<&str>,
+ ) -> Result<UpdateApplyResult, String> {
++    ensure_binary_updates_supported()?;
+     log::info!(
+         "[update] downloading update from {} (asset: {})",
+         download_url,
+@@ -551,6 +573,10 @@ fn is_transport_network_failure(err: &reqwest::Error) -> bool {
+     err.is_connect() || err.is_timeout() || err.is_request()
+ }
+ 
+-#[cfg(test)]
++#[cfg(all(test, not(target_os = "android")))]
+ #[path = "core_tests.rs"]
+ mod tests;
++
++#[cfg(all(test, target_os = "android"))]
++#[path = "core_android_tests.rs"]
++mod android_tests;
+diff --git a/crates/openhuman-core/src/platform/update/scheduler.rs b/crates/openhuman-core/src/platform/update/scheduler.rs
+index 292795422..58a7fe252 100644
+--- a/crates/openhuman-core/src/platform/update/scheduler.rs
++++ b/crates/openhuman-core/src/platform/update/scheduler.rs
+@@ -17,6 +17,10 @@ const MIN_INTERVAL_MINUTES: u32 = 10;
+ /// Run the periodic update checker. This function loops forever (until the
+ /// tokio runtime shuts down) and should be spawned with `tokio::spawn`.
+ pub async fn run(config: UpdateConfig) {
++    if let Err(message) = update_core::ensure_binary_updates_supported() {
++        log::info!("[update:scheduler] {message}");
++        return;
++    }
+     if !config.enabled {
+         log::info!("[update:scheduler] auto-update checks disabled by config");
+         return;
+diff --git a/crates/openhuman-core/src/platform/update/core_android_tests.rs b/crates/openhuman-core/src/platform/update/core_android_tests.rs
+new file mode 100644
+index 000000000..0fa1d87d9
+--- /dev/null
++++ b/crates/openhuman-core/src/platform/update/core_android_tests.rs
+@@ -0,0 +1,33 @@
++//! Android updates belong to the signed host app, never the desktop updater.
++
++use super::*;
++
++#[test]
++fn reports_an_android_target_without_advertising_binary_updates() {
++    assert!(matches!(
++        platform_triple(),
++        "aarch64-linux-android" | "x86_64-linux-android"
++    ));
++    assert!(ensure_binary_updates_supported().is_err());
++}
++
++#[tokio::test]
++async fn refuses_update_requests_before_network_or_staging() {
++    let expected = ensure_binary_updates_supported().unwrap_err();
++    // Deliberately invalid URLs distinguish a platform refusal from a client
++    // error and ensure a regressed guard cannot send a real network request.
++    let check = check_available_with_base_url("invalid update origin").await;
++    assert_eq!(check.unwrap_err(), expected);
++
++    let directory = tempfile::tempdir().expect("private test directory");
++    let staging = directory.path().join("must-not-be-created");
++    let download = download_and_stage_with_version(
++        "invalid download URL",
++        "openhuman-core",
++        Some(staging.clone()),
++        None,
++    )
++    .await;
++    assert_eq!(download.unwrap_err(), expected);
++    assert!(!staging.exists(), "Android must not stage an executable");
++}

@@ -1,17 +1,20 @@
 name: arc_wallet_flutter
-description: Arc Testnet wallet MVP with WalletConnect and direct JSON-RPC reads.
+description: Arc Testnet wallet with an embedded OpenHuman Rust agent and reviewed USDC transfers.
 publish_to: "none"
-version: 0.1.0+1
+version: 0.2.0+2
 environment:
-  sdk: ">=3.4.0 <4.0.0"
+  sdk: ">=3.8.0 <4.0.0"
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.2
-  walletconnect_flutter_v2: ^2.4.1
+  http: ^1.6.0
+  reown_sign: 1.4.1
+  reown_core: 1.5.1
+  pointycastle: ^4.0.0
+  qr_flutter: ^4.1.0
   url_launcher: ^6.3.1
   ffi: ^2.1.3
-  flutter_secure_storage: ^9.2.2
+  flutter_secure_storage: 10.3.4
   path_provider: ^2.1.4
 dev_dependencies:
   flutter_test:

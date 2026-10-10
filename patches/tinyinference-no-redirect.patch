@@ -1,0 +1,12 @@
+--- a/crates/tinyinference-llm/src/providers/openai/transport.rs
++++ b/crates/tinyinference-llm/src/providers/openai/transport.rs
+@@ -366,6 +366,9 @@
+         Self {
+             client: reqwest::Client::builder()
+                 .connect_timeout(Duration::from_secs(DEFAULT_CONNECT_TIMEOUT_SECS))
++                // AW reviews the exact inference endpoint before sending data.
++                // Redirects must not change the destination or downgrade TLS.
++                .redirect(reqwest::redirect::Policy::none())
+                 .build()
+                 .expect("default reqwest client builds"),
+             api_key: api_key.into(),
