@@ -1,0 +1,1401 @@
+{
+  "schema": "aw.lab.native-smoke.v1",
+  "scope": {
+    "runtime": "real host library, OpenHuman and owned-JSON C ABI",
+    "inference": "synthetic HTTP fixture; no model weights or LLM inference",
+    "android_ui": "NOT RUN",
+    "real_ollama_authentication": "NOT RUN",
+    "user_lab": "NOT RUN",
+    "real_arc_or_wallet": "NOT RUN",
+    "egress_capture": "NOT RUN; empty tool scope and trace are checked, not all process packets"
+  },
+  "started_utc": "2026-10-12T23:12:53Z",
+  "binary": {
+    "sha256": "491af686ce500af968697535b9fddf175a2593e7ba0760d372e80decc29ddc0c",
+    "bytes": 187016808
+  },
+  "harness": {
+    "sha256": "a1b6aeeaeecd24cde949bfd744a7de7abe87daecd7bd2f0a7ce6fc58b56dc7b1",
+    "legacy_helpers_sha256": "4e01c6fdc08e070dfc3bd9bf1d3b4eca43598728b321bf023077d856fbb6410d"
+  },
+  "host": {
+    "system": "Linux",
+    "architecture": "x86_64"
+  },
+  "build_provenance": "Binary identity observed; source-to-binary correspondence needs the separate build evidence.",
+  "cases": [
+    {
+      "case": "endpoint_rejections",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Noncanonical/non-loopback/wrong-root lab endpoints rejected before fixture traffic",
+      "observed": {
+        "rejections": [
+          {
+            "input_kind": "synthetic_invalid_endpoint",
+            "code": "INVALID_LAB_ENDPOINT"
+          },
+          {
+            "input_kind": "synthetic_invalid_endpoint",
+            "code": "INVALID_ENDPOINT"
+          },
+          {
+            "input_kind": "synthetic_invalid_endpoint",
+            "code": "INVALID_LAB_ENDPOINT"
+          },
+          {
+            "input_kind": "synthetic_invalid_endpoint",
+            "code": "INVALID_LAB_ENDPOINT"
+          },
+          {
+            "input_kind": "synthetic_invalid_endpoint",
+            "code": "INVALID_LAB_ENDPOINT"
+          },
+          {
+            "input_kind": "synthetic_invalid_endpoint",
+            "code": "INVALID_LAB_ENDPOINT"
+          },
+          {
+            "input_kind": "synthetic_invalid_endpoint",
+            "code": "INVALID_LAB_ENDPOINT"
+          }
+        ],
+        "fixture_requests": 0
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.002
+    },
+    {
+      "case": "model_rejections",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Routing hints, @ overrides and cloud model IDs rejected before fixture traffic",
+      "observed": {
+        "rejections": [
+          {
+            "synthetic_model": "hint:fixture-invalid",
+            "code": "INVALID_LAB_MODEL"
+          },
+          {
+            "synthetic_model": "fixture@invalid",
+            "code": "INVALID_LAB_MODEL"
+          },
+          {
+            "synthetic_model": "fixture-cloud",
+            "code": "INVALID_LAB_MODEL"
+          },
+          {
+            "synthetic_model": "CLOUD-fixture",
+            "code": "INVALID_LAB_MODEL"
+          }
+        ],
+        "fixture_requests": 0
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.001
+    },
+    {
+      "case": "mode_json",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Init/status tools=[]; correlated JSON turn on exact /v1/chat/completions; no metadata GET",
+      "observed": {
+        "native": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "request_id": "awlab-52cd2ab39bc7f8da87629b41c32e5db2",
+          "duration_ms": 84,
+          "model_requested": "aw-fixture-local-model",
+          "live_reads": [],
+          "reply_bytes": 19,
+          "reply_sha256": "e97fec0216222751c07a04eb4bf1e51faf596e2a9a4f26e6c26298dc98760a18"
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-52cd2ab39bc7f8da87629b41c32e5db2"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          }
+        ],
+        "status_after": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": false,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "expected_fixture_marker_returned": true
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.355
+    },
+    {
+      "case": "model_reconfigure",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Reset and select another local model; exact new ID and 4096 budget without metadata GET",
+      "observed": {
+        "first_model_turn": {
+          "native": {
+            "ok": true,
+            "mode": "lab-text-only",
+            "request_id": "awlab-9c3e783bc50d11b4c742884b056d9d90",
+            "duration_ms": 41,
+            "model_requested": "aw-fixture-local-model",
+            "live_reads": [],
+            "reply_bytes": 19,
+            "reply_sha256": "e97fec0216222751c07a04eb4bf1e51faf596e2a9a4f26e6c26298dc98760a18"
+          },
+          "requests": [
+            {
+              "method": "POST",
+              "path": "/v1/chat/completions",
+              "model": "aw-fixture-local-model",
+              "request_ids": [
+                "awlab-9c3e783bc50d11b4c742884b056d9d90"
+              ],
+              "tool_names": [],
+              "stream": true,
+              "stream_options": {
+                "include_usage": true
+              },
+              "max_tokens": 1024,
+              "max_completion_tokens": null,
+              "authorization_matches_synthetic_key": true,
+              "tool_outcomes": []
+            }
+          ],
+          "status_after": {
+            "ok": true,
+            "mode": "lab-text-only",
+            "inference": "lab-endpoint",
+            "tools": [],
+            "abi_version": 1,
+            "supported_modes": [
+              "proposal-only",
+              "lab-text-only"
+            ],
+            "lab_context_tokens": 4096,
+            "initialized": true,
+            "busy": false,
+            "requires_reset": false,
+            "session_storage": "memory",
+            "turn_timeout_seconds": 120,
+            "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+            "target_arch": "x86_64",
+            "target_os": "linux"
+          },
+          "expected_fixture_marker_returned": true
+        },
+        "second_model_turn": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "request_id": "awlab-57c75a5bce71c7ca74764276644ff3aa",
+          "duration_ms": 40,
+          "model_requested": "aw-fixture-second-local-model",
+          "live_reads": [],
+          "reply_bytes": 19,
+          "reply_sha256": "e97fec0216222751c07a04eb4bf1e51faf596e2a9a4f26e6c26298dc98760a18"
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-second-local-model",
+            "request_ids": [
+              "awlab-57c75a5bce71c7ca74764276644ff3aa"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          }
+        ],
+        "status_after": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": false,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "metadata_get_requests": 0
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.093
+    },
+    {
+      "case": "sse_turn",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "SSE assembled by real runtime; correlated final C ABI response with empty live_reads",
+      "observed": {
+        "native": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "request_id": "awlab-b997519ee65a02d16f3272c8c703db9b",
+          "duration_ms": 43,
+          "model_requested": "aw-fixture-local-model",
+          "live_reads": [],
+          "reply_bytes": 18,
+          "reply_sha256": "2e34ea23de6b910f0dd8fb6b1228d15696f65cd0d2668dd154882287b68b52e8"
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-b997519ee65a02d16f3272c8c703db9b"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          }
+        ],
+        "status_after": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": false,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "expected_fixture_marker_returned": true
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.048
+    },
+    {
+      "case": "rogue_tools",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Forbidden Arc and unknown tools denied by runtime scope; no successful read trace",
+      "observed": {
+        "subcases": [
+          {
+            "native": {
+              "ok": true,
+              "mode": "lab-text-only",
+              "request_id": "awlab-a03412b5e5500d3e155a9d4643f75693",
+              "duration_ms": 46,
+              "model_requested": "aw-fixture-local-model",
+              "live_reads": [],
+              "reply_bytes": 25,
+              "reply_sha256": "22e1ca6ba8c8944ba9f5f7cf56e1c927f31001b1a7fff1e349858ca0452ae3b7"
+            },
+            "requests": [
+              {
+                "method": "POST",
+                "path": "/v1/chat/completions",
+                "model": "aw-fixture-local-model",
+                "request_ids": [
+                  "awlab-a03412b5e5500d3e155a9d4643f75693"
+                ],
+                "tool_names": [],
+                "stream": true,
+                "stream_options": {
+                  "include_usage": true
+                },
+                "max_tokens": 1024,
+                "max_completion_tokens": null,
+                "authorization_matches_synthetic_key": true,
+                "tool_outcomes": []
+              },
+              {
+                "method": "POST",
+                "path": "/v1/chat/completions",
+                "model": "aw-fixture-local-model",
+                "request_ids": [
+                  "awlab-a03412b5e5500d3e155a9d4643f75693"
+                ],
+                "tool_names": [],
+                "stream": true,
+                "stream_options": {
+                  "include_usage": true
+                },
+                "max_tokens": 1024,
+                "max_completion_tokens": null,
+                "authorization_matches_synthetic_key": true,
+                "tool_outcomes": [
+                  {
+                    "tool_call_id": "aw_fixture_forbidden",
+                    "denial_reported": true,
+                    "native_invalid_address_reported": false,
+                    "content_bytes": 205,
+                    "content_sha256": "a15dc137ed252b3699f1f4cb59e1d87bb9931a09bfe445006dfde1cb4422e46b"
+                  }
+                ]
+              }
+            ],
+            "status_after": {
+              "ok": true,
+              "mode": "lab-text-only",
+              "inference": "lab-endpoint",
+              "tools": [],
+              "abi_version": 1,
+              "supported_modes": [
+                "proposal-only",
+                "lab-text-only"
+              ],
+              "lab_context_tokens": 4096,
+              "initialized": true,
+              "busy": false,
+              "requires_reset": false,
+              "session_storage": "memory",
+              "turn_timeout_seconds": 120,
+              "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+              "target_arch": "x86_64",
+              "target_os": "linux"
+            },
+            "expected_fixture_marker_returned": true,
+            "fixture_mode": "rogue_arc"
+          },
+          {
+            "native": {
+              "ok": true,
+              "mode": "lab-text-only",
+              "request_id": "awlab-189859a721f51e58fc89237dfaca1fc6",
+              "duration_ms": 47,
+              "model_requested": "aw-fixture-local-model",
+              "live_reads": [],
+              "reply_bytes": 25,
+              "reply_sha256": "22e1ca6ba8c8944ba9f5f7cf56e1c927f31001b1a7fff1e349858ca0452ae3b7"
+            },
+            "requests": [
+              {
+                "method": "POST",
+                "path": "/v1/chat/completions",
+                "model": "aw-fixture-local-model",
+                "request_ids": [
+                  "awlab-189859a721f51e58fc89237dfaca1fc6"
+                ],
+                "tool_names": [],
+                "stream": true,
+                "stream_options": {
+                  "include_usage": true
+                },
+                "max_tokens": 1024,
+                "max_completion_tokens": null,
+                "authorization_matches_synthetic_key": true,
+                "tool_outcomes": []
+              },
+              {
+                "method": "POST",
+                "path": "/v1/chat/completions",
+                "model": "aw-fixture-local-model",
+                "request_ids": [
+                  "awlab-189859a721f51e58fc89237dfaca1fc6"
+                ],
+                "tool_names": [],
+                "stream": true,
+                "stream_options": {
+                  "include_usage": true
+                },
+                "max_tokens": 1024,
+                "max_completion_tokens": null,
+                "authorization_matches_synthetic_key": true,
+                "tool_outcomes": [
+                  {
+                    "tool_call_id": "aw_fixture_forbidden",
+                    "denial_reported": true,
+                    "native_invalid_address_reported": false,
+                    "content_bytes": 219,
+                    "content_sha256": "ea334e37494298bb1fa38cab7b195dd38f06980d0574829f50a1a3a6d1fac93a"
+                  }
+                ]
+              }
+            ],
+            "status_after": {
+              "ok": true,
+              "mode": "lab-text-only",
+              "inference": "lab-endpoint",
+              "tools": [],
+              "abi_version": 1,
+              "supported_modes": [
+                "proposal-only",
+                "lab-text-only"
+              ],
+              "lab_context_tokens": 4096,
+              "initialized": true,
+              "busy": false,
+              "requires_reset": false,
+              "session_storage": "memory",
+              "turn_timeout_seconds": 120,
+              "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+              "target_arch": "x86_64",
+              "target_os": "linux"
+            },
+            "expected_fixture_marker_returned": true,
+            "fixture_mode": "rogue_unknown"
+          }
+        ],
+        "scope": "Unknown/scope denial and empty live_reads; malformed Arc address prevents RPC even under an admission regression. No packet-capture claim."
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.104
+    },
+    {
+      "case": "request_id_rejections",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Invalid correlation IDs rejected before HTTP; valid agent remains usable",
+      "observed": {
+        "codes": [
+          "INVALID_REQUEST_ID",
+          "INVALID_REQUEST_ID",
+          "INVALID_REQUEST_ID"
+        ],
+        "fixture_requests": 0
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.006
+    },
+    {
+      "case": "cancel_reset",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Busy mutations refused; cancellation bounded; reset required and recovery succeeds",
+      "observed": {
+        "native": {
+          "ok": false,
+          "code": "CANCELLED",
+          "request_id": "awlab-3ff6f5ea8dca728cf9877a6cdbd22d53",
+          "duration_ms": 43
+        },
+        "observed_seconds": 0.001,
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-3ff6f5ea8dca728cf9877a6cdbd22d53"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          }
+        ],
+        "cancel": {
+          "ok": true,
+          "busy": true,
+          "cancellation_requested": true
+        },
+        "busy_reset": {
+          "ok": false,
+          "code": "BUSY"
+        },
+        "busy_turn": {
+          "ok": false,
+          "code": "BUSY",
+          "request_id": "awlab-eaa72f0501f5aae84b964218ce3011f4",
+          "duration_ms": 0
+        },
+        "after_interruption": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": true,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "resume_without_reset": {
+          "ok": false,
+          "code": "RESET_REQUIRED",
+          "request_id": "awlab-119f8342880c4af67dacdc9d30c0c007",
+          "duration_ms": 0
+        },
+        "recovery": {
+          "native": {
+            "ok": true,
+            "mode": "lab-text-only",
+            "request_id": "awlab-65f5c702d00c402d5877071d83a4a447",
+            "duration_ms": 42,
+            "model_requested": "aw-fixture-local-model",
+            "live_reads": [],
+            "reply_bytes": 19,
+            "reply_sha256": "e97fec0216222751c07a04eb4bf1e51faf596e2a9a4f26e6c26298dc98760a18"
+          },
+          "requests": [
+            {
+              "method": "POST",
+              "path": "/v1/chat/completions",
+              "model": "aw-fixture-local-model",
+              "request_ids": [
+                "awlab-65f5c702d00c402d5877071d83a4a447"
+              ],
+              "tool_names": [],
+              "stream": true,
+              "stream_options": {
+                "include_usage": true
+              },
+              "max_tokens": 1024,
+              "max_completion_tokens": null,
+              "authorization_matches_synthetic_key": true,
+              "tool_outcomes": []
+            }
+          ],
+          "status_after": {
+            "ok": true,
+            "mode": "lab-text-only",
+            "inference": "lab-endpoint",
+            "tools": [],
+            "abi_version": 1,
+            "supported_modes": [
+              "proposal-only",
+              "lab-text-only"
+            ],
+            "lab_context_tokens": 4096,
+            "initialized": true,
+            "busy": false,
+            "requires_reset": false,
+            "session_storage": "memory",
+            "turn_timeout_seconds": 120,
+            "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+            "target_arch": "x86_64",
+            "target_os": "linux"
+          },
+          "expected_fixture_marker_returned": true
+        },
+        "server_processing_stop_proven": false
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.097
+    },
+    {
+      "case": "mode_fixed_after_reset",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Reset cannot switch a lab process to proposal-only mode",
+      "observed": {
+        "legacy_turn": {
+          "ok": false,
+          "code": "MODE_LOCKED"
+        },
+        "reset": {
+          "ok": true,
+          "initialized": false,
+          "conversation_cleared": true,
+          "provider_route_removed": true
+        },
+        "status_after": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": false,
+          "busy": false,
+          "requires_reset": false,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "legacy_init": {
+          "ok": false,
+          "code": "MODE_LOCKED"
+        }
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.005
+    },
+    {
+      "case": "http_401_fixture",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Synthetic HTTP 401 becomes a correlated error; no authentication claim about Ollama",
+      "observed": {
+        "native": {
+          "ok": false,
+          "code": "AGENT_ERROR",
+          "request_id": "awlab-26d8750ed3568f1172b7df05dc1da428",
+          "duration_ms": 52
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-26d8750ed3568f1172b7df05dc1da428"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          }
+        ],
+        "observed_seconds": 0.053,
+        "redirect_target_hits": 0,
+        "status_after": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": true,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "fixture_mode": "http_401",
+        "real_authentication_test": false,
+        "retry_scope": "At most five HTTP attempts, with 3/6/12/24-second backoff and jitter; native turn cap 120 s."
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.057
+    },
+    {
+      "case": "wrong_route_fixture",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Synthetic route 404 becomes a bounded correlated error",
+      "observed": {
+        "native": {
+          "ok": false,
+          "code": "AGENT_ERROR",
+          "request_id": "awlab-c5243520e1252fa9ad092abb7928ca90",
+          "duration_ms": 37
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-c5243520e1252fa9ad092abb7928ca90"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          }
+        ],
+        "observed_seconds": 0.038,
+        "redirect_target_hits": 0,
+        "status_after": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": true,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "fixture_mode": "wrong_route",
+        "real_authentication_test": false,
+        "retry_scope": "At most five HTTP attempts, with 3/6/12/24-second backoff and jitter; native turn cap 120 s."
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.043
+    },
+    {
+      "case": "redirect_refused",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "307 is not followed; retry policy ends in a correlated error",
+      "observed": {
+        "native": {
+          "ok": false,
+          "code": "AGENT_ERROR",
+          "request_id": "awlab-06f65325f8316d85033723f132cba692",
+          "duration_ms": 43958
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-06f65325f8316d85033723f132cba692"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          },
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-06f65325f8316d85033723f132cba692"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          },
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-06f65325f8316d85033723f132cba692"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          },
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-06f65325f8316d85033723f132cba692"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          },
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-06f65325f8316d85033723f132cba692"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          }
+        ],
+        "observed_seconds": 43.958,
+        "redirect_target_hits": 0,
+        "status_after": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": true,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "fixture_mode": "redirect",
+        "real_authentication_test": false,
+        "retry_scope": "At most five HTTP attempts, with 3/6/12/24-second backoff and jitter; native turn cap 120 s."
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 43.963
+    },
+    {
+      "case": "stopped_service",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Non-listening reserved loopback port becomes a bounded correlated connection failure",
+      "observed": {
+        "native": {
+          "ok": false,
+          "code": "AGENT_ERROR",
+          "request_id": "awlab-b1400f0e6c6c38b3e1e35d74831b195f",
+          "duration_ms": 47332
+        },
+        "requests": [],
+        "observed_seconds": 47.332,
+        "redirect_target_hits": 0,
+        "status_after": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": true,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "fixture_mode": "stopped",
+        "real_authentication_test": false,
+        "retry_scope": "At most five HTTP attempts, with 3/6/12/24-second backoff and jitter; native turn cap 120 s.",
+        "listener": "reserved loopback TCP port, not listening; connection-refusal fixture",
+        "retry_count_observed": null
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 47.337
+    },
+    {
+      "case": "turn_timeout_120s",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Actual native 120-second turn timeout, then reset/recovery",
+      "observed": {
+        "native": {
+          "ok": false,
+          "code": "TIMEOUT",
+          "request_id": "awlab-cc5268ab54634e5ac9df3949c62afba4",
+          "duration_ms": 120003
+        },
+        "observed_seconds": 120.004,
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "model": "aw-fixture-local-model",
+            "request_ids": [
+              "awlab-cc5268ab54634e5ac9df3949c62afba4"
+            ],
+            "tool_names": [],
+            "stream": true,
+            "stream_options": {
+              "include_usage": true
+            },
+            "max_tokens": 1024,
+            "max_completion_tokens": null,
+            "authorization_matches_synthetic_key": true,
+            "tool_outcomes": []
+          }
+        ],
+        "cancel": null,
+        "busy_reset": {
+          "ok": false,
+          "code": "BUSY"
+        },
+        "busy_turn": {
+          "ok": false,
+          "code": "BUSY",
+          "request_id": "awlab-c267601e82b705f0940248290480311c",
+          "duration_ms": 0
+        },
+        "after_interruption": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": true,
+          "busy": false,
+          "requires_reset": true,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "resume_without_reset": {
+          "ok": false,
+          "code": "RESET_REQUIRED",
+          "request_id": "awlab-5b07e5b2abf42ed4c261c113c15f7ce4",
+          "duration_ms": 0
+        },
+        "recovery": {
+          "native": {
+            "ok": true,
+            "mode": "lab-text-only",
+            "request_id": "awlab-2ab5a42dd4fe86b8d5c566d8c4c9390f",
+            "duration_ms": 40,
+            "model_requested": "aw-fixture-local-model",
+            "live_reads": [],
+            "reply_bytes": 19,
+            "reply_sha256": "e97fec0216222751c07a04eb4bf1e51faf596e2a9a4f26e6c26298dc98760a18"
+          },
+          "requests": [
+            {
+              "method": "POST",
+              "path": "/v1/chat/completions",
+              "model": "aw-fixture-local-model",
+              "request_ids": [
+                "awlab-2ab5a42dd4fe86b8d5c566d8c4c9390f"
+              ],
+              "tool_names": [],
+              "stream": true,
+              "stream_options": {
+                "include_usage": true
+              },
+              "max_tokens": 1024,
+              "max_completion_tokens": null,
+              "authorization_matches_synthetic_key": true,
+              "tool_outcomes": []
+            }
+          ],
+          "status_after": {
+            "ok": true,
+            "mode": "lab-text-only",
+            "inference": "lab-endpoint",
+            "tools": [],
+            "abi_version": 1,
+            "supported_modes": [
+              "proposal-only",
+              "lab-text-only"
+            ],
+            "lab_context_tokens": 4096,
+            "initialized": true,
+            "busy": false,
+            "requires_reset": false,
+            "session_storage": "memory",
+            "turn_timeout_seconds": 120,
+            "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+            "target_arch": "x86_64",
+            "target_os": "linux"
+          },
+          "expected_fixture_marker_returned": true
+        },
+        "server_processing_stop_proven": false
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 120.054
+    },
+    {
+      "case": "environment_guards",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Fresh processes reject each nonempty proxy/backend variable before initialization",
+      "observed": {
+        "subcases": [
+          {
+            "variable_name": "HTTP_PROXY",
+            "result": {
+              "ok": false,
+              "code": "LAB_ENVIRONMENT"
+            },
+            "status": "PASS",
+            "scope": "Synthetic variable present before native library load; initialization guard only"
+          },
+          {
+            "variable_name": "HTTPS_PROXY",
+            "result": {
+              "ok": false,
+              "code": "LAB_ENVIRONMENT"
+            },
+            "status": "PASS",
+            "scope": "Synthetic variable present before native library load; initialization guard only"
+          },
+          {
+            "variable_name": "ALL_PROXY",
+            "result": {
+              "ok": false,
+              "code": "LAB_ENVIRONMENT"
+            },
+            "status": "PASS",
+            "scope": "Synthetic variable present before native library load; initialization guard only"
+          },
+          {
+            "variable_name": "http_proxy",
+            "result": {
+              "ok": false,
+              "code": "LAB_ENVIRONMENT"
+            },
+            "status": "PASS",
+            "scope": "Synthetic variable present before native library load; initialization guard only"
+          },
+          {
+            "variable_name": "https_proxy",
+            "result": {
+              "ok": false,
+              "code": "LAB_ENVIRONMENT"
+            },
+            "status": "PASS",
+            "scope": "Synthetic variable present before native library load; initialization guard only"
+          },
+          {
+            "variable_name": "all_proxy",
+            "result": {
+              "ok": false,
+              "code": "LAB_ENVIRONMENT"
+            },
+            "status": "PASS",
+            "scope": "Synthetic variable present before native library load; initialization guard only"
+          },
+          {
+            "variable_name": "OPENHUMAN_BACKEND_API_KEY",
+            "result": {
+              "ok": false,
+              "code": "LAB_ENVIRONMENT"
+            },
+            "status": "PASS",
+            "scope": "Synthetic variable present before native library load; initialization guard only"
+          },
+          {
+            "variable_name": "OPENHUMAN_BACKEND_SESSION_TOKEN",
+            "result": {
+              "ok": false,
+              "code": "LAB_ENVIRONMENT"
+            },
+            "status": "PASS",
+            "scope": "Synthetic variable present before native library load; initialization guard only"
+          }
+        ],
+        "environment_mutation_in_live_native_process": false
+      },
+      "evidence": "inline:observed"
+    },
+    {
+      "case": "final_cleanup",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Idle, uninitialized state with cleared conversation, no reset requirement, and zero fixture GETs across all cases and resets",
+      "observed": {
+        "reset": {
+          "ok": true,
+          "initialized": false,
+          "conversation_cleared": true,
+          "provider_route_removed": true
+        },
+        "status": {
+          "ok": true,
+          "mode": "lab-text-only",
+          "inference": "lab-endpoint",
+          "tools": [],
+          "abi_version": 1,
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "lab_context_tokens": 4096,
+          "initialized": false,
+          "busy": false,
+          "requires_reset": false,
+          "session_storage": "memory",
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+          "target_arch": "x86_64",
+          "target_os": "linux"
+        },
+        "http_observation": {
+          "requests": 19,
+          "get_requests": 0,
+          "observation_scope": "All requests received by this configured fixture from its startup through the final reset/status observation, including intervening resets; not a global network capture or a claim about later traffic."
+        }
+      },
+      "evidence": "inline:observed",
+      "execution": "finished",
+      "duration_seconds": 0.001
+    },
+    {
+      "case": "captured_log_canaries",
+      "environment": "host_native_with_synthetic_fixture",
+      "status": "PASS",
+      "expected": "Synthetic key and prompt canaries absent from captured native stdout/stderr",
+      "observed": {
+        "synthetic_key_occurrences": 0,
+        "synthetic_prompt_occurrences": 0,
+        "authenticated_fixture_request_observed": true,
+        "scope": "Only captured stdout/stderr of these host fixture children; no Android/all-logs guarantee"
+      },
+      "evidence": "inline:observed"
+    }
+  ],
+  "initial_status": {
+    "ok": true,
+    "mode": "proposal-only",
+    "inference": "remote",
+    "tools": [
+      "arc_network_status",
+      "arc_balance"
+    ],
+    "abi_version": 1,
+    "supported_modes": [
+      "proposal-only",
+      "lab-text-only"
+    ],
+    "lab_context_tokens": 4096,
+    "initialized": false,
+    "busy": false,
+    "requires_reset": false,
+    "session_storage": "memory",
+    "turn_timeout_seconds": 120,
+    "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba",
+    "target_arch": "x86_64",
+    "target_os": "linux"
+  },
+  "fixture_http_summary": {
+    "requests": 19,
+    "get_requests": 0,
+    "observation_scope": "All requests received by this configured fixture from its startup through the final reset/status observation, including intervening resets; not a global network capture or a claim about later traffic."
+  },
+  "completed_utc": "2026-10-12T23:16:25Z",
+  "process_exit_code": 0,
+  "logs": [
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.stdout.log",
+      "sha256": "73fec0e4f1205776eeaac3377a64e287c8097d25855e6d9ff4da8f0bce4f6bc2",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-0.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-0.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-1.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-1.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-2.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-3.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-3.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-4.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-4.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-5.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-5.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-6.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-6.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-7.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    },
+    {
+      "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/lab-native-full/report.sources/environment-guard-7.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redactions_applied": false
+    }
+  ],
+  "child_environment": {
+    "removed_nonempty_variable_names": [
+      "HTTP_PROXY",
+      "HTTPS_PROXY",
+      "ALL_PROXY",
+      "http_proxy",
+      "https_proxy",
+      "all_proxy"
+    ],
+    "values_recorded": false,
+    "scope": "Fixture child only; parent and any other Rust process environment left intact"
+  },
+  "summary": {
+    "PASS": 17,
+    "FAIL": 0,
+    "BLOCKED": 0,
+    "NOT RUN": 0
+  },
+  "run_status": "PASS"
+}
