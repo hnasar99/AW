@@ -1,0 +1,55 @@
+{
+  "observed_at_utc": "2026-10-12T23:29:49.792001+00:00",
+  "change_scope": "Presentation and explicit widget regression only; uninitialized native policy does not imply active tool permissions.",
+  "source_before_change_commit": "22ce570d2af1992bbe3f6ab2698c1d17c094b69a",
+  "source_files_sha256": {
+    "lib/main.dart": "44bb7b41b02617aedcefa8d3cd69e3cf89449712992c5e4649f729cc5492bd49",
+    "test/lab_widget_test.dart": "8f4ef4d2cbb22ecbe12619f161a92f5c5c2b3952a1a474f58fb4e7115f8a91d1"
+  },
+  "pubspec_lock_sha256": "b38e9576f25b2253e0fbce1089711171fe23e5afacce4f5d240d361937890922",
+  "checks": [
+    {
+      "command": [
+        "/workspace/scratch/c1d292b20118/aw-lab-tools/dart-sdk/bin/dart",
+        "format",
+        "lib/main.dart",
+        "test/lab_widget_test.dart"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "/workspace/scratch/c1d292b20118/aw-lab-tools/dart-sdk/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "lib/main.dart",
+        "test/lab_widget_test.dart"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "lib/main.dart",
+        "test/lab_widget_test.dart"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "new_regression": "uninitialized native defaults are not presented as active lab permissions",
+  "declared_tests": 31,
+  "expected_default_active": 28,
+  "expected_default_skipped": 3,
+  "expected_lab_active": 30,
+  "expected_lab_skipped": 1,
+  "flutter_analyze_after_change": "NOT RUN: local Flutter bootstrap remains blocked; no network retry.",
+  "flutter_tests_after_change": "NOT RUN: requires CI on the upcoming commit.",
+  "prior_remote_dart_pass_scope": "The successful Analyze and test Dart step on code commit 0732614945c60858c73f40064436572134befbd1 predates this change.",
+  "evidence_log": "flutter-preinit-policy-format.log",
+  "native_policy_or_call_gates_changed": false,
+  "financial_or_provider_actions_initiated": false
+}

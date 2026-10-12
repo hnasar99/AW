@@ -9,6 +9,7 @@ Estos registros vinculan las comprobaciones realizadas con el baseline, los hash
 - `legacy-native-smoke.json`: regresión seleccionada del modo Arc sobre la biblioteca nueva, con HTTP sintético. Sus estados originales `passed/failed/skipped` se corresponden con PASS/FAIL/NOT RUN en la matriz.
 - `lab-native-smoke.json`: copia exacta del informe completo `aw-lab-evidence/lab-native-full/report.json`, sin reserializar ni modificar sus bytes. La biblioteca host real Linux x86_64 y el HTTP sintético aprobaron los 17 casos, incluidos el timeout nativo de 120 s, reset/recuperación y las guardas de inicialización en procesos nuevos. Este es un resultado local previo al cierre de CI de la rama.
 - `flutter-local-validation.json`: fuente y formato Dart verificados; bloqueo del bootstrap local de Flutter y pruebas todavía no ejecutadas en ese entorno. Los resultados de CI posteriores tienen evidencia propia.
+- `flutter-preinit-policy-validation.json`: cambio posterior de presentación y regresión de widget para el status sin inicializar; formato verificado, con hashes propios. La prueba de Flutter de ese cambio queda pendiente del CI de su commit.
 - `android-reqwest-features.txt`: grafo efectivo para Android, sin realizar una conexión TLS ni ejecutar un APK.
 
 ## Identidad y alcance del smoke de laboratorio

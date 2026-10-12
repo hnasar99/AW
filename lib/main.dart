@@ -1270,10 +1270,15 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
             'Biblioteca ejecutada: ${_nativeStatus!.os} / ${_nativeStatus!.arch}',
           ),
           Text('OpenHuman ${shorten(_nativeStatus!.commit)}'),
-          Text(
-            'Herramientas permitidas: ${_nativeStatus!.tools.isEmpty ? 'ninguna' : _nativeStatus!.tools.join(', ')}',
-          ),
-          if (awLabTextOnly)
+          if (_nativeStatus!.initialized)
+            Text(
+              'Herramientas permitidas: ${_nativeStatus!.tools.isEmpty ? 'ninguna' : _nativeStatus!.tools.join(', ')}',
+            )
+          else
+            const Text(
+              'Runtime sin inicializar. La política de herramientas se comprueba al inicializar.',
+            ),
+          if (awLabTextOnly && _nativeStatus!.initialized)
             Text('Política nativa: ${_nativeStatus!.mode ?? 'sin iniciar'}'),
           if (awLabTextOnly && _nativeStatus!.labContextTokens != null)
             Text(

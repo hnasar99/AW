@@ -14,8 +14,11 @@ import 'inference_lab_test.dart' show labStatus;
 
 /// Widget-only double. It performs no FFI, HTTP or model execution.
 class LabWidgetBridge extends OpenHumanBridge {
-  LabWidgetBridge(this.reply) : super(labTextOnly: true);
+  LabWidgetBridge(this.reply, {AgentStatus? nativeStatus})
+    : _nativeStatus = nativeStatus ?? AgentStatus.decode(labStatus()),
+      super(labTextOnly: true);
   final String reply;
+  final AgentStatus _nativeStatus;
   String? lastRequestId;
   int calls = 0;
 
@@ -23,7 +26,7 @@ class LabWidgetBridge extends OpenHumanBridge {
   bool get configuredForRequests => true;
 
   @override
-  Future<AgentStatus> status() async => AgentStatus.decode(labStatus());
+  Future<AgentStatus> status() async => _nativeStatus;
 
   @override
   Future<AgentTurn> sendTurn({
@@ -46,6 +49,46 @@ class LabWidgetBridge extends OpenHumanBridge {
 }
 
 void main() {
+  testWidgets(
+    'uninitialized native defaults are not presented as active lab permissions',
+    (tester) async {
+      // Mirrors the native pre-init policy fields; no native call is made.
+      final status = AgentStatus.decode({
+        ...labStatus(initialized: false),
+        'mode': 'proposal-only',
+        'inference': 'remote',
+        'tools': ['arc_network_status', 'arc_balance'],
+      });
+      final bridge = LabWidgetBridge('', nativeStatus: status);
+      await tester.pumpWidget(
+        ArcWalletApp(autoInitialize: false, agent: bridge),
+      );
+      final probe = find.text('Verificar ejecución nativa de Rust');
+      await tester.scrollUntilVisible(
+        probe,
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(probe);
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'Runtime sin inicializar. La política de herramientas se comprueba al inicializar.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Herramientas permitidas:'), findsNothing);
+      expect(find.text('Política nativa: proposal-only'), findsNothing);
+      expect(find.textContaining('arc_network_status'), findsNothing);
+      expect(find.textContaining('arc_balance'), findsNothing);
+      expect(find.text('Consultar OpenHuman'), findsNothing);
+      expect(find.text('Configurar laboratorio'), findsOneWidget);
+      expect(bridge.calls, 0);
+      expect(tester.takeException(), isNull);
+    },
+    skip: !awLabTextOnly,
+  );
+
   testWidgets(
     'lab startup and resume make no HTTP requests or restore Arc credentials',
     (tester) async {
@@ -135,6 +178,8 @@ void main() {
       );
       await tester.tap(probe);
       await tester.pumpAndSettle();
+      expect(find.text('Herramientas permitidas: ninguna'), findsOneWidget);
+      expect(find.text('Política nativa: lab-text-only'), findsOneWidget);
       final ask = find.text('Consultar OpenHuman');
       await tester.scrollUntilVisible(
         ask,
