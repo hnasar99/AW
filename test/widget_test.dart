@@ -1,4 +1,5 @@
 import 'package:arc_wallet_flutter/main.dart';
+import 'package:arc_wallet_flutter/domain/inference_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,5 +23,6 @@ void main() {
       expect(find.text('Verificar ejecución nativa de Rust'), findsOneWidget);
       expect(find.text('OpenHuman local activo'), findsNothing);
     },
+    skip: awLabTextOnly,
   );
 }

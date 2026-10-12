@@ -1,0 +1,157 @@
+reqwest v0.12.28
+├── reqwest feature "__rustls"
+│   └── reqwest feature "rustls-tls-webpki-roots-no-provider"
+│       └── reqwest feature "rustls-tls-webpki-roots"
+│           └── reqwest feature "rustls-tls"
+│               ├── arc_openhuman_bridge v0.2.0 (/workspace/scratch/c1d292b20118/AW/rust/arc_openhuman_bridge)
+│               │   └── arc_openhuman_bridge feature "default" (command-line)
+│               ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core)
+│               │   └── openhuman-embed v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-embed)
+│               │       └── arc_openhuman_bridge v0.2.0 (/workspace/scratch/c1d292b20118/AW/rust/arc_openhuman_bridge) (*)
+│               ├── tinyagents-harness v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-harness)
+│               │   ├── tinyagents-orchestration v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-orchestration)
+│               │   │   └── tinyagents-orchestration feature "default"
+│               │   │       └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinyagents-registry v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-registry)
+│               │   │   └── tinyagents-registry feature "default"
+│               │   │       └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   └── tinyagents-tasks v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-tasks)
+│               │       ├── tinyagents-graph v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-graph)
+│               │       │   └── tinyagents-orchestration v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-orchestration) (*)
+│               │       │   ├── tinyagents-graph feature "default"
+│               │       │   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │       │   ├── tinyagents-graph feature "sqlite"
+│               │       │   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │       │   └── tinyagents-graph feature "storage-drivers"
+│               │       │       └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │       ├── tinyagents-orchestration v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-orchestration) (*)
+│               │       └── tinyagents-session v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-session)
+│               │           └── tinyagents-orchestration v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-orchestration) (*)
+│               │           ├── tinyagents-session feature "default"
+│               │           │   ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │           │   ├── openhuman-embed v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-embed) (*)
+│               │           │   └── tinyagents-runtime v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-runtime)
+│               │           │       └── tinyagents-orchestration v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-orchestration) (*)
+│               │           │       └── tinyagents-runtime feature "default"
+│               │           │           └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │           └── tinyagents-session feature "storage-drivers"
+│               │               └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │       └── tinyagents-tasks feature "default"
+│               │           └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinyagents-harness feature "builtin-tools"
+│               │   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinyagents-harness feature "claude-code"
+│               │   │   └── tinyagents-harness feature "default"
+│               │   │       ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   │       └── tinyagents-runtime v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-runtime) (*)
+│               │   ├── tinyagents-harness feature "default" (*)
+│               │   ├── tinyagents-harness feature "langfuse"
+│               │   │   └── tinyagents-graph v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-graph) (*)
+│               │   │   └── tinyagents-harness feature "default" (*)
+│               │   ├── tinyagents-harness feature "multimodal"
+│               │   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinyagents-harness feature "sqlite"
+│               │   │   ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   │   └── tinyagents-session v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-session) (*)
+│               │   └── tinyagents-harness feature "storage-drivers"
+│               │       └── tinyagents-session feature "storage-drivers" (*)
+│               ├── tinyinference-embeddings v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-embeddings)
+│               │   └── tinyinference-embeddings feature "default"
+│               │       ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │       ├── openhuman-embed v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-embed) (*)
+│               │       ├── tinyagents-harness v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-harness) (*)
+│               │       └── tinyinference-local v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-local)
+│               │           └── tinyinference-local feature "default"
+│               │               ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │               └── tinyinference-voice v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-voice)
+│               │                   ├── tinyinference-voice feature "default"
+│               │                   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │                   └── tinyinference-voice feature "schemars"
+│               │                       └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               ├── tinyinference-llm v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-llm)
+│               │   └── tinyinference-llm feature "default"
+│               │       ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │       ├── openhuman-embed v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-embed) (*)
+│               │       ├── tinyagents-graph v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-graph) (*)
+│               │       ├── tinyagents-harness v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-harness) (*)
+│               │       ├── tinyagents-orchestration v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-orchestration) (*)
+│               │       ├── tinyagents-registry v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-registry) (*)
+│               │       ├── tinyagents-runtime v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-runtime) (*)
+│               │       ├── tinyagents-tasks v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-tasks) (*)
+│               │       └── tinyinference-local v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-local) (*)
+│               ├── tinyinference-local v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-local) (*)
+│               ├── tinyinference-providers v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-providers)
+│               │   └── tinyinference-providers feature "default"
+│               │       └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               ├── tinyinference-voice v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-voice) (*)
+│               ├── tinymemory-integrations v1.26.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinymemory/crates/tinymemory-integrations)
+│               │   ├── tinymemory-integrations feature "brain"
+│               │   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinymemory-integrations feature "cortex"
+│               │   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinymemory-integrations feature "documents"
+│               │   │   ├── tinymemory-integrations feature "brain" (*)
+│               │   │   └── tinymemory-integrations feature "sources"
+│               │   │       └── tinymemory-integrations feature "sources-network"
+│               │   │           └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinymemory-integrations feature "legacy-import"
+│               │   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinymemory-integrations feature "safety"
+│               │   │   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               │   ├── tinymemory-integrations feature "sources" (*)
+│               │   ├── tinymemory-integrations feature "sources-network" (*)
+│               │   └── tinymemory-integrations feature "tokio"
+│               │       └── tinymemory-integrations feature "sources-network" (*)
+│               └── tinytools-std v0.5.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinytools/crates/tinytools-std)
+│                   └── tinytools-std feature "default"
+│                       └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│               └── tinymcp feature "rustls-tls"
+│                   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+├── reqwest feature "__rustls-ring"
+│   └── reqwest feature "rustls-tls-webpki-roots" (*)
+├── reqwest feature "__tls"
+│   └── reqwest feature "__rustls" (*)
+├── reqwest feature "blocking"
+│   └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+├── reqwest feature "h2"
+│   └── reqwest feature "http2"
+│       ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│       ├── tinyagents-harness v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-harness) (*)
+│       └── tinymcp v0.6.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinymcp/crates/tinymcp)
+│           ├── tinymcp feature "rustls-tls" (*)
+│           └── tinymcp feature "tools"
+│               └── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+├── reqwest feature "http2" (*)
+├── reqwest feature "json"
+│   ├── arc_openhuman_bridge v0.2.0 (/workspace/scratch/c1d292b20118/AW/rust/arc_openhuman_bridge) (*)
+│   ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│   ├── tinyagents-harness v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-harness) (*)
+│   ├── tinyinference-embeddings v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-embeddings) (*)
+│   ├── tinyinference-llm v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-llm) (*)
+│   ├── tinyinference-local v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-local) (*)
+│   ├── tinyinference-providers v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-providers) (*)
+│   ├── tinyinference-voice v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-voice) (*)
+│   ├── tinymcp v0.6.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinymcp/crates/tinymcp) (*)
+│   └── tinymemory-integrations v1.26.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinymemory/crates/tinymemory-integrations) (*)
+├── reqwest feature "multipart"
+│   ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│   ├── tinyinference-voice v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-voice) (*)
+│   └── tinytools-std v0.5.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinytools/crates/tinytools-std) (*)
+├── reqwest feature "rustls-tls" (*)
+├── reqwest feature "rustls-tls-webpki-roots" (*)
+├── reqwest feature "rustls-tls-webpki-roots-no-provider" (*)
+├── reqwest feature "socks"
+│   ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+│   └── tinymcp v0.6.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinymcp/crates/tinymcp) (*)
+└── reqwest feature "stream"
+    ├── arc_openhuman_bridge v0.2.0 (/workspace/scratch/c1d292b20118/AW/rust/arc_openhuman_bridge) (*)
+    ├── openhuman v0.64.15 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/crates/openhuman-core) (*)
+    ├── tinyagents-harness v2.1.3 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/crates/tinyagents-harness) (*)
+    ├── tinyinference-embeddings v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-embeddings) (*)
+    ├── tinyinference-llm v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-llm) (*)
+    ├── tinyinference-local v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-local) (*)
+    ├── tinyinference-providers v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-providers) (*)
+    ├── tinyinference-voice v0.3.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinyinference/crates/tinyinference-voice) (*)
+    ├── tinymcp v0.6.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinymcp/crates/tinymcp) (*)
+    ├── tinymemory-integrations v1.26.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinymemory/crates/tinymemory-integrations) (*)
+    └── tinytools-std v0.5.0 (/workspace/scratch/c1d292b20118/AW/vendor/openhuman/vendor/tinyagents/vendor/tinytools/crates/tinytools-std) (*)

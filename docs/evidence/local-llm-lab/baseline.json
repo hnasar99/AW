@@ -1,0 +1,69 @@
+{
+  "schema": "aw.lab.baseline.v1",
+  "scope": "Executor-only Python baseline. Synthetic ELF/manifest and temporary source fixtures; no Flutter, Rust compilation, real APK, Android device, lab hardware or real inference is exercised.",
+  "started_utc": "2026-10-12T22:47:06.194397+00:00",
+  "finished_utc": "2026-10-12T22:47:06.479464+00:00",
+  "environment": {
+    "identity": "remote_executor_not_user_lab",
+    "system": "Linux",
+    "release": "6.18.44",
+    "machine": "x86_64",
+    "python": "3.12.14"
+  },
+  "repository": {
+    "commit": "f5567e7819cf6c486a2cba9ae6d448ddada054fe",
+    "branch": "work/local-llm-lab-20261012",
+    "status_before": "",
+    "status_after": "",
+    "python_files_sha256": {
+      "scripts/apply_upstream_patches.py": "413dea2a4a88f5e34bc4d49c35f7f94922766008a0e227b981c5ee340fe5139b",
+      "scripts/dependency_sources.py": "ab0ae823d25b381682e00973fb55acf51ca4b225087d2d810011b71cad0f6977",
+      "scripts/inspect_apk.py": "8c44e2f8b044902aa040e253197a655ac4c8631f7fe034787f765a3c0fe71ec5",
+      "scripts/package_corresponding_source.py": "4561bb75103c35076b3ee6b059256e4ce7f00164d7e24b4ae7714aae0dda2622",
+      "scripts/smoke_native.py": "4e01c6fdc08e070dfc3bd9bf1d3b4eca43598728b321bf023077d856fbb6410d",
+      "scripts/tests/test_inspect_apk.py": "b455660f32299969c1c2fcaa1f26063ef65ed9478cb8d2c08182e42329a936d4",
+      "scripts/tests/test_source_distribution.py": "a5be573d137cd46f6adc112715884dafb92b2893d3d688eea57303712c13e8ec"
+    }
+  },
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts/tests",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 0.288,
+  "status": "PASS",
+  "log": {
+    "path": "python-unittest.log",
+    "sha256": "5a0af44fe465749dd0536fe737235cd4b5c10b8a07d0980bac91712fd61a918a"
+  },
+  "tool_presence": {
+    "python3": true,
+    "git": true,
+    "bash": true,
+    "java": true,
+    "openssl": true,
+    "flutter": false,
+    "dart": false,
+    "cargo": false,
+    "rustc": false,
+    "adb": false,
+    "sdkmanager": false,
+    "ollama": false
+  },
+  "untested": [
+    "Flutter analysis/tests",
+    "Rust compilation/tests",
+    "Android build/install/UI",
+    "Ollama/local-model execution",
+    "user-lab hardware/network",
+    "Arc RPC/wallet/transactions"
+  ]
+}

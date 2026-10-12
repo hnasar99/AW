@@ -1,0 +1,29 @@
+{
+  "recorded_utc": "2026-10-12T23:12:05.996220+00:00",
+  "base_commit": "f5567e7819cf6c486a2cba9ae6d448ddada054fe",
+  "working_branch": "work/local-llm-lab-20261012",
+  "working_tree_has_uncommitted_lab_changes": true,
+  "source_sha256": {
+    "rust/arc_openhuman_bridge/src/agent.rs": "ec03846e80bd9b6c3b467377708105556f24e852775faaf258d7e2758ed03c87",
+    "rust/arc_openhuman_bridge/src/lib.rs": "68f50ab871cc73c69211d1c356e4312244da063168299f0cf29ada1561c4e9a0",
+    "rust/arc_openhuman_bridge/src/validation.rs": "79c0162a2ea6f16f85377ad8eaab4472d4e4d19512e67e650d80224284d2e449",
+    "rust/arc_openhuman_bridge/include/arc_openhuman_bridge.h": "ad342081e4f0e17c435b2029e50d1a66ea1381e599d652f310f5f410c029ceb3",
+    "rust/arc_openhuman_bridge/src/rpc.rs": "9251372216d788aed85bd392df644205e7717bb2ccbc335c2e42e08f21d470f7",
+    "Cargo.toml": "6f59dd15b8fa76ef9dbf099b6e201630ef86a280033b7c1ba8793f551b117299",
+    "rust/arc_openhuman_bridge/Cargo.toml": "ddeb7f18ce24182a473bb86093fb2e95c40d60389c790f750cedb5e57488a797",
+    "Cargo.lock": "a9d5e86bf82caa594d2bc59064f7e4999b6c3f95114f717640649a1df410fe05",
+    "pubspec.lock": "b38e9576f25b2253e0fbce1089711171fe23e5afacce4f5d240d361937890922",
+    "rust-toolchain.toml": "061608adf609eced892484ffb1deb8a2cff85e3c22502bc061d4e02d1bf5a6fa",
+    "patches/manifest.json": "41144cc0a46c9de1d43a98170da7e96ede3f9928cbb03768cbdbdc18cfac7553"
+  },
+  "toolchain": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+  "target": "x86_64-unknown-linux-gnu",
+  "build_profile": "dev, debug=0, CARGO_BUILD_JOBS=2",
+  "command": "cargo build --locked -p arc_openhuman_bridge",
+  "library": {
+    "name": "libarc_openhuman_bridge.so",
+    "bytes": 187016808,
+    "sha256": "491af686ce500af968697535b9fddf175a2593e7ba0760d372e80decc29ddc0c"
+  },
+  "scope": "Compiled host library and exact source bytes; this is not an Android build or real model acceptance."
+}

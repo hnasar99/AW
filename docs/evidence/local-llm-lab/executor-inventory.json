@@ -1,0 +1,140 @@
+{
+  "schema": "aw.lab.preflight.v1",
+  "report_id": "3a00ff65-45d9-4cee-936d-8d66137003bd",
+  "created_utc": "2026-10-12T22:55:33.166596+00:00",
+  "source": {
+    "script_sha256": "c250f7f16e820953ce34796f104206f832ad163992f4faacc7aff39ac94dded0",
+    "commit": "f5567e7819cf6c486a2cba9ae6d448ddada054fe",
+    "branch": "work/local-llm-lab-20261012",
+    "working_tree_dirty": true
+  },
+  "checks": [
+    {
+      "case": "HOST_INVENTORY",
+      "environment": "this_machine",
+      "expected": "Record OS, architecture, CPU and RAM for this machine",
+      "observed": {
+        "system": "Linux",
+        "release": "6.18.44",
+        "architecture": "x86_64",
+        "python": "3.12.14",
+        "logical_cpus_reported": 9,
+        "logical_cpus_in_affinity": 9,
+        "physical_memory_bytes": 10451464192,
+        "available_memory_bytes": 9754853376,
+        "container_memory_limit_bytes": 8589934592,
+        "container_cpu_quota_cores": 8.0,
+        "linux_distribution": {
+          "pretty_name": "Ubuntu 24.04.3 LTS",
+          "version_id": "24.04",
+          "id": "ubuntu"
+        },
+        "limits_scope": "Visible OS/affinity and standard cgroup paths; not a benchmark or proof that every nested limit was found."
+      },
+      "evidence": "inline:observed",
+      "status": "PASS"
+    },
+    {
+      "case": "TOOL_INVENTORY",
+      "environment": "this_machine",
+      "expected": "Record presence and safe version queries without initializing SDKs",
+      "observed": {
+        "git": {
+          "present": true,
+          "version": "2.51.1",
+          "version_status": "PASS"
+        },
+        "java": {
+          "present": true,
+          "version": "17.0.20",
+          "version_status": "PASS"
+        },
+        "openssl": {
+          "present": true,
+          "version": "OpenSSL 3.0.13",
+          "version_status": "PASS"
+        },
+        "flutter": {
+          "present": false,
+          "version": null,
+          "version_status": "NOT RUN"
+        },
+        "dart": {
+          "present": false,
+          "version": null,
+          "version_status": "NOT RUN"
+        },
+        "cargo": {
+          "present": false,
+          "version": null,
+          "version_status": "NOT RUN"
+        },
+        "rustc": {
+          "present": false,
+          "version": null,
+          "version_status": "NOT RUN"
+        },
+        "adb": {
+          "present": false,
+          "version": null,
+          "version_status": "NOT RUN"
+        },
+        "ollama": {
+          "present": false,
+          "version": null,
+          "version_status": "NOT RUN"
+        }
+      },
+      "evidence": "inline:observed",
+      "status": "PASS"
+    },
+    {
+      "case": "GPU_INVENTORY",
+      "environment": "this_machine",
+      "expected": "Inspect locally visible GPU metadata",
+      "observed": "Opt in with --gpu",
+      "evidence": "inline:observed",
+      "status": "NOT RUN"
+    },
+    {
+      "case": "OLLAMA_INVENTORY",
+      "environment": "this_machine",
+      "expected": "Probe an operator-selected loopback service",
+      "observed": "No endpoint supplied; no network request made",
+      "evidence": "inline:observed",
+      "status": "NOT RUN"
+    },
+    {
+      "case": "ANDROID_DEVICE",
+      "environment": "this_machine",
+      "expected": "Inspect one selected Android device",
+      "observed": "No serial supplied; adb not invoked",
+      "evidence": "inline:observed",
+      "status": "NOT RUN"
+    },
+    {
+      "case": "AUTH_NEGATIVE",
+      "environment": "this_machine",
+      "expected": "Demonstrate actual authentication rejection",
+      "observed": "No credentials sent. Native Ollama has no authentication; requires a separately verified auth boundary.",
+      "evidence": "inline:observed",
+      "status": "NOT RUN"
+    },
+    {
+      "case": "AW_UI_REAL_INFERENCE",
+      "environment": "this_machine",
+      "expected": "Correlate AW UI request, local model processing and visible reply",
+      "observed": "Preflight performs no inference and does not launch AW",
+      "evidence": "inline:observed",
+      "status": "NOT RUN"
+    }
+  ],
+  "scope": "Only this executor/host and explicitly selected probes; not evidence about another lab, AW UI, model locality or financial permissions.",
+  "network_policy": "No automatic endpoint discovery, environment proxy, redirect, credential, POST, model download or cloud fallback. HTTPS uses Python's default verified trust store, not Rust's.",
+  "status_counts": {
+    "BLOCKED": 0,
+    "FAIL": 0,
+    "NOT RUN": 5,
+    "PASS": 2
+  }
+}

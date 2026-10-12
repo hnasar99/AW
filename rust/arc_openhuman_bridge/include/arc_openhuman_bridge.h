@@ -13,6 +13,14 @@ extern "C" {
 char *arc_openhuman_init(const char *endpoint, const char *api_key,
                         const char *model, const char *cache_root);
 char *arc_openhuman_turn(const char *prompt, const char *session_id);
+/* Additive lab capabilities; discover supported_modes through status first.
+ * The lab runtime has no tools. Its process-wide policy survives reset.
+ * request_id: awlab- followed by exactly 32 lowercase hexadecimal characters.
+ * The marker is included in the prompt, not in a custom HTTP header. */
+char *arc_openhuman_init_lab(const char *endpoint, const char *api_key,
+                            const char *model, const char *cache_root);
+char *arc_openhuman_turn_lab(const char *prompt, const char *session_id,
+                            const char *request_id);
 char *arc_openhuman_status(void);
 char *arc_openhuman_cancel(void);
 char *arc_openhuman_reset(void);

@@ -4,6 +4,12 @@ Aplicación Flutter para **Android y Arc Testnet**, con el runtime Rust de OpenH
 
 Esta iteración se identifica como **0.2.0+2**. Consulte [DELIVERY_STATUS.md](DELIVERY_STATUS.md) para conocer las pruebas ejecutadas y las pendientes. `release` describe el modo de compilación; no constituye una aprobación para operar con dinero real.
 
+## Laboratorio de texto local
+
+La misma AW incluye una configuración aislada de laboratorio mediante `--dart-define=AW_LAB_TEXT_ONLY=true`: endpoint loopback y modelo explícitos, sin wallet ni herramientas, y correlación por consulta. El modo Arc sigue siendo el predeterminado. El primer hito **Android → modelo real del laboratorio → respuesta visible en AW** requiere aceptación en los equipos del operador; una build o una fixture no lo acreditan.
+
+La [guía del laboratorio](docs/LOCAL_LLM_LAB.md) comienza con un inventario sin sondeos de red implícitos y documenta configuración, arranque, detención y rollback. La [auditoría](docs/LOCAL_LLM_LAB_AUDIT.md) contrasta los antecedentes con el código fijado; la [matriz de pruebas](docs/LOCAL_LLM_LAB_TEST_MATRIX.md) distingue resultados PASS, FAIL, BLOCKED y NOT RUN. Esta configuración conserva los pins y locks existentes.
+
 ## Capacidades y fronteras
 
 - Un único saldo USDC. En Arc, el saldo nativo y la interfaz ERC-20 representan el mismo activo; no se suman.
