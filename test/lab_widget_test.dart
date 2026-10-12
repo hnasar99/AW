@@ -81,8 +81,14 @@ void main() {
       expect(find.text('Política nativa: proposal-only'), findsNothing);
       expect(find.textContaining('arc_network_status'), findsNothing);
       expect(find.textContaining('arc_balance'), findsNothing);
+      final configure = find.text('Configurar laboratorio');
+      await tester.scrollUntilVisible(
+        configure,
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(configure, findsOneWidget);
       expect(find.text('Consultar OpenHuman'), findsNothing);
-      expect(find.text('Configurar laboratorio'), findsOneWidget);
       expect(bridge.calls, 0);
       expect(tester.takeException(), isNull);
     },

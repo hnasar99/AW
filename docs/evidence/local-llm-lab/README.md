@@ -10,6 +10,7 @@ Estos registros vinculan las comprobaciones realizadas con el baseline, los hash
 - `lab-native-smoke.json`: copia exacta del informe completo `aw-lab-evidence/lab-native-full/report.json`, sin reserializar ni modificar sus bytes. La biblioteca host real Linux x86_64 y el HTTP sintético aprobaron los 17 casos, incluidos el timeout nativo de 120 s, reset/recuperación y las guardas de inicialización en procesos nuevos. Este es un resultado local previo al cierre de CI de la rama.
 - `flutter-local-validation.json`: fuente y formato Dart verificados; bloqueo del bootstrap local de Flutter y pruebas todavía no ejecutadas en ese entorno. Los resultados de CI posteriores tienen evidencia propia.
 - `flutter-preinit-policy-validation.json`: cambio posterior de presentación y regresión de widget para el status sin inicializar; formato verificado, con hashes propios. La prueba de Flutter de ese cambio queda pendiente del CI de su commit.
+- `dacd577-failed-runs.json` y `preinit-widget-scroll-correction.json`: fallo histórico de la regresión por un botón fuera de la zona construida del ListView, con conteos y hashes de los logs; corrección limitada al desplazamiento del test. Los runs [push 38322612306](https://github.com/hnasar99/AW/actions/runs/38322612306) y [PR 38322615489](https://github.com/hnasar99/AW/actions/runs/38322615489) no compilaron APK. La revisión corregida necesita su propio CI.
 - `android-reqwest-features.txt`: grafo efectivo para Android, sin realizar una conexión TLS ni ejecutar un APK.
 
 ## Identidad y alcance del smoke de laboratorio

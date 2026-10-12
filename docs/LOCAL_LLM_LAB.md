@@ -162,6 +162,23 @@ La **etapa 2** permanece cerrada hasta aprobar la inferencia real de texto. Debe
 
 La billetera dinámica y la tesorería empresarial son objetivos posteriores. La primera conserva separación entre saldo excluido y autorizado y trabaja en simulación; activo concreto, contrato, red y ruta deben verificarse antes de diseñar operaciones. La segunda separa interpretación documental, propuesta, autorización y ejecución. Este ensayo no implementa estrategias, pagos, swaps, firmas ni nuevos permisos financieros. Monad no es una dependencia de esta conexión: no se encontró una referencia implementada en las rutas de aplicación/runtime revisadas; el título de una conversación no constituye evidencia de integración.
 
+### Frontera futura de ejecución e idempotencia — PROPUESTO / NOT RUN
+
+La infraestructura de agente podrá compartirse entre billetera y tesorería, con políticas y autorizaciones específicas para cada caso. La separación móvil/backend existente se conserva. El siguiente contrato es un requisito de diseño para una etapa posterior; no añade un ejecutor ni cambia los permisos de este laboratorio.
+
+| Paso | Resultado y frontera propuesta |
+|---|---|
+| Interpretar | Datos candidatos de un prompt, factura o herramienta, siempre no confiables. No otorgan autorización. |
+| Proponer | El componente determinista valida el esquema y genera `proposal_id`, versión y hash del contenido normalizado, con la política aplicable y el alcance concreto. El modelo no decide sus propios permisos. |
+| Autorizar | Una autorización explícita se vincula al ID, versión/hash, límites y vencimiento de esa propuesta. Cambiar importe, activo, red, destinatario u otro campo autorizado requiere una nueva autorización. |
+| Ejecutar | El ejecutor autorizado comprueba nuevamente propuesta, política y autorización y reserva de forma atómica un registro de ejecución antes de cualquier efecto externo. Las credenciales de firma quedan fuera del contexto del modelo. |
+
+La clave de idempotencia se generará en el componente determinista, con un ámbito que identifique al titular/empresa, la propuesta autorizada y el tipo de operación. Debe conservarse entre reintentos de esa misma ejecución. Una repetición con la misma clave y el mismo contenido devolverá el registro existente; la misma clave con contenido diferente se rechazará. El almacenamiento deberá impedir dos reservas concurrentes de la misma operación y conservar estados y referencias externas para auditoría.
+
+Ante un timeout después del envío, el registro quedará pendiente o incierto y se reconciliará con el sistema externo antes de decidir otro envío. Un nuevo turno del LLM o un reintento de red no crearán automáticamente otra operación financiera. La idempotencia del proveedor y sus límites tendrán que verificarse con su contrato real; este diseño no promete ejecución exactamente una vez en sistemas aún no seleccionados.
+
+El `awlab-...` actual es únicamente un ID de correlación de inferencia; no es una autorización ni una clave de idempotencia de pagos. La aceptación futura deberá cubrir duplicados, concurrencia, clave reutilizada con otro contenido, autorización vencida o alterada y reconciliación tras un resultado incierto. Esos casos permanecen **NOT RUN** y se podrán preparar primero en simulación, después del hito de texto.
+
 ## 7. Detención y rollback
 
 Detener el turno desde AW y conservar su resultado. Cerrar el proceso dedicado de Ollama con Ctrl-C si se inició en primer plano; si se gestiona como servicio, usar el procedimiento de esa instalación. No detener servicios de otros trabajos ni confundir reset del agente con parada del servidor.
