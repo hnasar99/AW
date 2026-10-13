@@ -47,8 +47,8 @@ class WalletSession extends ChangeNotifier {
       memoryStore: true,
       logLevel: LogLevel.nothing,
       metadata: const PairingMetadata(
-        name: 'AW · Arc Wallet',
-        description: 'Arc Testnet wallet with an embedded OpenHuman agent',
+        name: 'FluuiX',
+        description: 'Caja USDC en Arc Testnet. La wallet externa firma.',
         url: 'https://github.com/hnasar99/AW',
         icons: [],
         redirect: Redirect(native: 'awallet://callback'),

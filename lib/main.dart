@@ -11,9 +11,15 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'domain/arc.dart';
 import 'domain/inference_config.dart';
+import 'domain/treasury_policy.dart';
 import 'openhuman_bridge.dart';
 import 'services/arc_rpc.dart';
 import 'services/wallet_session.dart';
+
+part 'ui/caja_view.dart';
+part 'ui/agente_view.dart';
+part 'ui/red_view.dart';
+part 'ui/ajustes_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,12 +33,12 @@ class ArcWalletApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: awLabTextOnly ? 'AW · Laboratorio de texto' : 'AW · Arc Wallet',
+    title: awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xff9883ff),
+        seedColor: const Color(0xffc4b08a),
         brightness: Brightness.dark,
       ),
       scaffoldBackgroundColor: const Color(0xff101017),
@@ -84,6 +90,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   final _recoverHash = TextEditingController();
 
   int _tab = awLabTextOnly ? 1 : 0;
+  CajaPanel _cajaPanel = CajaPanel.pay;
+  TreasuryDayLedger _ledger = TreasuryDayLedger.empty();
   bool _missions = false;
   bool _busy = false;
   bool _settingsBusy = false;
@@ -219,6 +227,18 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           );
         }
       }
+      if (!awLabTextOnly) {
+        final savedLedger = await _storage.read(key: treasuryLedgerKey);
+        if (savedLedger != null) {
+          try {
+            _ledger = TreasuryDayLedger.fromJson(
+              jsonDecode(savedLedger) as Map<String, dynamic>,
+            ).forToday();
+          } catch (_) {
+            _ledger = TreasuryDayLedger.empty();
+          }
+        }
+      }
       setState(() => _storageReady = true);
       if (!awLabTextOnly && _projectId.text.trim().isNotEmpty) {
         await _configureWallet(persist: false);
@@ -261,6 +281,16 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       if (mounted) setState(() => _storageReady = false);
       rethrow;
     }
+  }
+
+  Future<void> _saveLedger() async {
+    if (awLabTextOnly) return;
+    final current = _ledger.forToday();
+    _ledger = current;
+    await _storage.write(
+      key: treasuryLedgerKey,
+      value: jsonEncode(current.toJson()),
+    );
   }
 
   Future<void> _configureWallet({bool persist = true}) async {
@@ -353,7 +383,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _wallet.connect(_showPairing);
       if (mounted && !_wallet.supportsArc) {
         setState(
-          () => _error = 'La sesión no autorizó Arc Testnet. Agregá la red a la wallet y reconectá autorizando 5042002.',
+          () => _error =
+              'La sesión no autorizó Arc Testnet. Agregá la red a la wallet y reconectá autorizando 5042002.',
         );
       }
       await _refreshBalance();
@@ -375,7 +406,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Escaneá desde otra pantalla o abrí una wallet compatible con WalletConnect. Volvé a AW después de aprobar.',
+                'Escaneá desde otra pantalla o abrí una wallet compatible con WalletConnect. Volvé a FluuiX después de aprobar.',
               ),
               const SizedBox(height: 12),
               ColoredBox(
@@ -455,7 +486,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _wallet.requestArcNetwork();
       if (mounted) {
         setState(
-          () => _error = 'Red solicitada. Volvé a conectar la wallet y autorizá Arc Testnet en la nueva sesión.',
+          () => _error =
+              'Red solicitada. Volvé a conectar la wallet y autorizá Arc Testnet en la nueva sesión.',
         );
       }
     } catch (e) {
@@ -482,6 +514,11 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     });
     var requested = false;
     try {
+      final units = parseUsdc(_amount.text);
+      TreasuryPolicy.assertOrderAllowed(
+        units: units,
+        spentToday: _ledger.forToday().spent,
+      );
       final sender = _wallet.address;
       final topic = _wallet.topic;
       if (sender == null || topic == null || !_wallet.supportsArc) {
@@ -621,8 +658,17 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                 result.state == TransactionState.reverted)) {
           _requestUncertain = false;
         }
+        if (result.state == TransactionState.confirmed && _lastReview != null) {
+          _ledger = _ledger.recordConfirmed(
+            hash: result.hash,
+            units: _lastReview!.units,
+          );
+        }
       });
       await _saveTransfer();
+      if (result.state == TransactionState.confirmed) {
+        await _saveLedger();
+      }
       if (result.state == TransactionState.confirmed ||
           result.state == TransactionState.reverted) {
         await _refreshBalance();
@@ -935,6 +981,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     setState(() {
       _recipient.text = proposal.recipient;
       _amount.text = formatUnits(proposal.units, 6);
+      _cajaPanel = CajaPanel.pay;
       _tab = 0;
     });
     ScaffoldMessenger.of(context).showSnackBar(
@@ -966,12 +1013,45 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     }
   }
 
+  void _showCajaPanel(CajaPanel panel) => setState(() => _cajaPanel = panel);
+
+  void _openSettingsTab() => setState(() => _tab = 2);
+
+  void _noteEndpointEdited() {
+    _settingsTouched = true;
+    _key.clear();
+    setState(() {});
+  }
+
+  void _setRememberKey(bool? value) => setState(() {
+    _rememberKey = value ?? false;
+    _settingsTouched = true;
+  });
+
+  int get _selectedNav {
+    if (awLabTextOnly) return _tab - 1;
+    return switch (_tab) {
+      0 => 0,
+      1 => 1,
+      3 => 2,
+      _ => 3,
+    };
+  }
+
+  int _tabForNav(int value) {
+    if (awLabTextOnly) return value + 1;
+    return switch (value) {
+      0 => 0,
+      1 => 1,
+      2 => 3,
+      _ => 2,
+    };
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text(
-        awLabTextOnly ? 'AW · Laboratorio de texto' : 'AW · Arc Wallet',
-      ),
+      title: const Text(awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX'),
       actions: [
         if (!awLabTextOnly)
           IconButton(
@@ -979,7 +1059,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
             icon: Icon(
               _missions ? Icons.dashboard_outlined : Icons.flag_outlined,
             ),
-            tooltip: _missions ? 'Vista estándar' : 'Vista de misiones',
+            tooltip: _missions ? 'Vista de caja' : 'Órdenes del día',
           ),
         if (!awLabTextOnly)
           IconButton(
@@ -999,17 +1079,18 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
             children: [
               if (awLabTextOnly) ...[_labBanner(), const SizedBox(height: 16)],
               if (!awLabTextOnly && _missions) ...[
-                _missionCard(),
+                _ordenesCard(),
                 const SizedBox(height: 16),
               ],
-              if (!awLabTextOnly && _tab == 0) ..._walletView(),
+              if (!awLabTextOnly && _tab == 0) ..._cajaView(),
               if (_tab == 1) ..._agentView(),
+              if (!awLabTextOnly && _tab == 3) ..._redView(),
               if (_tab == 2) ..._settingsView(),
               const SizedBox(height: 24),
               const Text(
                 awLabTextOnly
                     ? 'AW no cambia de proveedor automáticamente. Confirmá que el servidor autorizado ejecuta un modelo local; recibir texto no demuestra por sí solo su procedencia.'
-                    : 'Arc Testnet · USDC de prueba\nLa wallet externa controla tus claves y pide la firma. AW no solicita frases semilla ni claves privadas.',
+                    : 'Arc Testnet · USDC de prueba\nLa wallet externa controla tus claves y pide la firma. FluuiX no solicita frases semilla ni claves privadas.',
                 style: TextStyle(
                   color: Colors.white54,
                   fontSize: 12,
@@ -1022,19 +1103,21 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       ),
     ),
     bottomNavigationBar: NavigationBar(
-      selectedIndex: awLabTextOnly ? _tab - 1 : _tab,
+      selectedIndex: _selectedNav,
       onDestinationSelected: (value) =>
-          setState(() => _tab = awLabTextOnly ? value + 1 : value),
+          setState(() => _tab = _tabForNav(value)),
       destinations: const [
         if (!awLabTextOnly)
           NavigationDestination(
             icon: Icon(Icons.account_balance_wallet_outlined),
-            label: 'Wallet',
+            label: 'Caja',
           ),
         NavigationDestination(
           icon: Icon(Icons.psychology_outlined),
           label: 'Agente',
         ),
+        if (!awLabTextOnly)
+          NavigationDestination(icon: Icon(Icons.hub_outlined), label: 'Red'),
         NavigationDestination(
           icon: Icon(Icons.settings_outlined),
           label: 'Ajustes',
@@ -1057,599 +1140,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       ),
     ],
   );
-
-  List<Widget> _walletView() => [
-    _card(
-      children: [
-        Row(
-          children: [
-            Icon(
-              Icons.circle,
-              size: 10,
-              color: _networkVerified ? Colors.greenAccent : Colors.amber,
-            ),
-            const SizedBox(width: 8),
-            const Expanded(
-              child: Text(
-                'ARC TESTNET · 5042002',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(_networkStatus, style: const TextStyle(color: Colors.white70)),
-        const SizedBox(height: 20),
-        Text(
-          _balance == null ? '—' : formatUnits(_balance!, 18, places: 6),
-          style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w700),
-        ),
-        const Text('USDC', style: TextStyle(color: Color(0xffbbaaff))),
-        const SizedBox(height: 8),
-        const Text(
-          'Un único saldo para transferencias y comisiones.',
-          style: TextStyle(color: Colors.white60, fontSize: 12),
-        ),
-        if (_wallet.address != null) ...[
-          const Divider(height: 28),
-          SelectableText(_wallet.address!),
-          Text(
-            'Sesión: cadena ${_wallet.chainId}',
-            style: const TextStyle(color: Colors.white60),
-          ),
-          Wrap(
-            spacing: 8,
-            children: [
-              TextButton(
-                onPressed: _busy ? null : _disconnect,
-                child: const Text('Desconectar'),
-              ),
-              TextButton(
-                onPressed: () =>
-                    _open('${ArcNetwork.explorer}/address/${_wallet.address}'),
-                child: const Text('Ver cuenta'),
-              ),
-            ],
-          ),
-        ],
-      ],
-    ),
-    const SizedBox(height: 20),
-    Text('Enviar USDC', style: Theme.of(context).textTheme.titleLarge),
-    const SizedBox(height: 12),
-    TextField(
-      controller: _recipient,
-      enabled: !_busy,
-      autocorrect: false,
-      enableSuggestions: false,
-      decoration: const InputDecoration(
-        labelText: 'Dirección del destinatario',
-        hintText: '0x…',
-      ),
-    ),
-    const SizedBox(height: 12),
-    TextField(
-      controller: _amount,
-      enabled: !_busy,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: const InputDecoration(
-        labelText: 'Importe',
-        suffixText: 'USDC',
-        helperText: 'Hasta 6 decimales. No se redondea.',
-      ),
-    ),
-    const SizedBox(height: 12),
-    FilledButton.icon(
-      onPressed:
-          _busy ||
-              _wallet.requestPending ||
-              (_wallet.connected && _transferBlocked)
-          ? null
-          : (_wallet.connected ? _reviewAndSend : _connect),
-      icon: _busy
-          ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.fact_check_outlined),
-      label: Text(
-        _busy
-            ? 'Procesando…'
-            : _wallet.connected
-            ? 'Revisar transferencia'
-            : 'Conectar wallet',
-      ),
-    ),
-    if (_wallet.connected && !_wallet.supportsArc)
-      OutlinedButton(
-        onPressed: _busy ? null : _addArc,
-        child: const Text('Solicitar agregar Arc Testnet'),
-      ),
-    TextButton(
-      onPressed: () => _open('https://faucet.circle.com/'),
-      child: const Text('Obtener USDC de prueba'),
-    ),
-    if (_transaction != null) ...[
-      const SizedBox(height: 16),
-      _transactionCard(),
-    ],
-    if (_requestUncertain) ...[
-      const SizedBox(height: 16),
-      _card(
-        children: [
-          const Text(
-            'Solicitud sin resolver',
-            style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Revisá el historial y las solicitudes en tu wallet antes de otro envío. Si hay un hash, pegalo para comprobarlo.',
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _recoverHash,
-            autocorrect: false,
-            decoration: const InputDecoration(
-              labelText: 'Hash de transacción 0x…',
-            ),
-          ),
-          TextButton(
-            onPressed: _recoverTransaction,
-            child: const Text('Comprobar hash'),
-          ),
-          TextButton(
-            onPressed: _wallet.requestPending ? null : _acknowledgeNoSend,
-            child: const Text('La solicitud fue cancelada o rechazada'),
-          ),
-        ],
-      ),
-    ],
-    if (_error != null) _errorBox(_error!),
-  ];
-
-  Widget _transactionCard() {
-    final result = _transaction!;
-    final label = switch (result.state) {
-      TransactionState.submitted => 'Enviada · esperando recibo',
-      TransactionState.confirmed => 'Confirmada · ejecución exitosa',
-      TransactionState.reverted => 'Revertida · la operación falló en la red',
-      TransactionState.pending => 'Pendiente · todavía sin recibo',
-      TransactionState.unknown =>
-        'Estado no verificado · consultá el explorador',
-    };
-    return _card(
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        SelectableText(result.hash),
-        if (result.blockNumber != null) Text('Bloque ${result.blockNumber}'),
-        Wrap(
-          spacing: 8,
-          children: [
-            TextButton(
-              onPressed: _checkReceipt,
-              child: const Text('Comprobar recibo'),
-            ),
-            TextButton(
-              onPressed: () =>
-                  _open('${ArcNetwork.explorer}/tx/${result.hash}'),
-              child: const Text('Abrir explorador'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _agentView() => [
-    Text(
-      awLabTextOnly ? 'Consulta al laboratorio' : 'OpenHuman en tu móvil',
-      style: Theme.of(context).textTheme.headlineSmall,
-    ),
-    const SizedBox(height: 10),
-    Text(_agentStatus),
-    const SizedBox(height: 10),
-    const Text(
-      awLabTextOnly
-          ? 'OpenHuman coordina la consulta dentro de AW. El modelo debe ejecutarse en tu laboratorio, a través del endpoint loopback que configures. No se inicia ninguna consulta de blockchain.'
-          : 'La orquestación y las herramientas Arc se ejecutan en Rust dentro de la app. El modelo responde desde el proveedor de inferencia que configurás. Las consultas y los resultados de herramientas usados por el agente se envían a ese proveedor.',
-      style: TextStyle(color: Colors.white70, height: 1.5),
-    ),
-    const SizedBox(height: 16),
-    OutlinedButton.icon(
-      onPressed: _agentBusy ? null : _probeNative,
-      icon: const Icon(Icons.memory),
-      label: const Text('Verificar ejecución nativa de Rust'),
-    ),
-    if (_nativeStatus != null) ...[
-      const SizedBox(height: 10),
-      _card(
-        children: [
-          Text(
-            'Biblioteca ejecutada: ${_nativeStatus!.os} / ${_nativeStatus!.arch}',
-          ),
-          Text('OpenHuman ${shorten(_nativeStatus!.commit)}'),
-          if (_nativeStatus!.initialized)
-            Text(
-              'Herramientas permitidas: ${_nativeStatus!.tools.isEmpty ? 'ninguna' : _nativeStatus!.tools.join(', ')}',
-            )
-          else
-            const Text(
-              'Runtime sin inicializar. La política de herramientas se comprueba al inicializar.',
-            ),
-          if (awLabTextOnly && _nativeStatus!.initialized)
-            Text('Política nativa: ${_nativeStatus!.mode ?? 'sin iniciar'}'),
-          if (awLabTextOnly && _nativeStatus!.labContextTokens != null)
-            Text(
-              'Presupuesto del agente: ${_nativeStatus!.labContextTokens} tokens. No acredita la capacidad real del modelo.',
-            ),
-          const Text(
-            awLabTextOnly
-                ? 'Ejecutar esta biblioteca no verifica todavía el modelo del laboratorio.'
-                : 'Esta prueba local no implica que la inferencia o una transferencia hayan sido verificadas.',
-            style: TextStyle(color: Colors.white60, fontSize: 12),
-          ),
-        ],
-      ),
-    ],
-    const SizedBox(height: 16),
-    if (!_agentReady)
-      FilledButton(
-        onPressed: () => setState(() => _tab = 2),
-        child: const Text(
-          awLabTextOnly
-              ? 'Configurar laboratorio'
-              : 'Configurar proveedor e iniciar agente',
-        ),
-      ),
-    if (_agentReady) ...[
-      TextField(
-        controller: _prompt,
-        minLines: 3,
-        maxLines: 8,
-        enabled: !_agentBusy,
-        decoration: const InputDecoration(labelText: 'Tu consulta al agente'),
-      ),
-      const SizedBox(height: 10),
-      if (!awLabTextOnly)
-        Wrap(
-          spacing: 8,
-          children: [
-            ActionChip(
-              label: const Text('Estado real de Arc'),
-              onPressed: _agentBusy ? null : () => _prompt.text = 'Usá arc_network_status y explicame el estado real de Arc Testnet.',
-            ),
-            if (_wallet.address != null)
-              ActionChip(
-                label: const Text('Consultar mi saldo'),
-                onPressed: _agentBusy
-                    ? null
-                    : () => _prompt.text =
-                          'Usá arc_balance para consultar el saldo USDC de ${_wallet.address} en Arc Testnet. Explicá que es el mismo saldo que paga gas.',
-              ),
-          ],
-        ),
-      const SizedBox(height: 10),
-      FilledButton.icon(
-        onPressed: _agentBusy ? null : _askAgent,
-        icon: const Icon(Icons.psychology_outlined),
-        label: Text(_agentBusy ? 'Agente trabajando…' : 'Consultar OpenHuman'),
-      ),
-      if (_agentBusy) ...[
-        const SizedBox(height: 8),
-        const LinearProgressIndicator(),
-        TextButton(
-          onPressed: _cancelAgent,
-          child: const Text('Cancelar turno'),
-        ),
-      ],
-    ],
-    if (_agentReply != null) ...[
-      const SizedBox(height: 18),
-      _card(
-        children: [
-          SelectableText(_agentReply!, style: const TextStyle(height: 1.5)),
-        ],
-      ),
-      if (!awLabTextOnly && _toolCalls.isNotEmpty)
-        Text('Herramientas ejecutadas: ${_toolCalls.join(', ')}'),
-      if (!awLabTextOnly)
-        ..._liveReads.map(
-          (read) => Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: _card(
-              children: [
-                Text(
-                  'Lectura de ${read.tool}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                if (read.result['block_number'] != null)
-                  Text('Bloque: ${read.result['block_number']}'),
-                if (read.result['balance_usdc'] != null)
-                  Text('Saldo USDC: ${read.result['balance_usdc']}'),
-                if (read.result['observed_at_unix'] != null)
-                  Text('Observación UNIX: ${read.result['observed_at_unix']}'),
-                Text(
-                  read.result['ok'] == true
-                      ? 'Resultado obtenido por la herramienta Rust'
-                      : 'La herramienta no pudo completar la lectura',
-                ),
-              ],
-            ),
-          ),
-        ),
-      if (!awLabTextOnly && _proposal != null)
-        OutlinedButton.icon(
-          onPressed: _busy ? null : _applyProposal,
-          icon: const Icon(Icons.assignment_return_outlined),
-          label: const Text('Llevar propuesta al formulario'),
-        ),
-      const SizedBox(height: 8),
-      const Text(
-        awLabTextOnly
-            ? 'La salida del modelo es texto no confiable. No se interpreta como una instrucción ni habilita acciones.'
-            : 'Una respuesta del modelo no es una confirmación de pago. El agente sólo propone; la firma requiere tu revisión en la wallet.',
-        style: TextStyle(color: Colors.white60, fontSize: 12),
-      ),
-    ],
-    if (awLabTextOnly && _labRequestAudit != null) ...[
-      const SizedBox(height: 16),
-      _card(
-        children: [
-          const Text('Registro de la última consulta'),
-          const SizedBox(height: 8),
-          SelectableText(
-            const JsonEncoder.withIndent('  ').convert(_labRequestAudit),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Sólo metadatos del cliente. Cotejá este ID con el procesamiento real en tu servidor y con la respuesta visible. No se incluyen mensajes ni claves.',
-            style: TextStyle(color: Colors.white60, fontSize: 12),
-          ),
-          TextButton(
-            onPressed: () => Clipboard.setData(
-              ClipboardData(text: jsonEncode(_labRequestAudit)),
-            ),
-            child: const Text('Copiar registro sin mensajes ni claves'),
-          ),
-        ],
-      ),
-    ],
-    if (_agentError != null) _errorBox(_agentError!),
-    if (_nativeStatus?.requiresReset == true ||
-        (awLabTextOnly && _nativeStatus?.initialized == true && !_agentReady))
-      OutlinedButton(
-        onPressed: _agentBusy ? null : _resetAgent,
-        child: const Text('Reiniciar después del turno interrumpido'),
-      ),
-  ];
-
-  List<Widget> _settingsView() => [
-    Text(
-      awLabTextOnly ? 'Configuración del laboratorio' : 'Conexiones',
-      style: Theme.of(context).textTheme.headlineSmall,
-    ),
-    const SizedBox(height: 16),
-    if (!awLabTextOnly)
-      _card(
-        children: [
-          const Text(
-            'WalletConnect / Reown',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Ingresá el Project ID de tu proyecto. Se puede cambiar sin recompilar. La sesión de wallet permanece sólo en memoria; al reiniciar la app se vuelve a conectar.',
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _projectId,
-            autocorrect: false,
-            enableSuggestions: false,
-            enabled: !_settingsBusy && !_busy && !_wallet.requestPending,
-            onChanged: (_) => _settingsTouched = true,
-            decoration: const InputDecoration(
-              labelText: 'Project ID',
-              hintText: '32 caracteres hexadecimales',
-            ),
-          ),
-          const SizedBox(height: 8),
-          FilledButton(
-            onPressed: _settingsBusy || _busy || _wallet.requestPending
-                ? null
-                : _configureWallet,
-            child: Text(
-              _settingsBusy ? 'Conectando…' : 'Guardar y conectar Reown',
-            ),
-          ),
-          if (_wallet.configured)
-            const Text(
-              'Cliente Reown inicializado',
-              style: TextStyle(color: Colors.greenAccent),
-            ),
-        ],
-      ),
-    const SizedBox(height: 16),
-    _card(
-      children: [
-        const Text(
-          awLabTextOnly
-              ? 'Servidor de texto local'
-              : 'Inferencia para OpenHuman',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          awLabTextOnly
-              ? 'Ingresá la IP loopback literal y la ruta /v1 del transporte que estableciste hacia tu servidor autorizado. Elegí un modelo que ya esté instalado allí. No hay endpoint ni modelo predeterminados.'
-              : 'Elegí un endpoint compatible con OpenAI y el modelo habilitado por tu proveedor. El modelo usa Internet; el runtime Rust se ejecuta en el teléfono.',
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          key: const Key('inference-endpoint'),
-          controller: _endpoint,
-          enabled: !_agentReady && !_agentBusy,
-          autocorrect: false,
-          keyboardType: TextInputType.url,
-          enableSuggestions: false,
-          onChanged: (_) {
-            _settingsTouched = true;
-            _key.clear();
-            setState(() {});
-          },
-          decoration: const InputDecoration(
-            labelText: awLabTextOnly
-                ? 'Endpoint loopback /v1'
-                : 'Endpoint HTTPS',
-            hintText: awLabTextOnly
-                ? 'Completá tu endpoint autorizado'
-                : 'https://provider.example/v1',
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          key: const Key('inference-model'),
-          controller: _model,
-          enabled: !_agentReady && !_agentBusy,
-          autocorrect: false,
-          enableSuggestions: false,
-          onChanged: (_) => _settingsTouched = true,
-          decoration: const InputDecoration(
-            labelText: 'ID del modelo',
-            hintText: awLabTextOnly
-                ? 'ID exacto del modelo local instalado'
-                : 'Modelo habilitado en tu proveedor',
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          key: const Key('inference-key'),
-          controller: _key,
-          enabled: !_agentReady && !_agentBusy,
-          obscureText: true,
-          autocorrect: false,
-          enableSuggestions: false,
-          onChanged: (_) => _settingsTouched = true,
-          decoration: const InputDecoration(
-            labelText: awLabTextOnly
-                ? 'Clave o marcador del servidor'
-                : 'API key de inferencia',
-            helperText: awLabTextOnly
-                ? 'Un marcador sintético no protege ni autentica el servidor.'
-                : null,
-            helperMaxLines: 2,
-          ),
-        ),
-        CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          value: _rememberKey,
-          onChanged: _agentReady || _agentBusy
-              ? null
-              : (value) => setState(() {
-                  _rememberKey = value ?? false;
-                  _settingsTouched = true;
-                }),
-          title: const Text(
-            'Recordar la clave en el almacenamiento seguro del sistema',
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          awLabTextOnly
-              ? 'Las consultas se envían únicamente al endpoint indicado. Los ajustes del laboratorio se guardan separados de los del modo Arc.'
-              : 'Al activar y consultar, enviás tus mensajes y el contexto necesario a ${Uri.tryParse(_endpoint.text)?.host ?? 'tu proveedor'}.',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        const SizedBox(height: 10),
-        FilledButton(
-          onPressed: _agentReady || _agentBusy ? null : _startAgent,
-          child: Text(
-            _agentBusy
-                ? 'Inicializando…'
-                : awLabTextOnly
-                ? 'Iniciar laboratorio de texto'
-                : 'Activar OpenHuman con este proveedor',
-          ),
-        ),
-        OutlinedButton(
-          onPressed: _agentBusy ? null : _resetAgent,
-          child: const Text('Detener agente y olvidar la clave'),
-        ),
-      ],
-    ),
-    const SizedBox(height: 16),
-    if (!awLabTextOnly)
-      ExpansionTile(
-        title: const Text('Agregar Arc Testnet manualmente'),
-        children: [
-          _card(
-            children: [
-              const Text(
-                'Nombre: Arc Testnet\nChain ID: 5042002\nMoneda nativa: USDC · 18 decimales',
-              ),
-              const SelectableText(
-                'RPC: ${ArcNetwork.rpc}\nExplorador: ${ArcNetwork.explorer}',
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Agregá la red en tu wallet, luego reconectá a AW autorizando Arc Testnet. Agregar una red no amplía automáticamente los permisos de una sesión existente.',
-              ),
-              TextButton(
-                onPressed: () =>
-                    _open('https://docs.arc.io/arc/references/connect-to-arc'),
-                child: const Text('Documentación oficial'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    if (_settingsError != null) _errorBox(_settingsError!),
-    if (!_storageReady && !_settingsBusy)
-      TextButton(
-        onPressed: _loadSettings,
-        child: const Text('Volver a leer el estado seguro'),
-      ),
-    if (_agentError != null) _errorBox(_agentError!),
-  ];
-
-  Widget _missionCard() {
-    final steps = <(String, bool)>[
-      ('Verificar Arc Testnet', _networkVerified),
-      ('Ejecutar Rust en el dispositivo', _nativeStatus != null),
-      ('Activar OpenHuman', _agentReady),
-      ('Conectar una cuenta en Arc', _wallet.supportsArc),
-      (
-        'Confirmar una transferencia real de testnet',
-        _transaction?.state == TransactionState.confirmed,
-      ),
-    ];
-    return _card(
-      children: [
-        const Text(
-          'Misiones de verificación',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        ...steps.map(
-          (step) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Icon(
-                  step.$2 ? Icons.check_circle : Icons.radio_button_unchecked,
-                  size: 18,
-                  color: step.$2 ? Colors.greenAccent : Colors.white38,
-                ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(step.$1)),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _card({required List<Widget> children}) => SizedBox(
     width: double.infinity,
