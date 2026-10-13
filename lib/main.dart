@@ -86,10 +86,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         ? ''
         : const String.fromEnvironment('WALLETCONNECT_PROJECT_ID'),
   );
-  final _endpoint = TextEditingController(
-    text: awLabTextOnly ? '' : kimiInferenceRoot,
-  );
-  final _model = TextEditingController(text: awLabTextOnly ? '' : kimiModelId);
+  final _endpoint = TextEditingController();
+  final _model = TextEditingController();
   final _key = TextEditingController();
   final _prompt = TextEditingController(
     text: awLabTextOnly
@@ -802,7 +800,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               .toString();
       if (awLabTextOnly) validateLabModel(_model.text);
       final kimi = !awLabTextOnly && isKimiInferenceEndpoint(endpoint);
-      if (kimi) validateKimiModel(_model.text);
       if (_model.text.trim().isEmpty || _key.text.isEmpty) {
         throw const FormatException(
           awLabTextOnly

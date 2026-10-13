@@ -69,7 +69,8 @@ String newLabRequestId() {
 bool isLabRequestId(String value) =>
     value.length == 38 && RegExp(r'^awlab-[a-f0-9]{32}$').hasMatch(value);
 
-/// FluuiX agent engine. OpenHuman posts to this root plus `/chat/completions`.
+/// Optional Kimi preset for the Monad-track narrative. OpenHuman also accepts
+/// Ollama and any other reviewed OpenAI-compatible `/v1` root.
 /// https://platform.kimi.ai/docs/guide/migrating-from-openai-to-kimi
 const String kimiInferenceRoot = 'https://api.moonshot.ai/v1';
 const String kimiModelId = 'kimi-k3';
@@ -85,8 +86,7 @@ bool isKimiInferenceEndpoint(String input) {
   }
 }
 
-/// Moonshot publishes model ids such as `kimi-k3`. Another name on this host
-/// would bill Kimi while running a different model.
+/// Checks the optional Kimi preset. Starting the agent does not require it.
 String validateKimiModel(String input) {
   final model = input.trim();
   if (!RegExp(r'^kimi-[A-Za-z0-9._-]{1,64}$').hasMatch(model)) {
