@@ -87,9 +87,9 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         : const String.fromEnvironment('WALLETCONNECT_PROJECT_ID'),
   );
   final _endpoint = TextEditingController(
-    text: awLabTextOnly ? '' : 'https://api.openai.com/v1',
+    text: awLabTextOnly ? '' : kimiInferenceRoot,
   );
-  final _model = TextEditingController();
+  final _model = TextEditingController(text: awLabTextOnly ? '' : kimiModelId);
   final _key = TextEditingController();
   final _prompt = TextEditingController(
     text: awLabTextOnly
@@ -801,6 +801,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                   : validateInferenceEndpoint(_endpoint.text))
               .toString();
       if (awLabTextOnly) validateLabModel(_model.text);
+      final kimi = !awLabTextOnly && isKimiInferenceEndpoint(endpoint);
+      if (kimi) validateKimiModel(_model.text);
       if (_model.text.trim().isEmpty || _key.text.isEmpty) {
         throw const FormatException(
           awLabTextOnly
@@ -833,6 +835,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         _tab = 1;
         _agentStatus = awLabTextOnly
             ? 'Laboratorio listo · endpoint $endpoint · modelo solicitado ${_model.text.trim()}'
+            : kimi
+            ? 'OpenHuman local activo · motor Kimi ${_model.text.trim()} en api.moonshot.ai'
             : 'OpenHuman local activo · inferencia en ${Uri.parse(endpoint).host}';
       });
     } catch (e) {
@@ -1032,6 +1036,17 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     _settingsTouched = true;
     _key.clear();
     setState(() {});
+  }
+
+  void _useKimiEngine() {
+    final previous = Uri.tryParse(_endpoint.text.trim());
+    if (previous?.host != 'api.moonshot.ai') _key.clear();
+    _endpoint.text = kimiInferenceRoot;
+    _model.text = kimiModelId;
+    setState(() {
+      _settingsTouched = true;
+      _agentError = null;
+    });
   }
 
   void _setRememberKey(bool? value) => setState(() {

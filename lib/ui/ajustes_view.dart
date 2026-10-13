@@ -59,8 +59,16 @@ extension _AjustesView on _WalletHomeState {
         const Text(
           awLabTextOnly
               ? 'Ingresá la IP loopback literal y la ruta /v1 del transporte que estableciste hacia tu servidor autorizado. Elegí un modelo que ya esté instalado allí. No hay endpoint ni modelo predeterminados.'
-              : 'Elegí un endpoint compatible con OpenAI y el modelo habilitado por tu proveedor. El modelo usa Internet; el runtime Rust se ejecuta en el teléfono.',
+              : 'El motor de lenguaje del agente es Kimi, de Moonshot AI. OpenHuman sigue en el teléfono, consulta Arc con sus herramientas y Kimi sólo puede proponer. No firma, no custodia claves y no escribe en Monad. La API key de Moonshot la ingresás vos; no está en la app.',
         ),
+        if (!awLabTextOnly) ...[
+          const SizedBox(height: 12),
+          OutlinedButton(
+            key: const Key('use-kimi-engine'),
+            onPressed: _agentReady || _agentBusy ? null : _useKimiEngine,
+            child: const Text('Usar Kimi como motor del agente'),
+          ),
+        ],
         const SizedBox(height: 12),
         TextField(
           key: const Key('inference-endpoint'),
@@ -76,7 +84,7 @@ extension _AjustesView on _WalletHomeState {
                 : 'Endpoint HTTPS',
             hintText: awLabTextOnly
                 ? 'Completá tu endpoint autorizado'
-                : 'https://provider.example/v1',
+                : kimiInferenceRoot,
           ),
         ),
         const SizedBox(height: 12),
@@ -91,7 +99,7 @@ extension _AjustesView on _WalletHomeState {
             labelText: 'ID del modelo',
             hintText: awLabTextOnly
                 ? 'ID exacto del modelo local instalado'
-                : 'Modelo habilitado en tu proveedor',
+                : kimiModelId,
           ),
         ),
         const SizedBox(height: 12),

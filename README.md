@@ -1,6 +1,6 @@
 # AW · Arc Wallet + OpenHuman
 
-Aplicación Flutter para **Android y Arc Testnet**, con el runtime Rust de OpenHuman integrado como biblioteca nativa. La inferencia usa un proveedor OpenAI compatible elegido por el operador; los pesos del modelo no se ejecutan en el teléfono. El agente consulta la red y puede proponer una transferencia. La aprobación final y la firma pertenecen a una wallet externa.
+Aplicación Flutter para **Android y Arc Testnet**, con el runtime Rust de OpenHuman integrado como biblioteca nativa. En el modo normal el motor de lenguaje del agente es **Kimi** (`kimi-k3` en `https://api.moonshot.ai/v1`): OpenHuman arma el turno en el teléfono y Kimi responde por la API compatible con chat completions. Los pesos no se ejecutan en el teléfono. El agente consulta Arc y puede proponer una transferencia. La aprobación final y la firma pertenecen a una wallet externa. Kimi no firma y no escribe en Monad.
 
 Esta iteración se identifica como **0.2.0+2**. Consulte [DELIVERY_STATUS.md](DELIVERY_STATUS.md) para conocer las pruebas ejecutadas y las pendientes. `release` describe el modo de compilación; no constituye una aprobación para operar con dinero real.
 
