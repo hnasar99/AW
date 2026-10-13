@@ -55,7 +55,6 @@ class _NetworkManagerScreenState extends State<NetworkManagerScreen> {
   Future<void> _explorer() async {
     final base = c.selected.explorerUrl;
     if (base.isEmpty) return;
-    // An explicitly configured explorer opens externally; no secret RPC URL copied.
     try {
       final opened = await launchUrl(Uri.parse(base), mode: LaunchMode.externalApplication);
       if (!opened && mounted) _message('No se pudo abrir el explorador.');
@@ -90,16 +89,18 @@ class _NetworkManagerScreenState extends State<NetworkManagerScreen> {
           if (c.error != null) Card(child: Padding(padding: const EdgeInsets.all(16),
             child: Text(c.error!, key: const Key('network-error')))),
           _section('Red seleccionada', [
-            DropdownButtonFormField<int>(
-              key: ValueKey('selected-${c.book.selectedId}'),
-              initialValue: c.book.selectedId,
-              isExpanded: true,
+            InputDecorator(
               decoration: const InputDecoration(labelText: 'Red para consultas'),
-              items: c.book.profiles.map((p) => DropdownMenuItem(
-                value: p.chainId,
-                child: Text('${p.name} · ${p.chainId}', overflow: TextOverflow.ellipsis),
-              )).toList(),
-              onChanged: disabled ? null : (id) { if (id != null) c.select(id); },
+              child: DropdownButtonHideUnderline(child: DropdownButton<int>(
+                key: const Key('network-selector'),
+                value: c.book.selectedId,
+                isExpanded: true,
+                items: c.book.profiles.map((p) => DropdownMenuItem(
+                  value: p.chainId,
+                  child: Text('${p.name} · ${p.chainId}', overflow: TextOverflow.ellipsis),
+                )).toList(),
+                onChanged: disabled ? null : (id) { if (id != null) c.select(id); },
+              )),
             ),
             const SizedBox(height: 12),
             Text('${current.testnet ? 'TESTNET' : 'MAINNET / RED DECLARADA'} · ${current.symbol} · ${current.decimals} decimales'),

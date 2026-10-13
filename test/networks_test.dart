@@ -133,6 +133,15 @@ void main() {
     expect(store.value, '{corrupt'); expect(store.writes, 0);
     await c.resetProfiles(); expect(c.loaded, true); expect(c.storageFault, false); c.dispose();
   });
+  test('custom profile is verified and persisted with exact endpoint', () async {
+    final store = MemoryStore();
+    final c = NetworkController(persistence: store, clientFactory: () => fixture(reported: 1337));
+    await c.load();
+    expect(await c.saveAndConnect(custom(), replaceExisting: false), true);
+    expect(c.selected.chainId, 1337);
+    expect(NetworkBook.decode(store.value).selected.rpcUrl, 'https://rpc.example/v1');
+    c.dispose();
+  });
   testWidgets('native screen displays scope and reads a selected chain with fixture', (tester) async {
     final c = NetworkController(persistence: MemoryStore(), clientFactory: () => fixture());
     await c.load();
@@ -143,10 +152,22 @@ void main() {
     expect(find.text('RPC verificado · chain 5042002'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink()); c.dispose();
   });
+  testWidgets('selector does not display an unverified network after a rejected change', (tester) async {
+    final c = NetworkController(persistence: MemoryStore(), clientFactory: () => fixture(reported: 1));
+    await c.load();
+    await tester.pumpWidget(MaterialApp(home: NetworkManagerScreen(controller: c, autoLoad: false)));
+    final selector = find.byKey(const Key('network-selector'));
+    tester.widget<DropdownButton<int>>(selector).onChanged!(10143);
+    await tester.pumpAndSettle();
+    expect(tester.widget<DropdownButton<int>>(selector).value, 5042002);
+    expect(c.snapshot, null);
+    await tester.pumpWidget(const SizedBox.shrink()); c.dispose();
+  });
   testWidgets('new RPC requires explicit consent and valid fields', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: NetworkEditor()));
+    final scroll = find.byType(Scrollable).first;
     final save = find.byKey(const Key('save-network'));
-    await tester.ensureVisible(save);
+    await tester.scrollUntilVisible(save, 200, scrollable: scroll);
     expect(tester.widget<FilledButton>(save).onPressed, isNull);
     final consent = find.byType(CheckboxListTile);
     await tester.ensureVisible(consent); await tester.tap(consent); await tester.pumpAndSettle();

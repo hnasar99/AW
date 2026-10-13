@@ -55,7 +55,7 @@ class NetworkController extends ChangeNotifier {
     if (busy || !loaded || storageFault || _disposed) return false;
     try {
       final next = _book.upsert(profile, replaceExisting: replaceExisting);
-      return _read(profile, persist: next);
+      return await _read(profile, persist: next);
     } on FormatException catch (e) { error = e.message; _notify(); return false; }
   }
 
