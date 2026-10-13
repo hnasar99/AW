@@ -26,6 +26,14 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           persist-credentials: false
+      - name: Select Python with standard-library TOML support
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check source-packaging interpreter before building
+        run: |
+          python3 --version
+          python3 -c 'import sys, tomllib; assert sys.version_info >= (3, 11); print(tomllib.loads("ready = true"))'
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
         with:
           distribution: temurin
@@ -70,6 +78,15 @@ jobs:
           python3 scripts/inspect_apk.py artifacts/Fluuix-0.3.0-networks-qa-arm64.apk --readelf "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" --aapt2 "$ANDROID_HOME/build-tools/36.0.0/aapt2" --pubspec pubspec.yaml --flavor qa --output artifacts/apk-inspection.json
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifacts/Fluuix-0.3.0-networks-qa-arm64.apk > artifacts/apk-signing.txt
           "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 artifacts/Fluuix-0.3.0-networks-qa-arm64.apk > artifacts/apk-alignment.txt
+          printf '%s\n' "$GITHUB_SHA" > artifacts/SOURCE_COMMIT.txt
+          (cd artifacts && sha256sum Fluuix-0.3.0-networks-qa-arm64.apk > APK_SHA256SUMS.txt)
+      - name: Preserve inspected APK independently of source-packaging outcome
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: fluuix-networks-apk-checkpoint-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
       - name: Package corresponding source with pinned dependencies
         run: |
           rustup toolchain install 1.96.1 --profile minimal
@@ -80,8 +97,7 @@ jobs:
           cp docs/NETWORKS_QA_RELEASE.md artifacts/RELEASE_NOTES.md
           cp Cargo.lock pubspec.lock artifacts/
           (cd artifacts && sha256sum Fluuix-0.3.0-networks-qa-arm64.apk Fluuix-0.3.0-source.tar.gz > SHA256SUMS.txt)
-          printf '%s\n' "$GITHUB_SHA" > artifacts/SOURCE_COMMIT.txt
-      - name: Upload APK, sources and evidence
+      - name: Upload final APK, corresponding sources and evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fluuix-networks-${{ github.sha }}
