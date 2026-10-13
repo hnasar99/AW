@@ -79,6 +79,32 @@ pub unsafe extern "C" fn arc_openhuman_init(
     })
 }
 
+/// Additive ABI v1 capability: initialize a loopback, text-only laboratory.
+/// No host tools or wallet/RPC client are installed. The mode is process-wide;
+/// reset clears the conversation but cannot switch a lab runtime to Arc mode.
+/// A nonempty synthetic key may satisfy an unauthenticated local provider;
+/// that is not authentication and does not prove where its weights execute.
+///
+/// # Safety
+/// All arguments must be valid NUL-terminated UTF-8 strings until return.
+#[no_mangle]
+pub unsafe extern "C" fn arc_openhuman_init_lab(
+    endpoint: *const c_char,
+    api_key: *const c_char,
+    model: *const c_char,
+    cache_root: *const c_char,
+) -> *mut c_char {
+    response(|| {
+        let options = validation::InitOptions::lab(
+            argument(endpoint, 2048)?,
+            argument(api_key, 8192)?,
+            argument(model, 256)?,
+            argument(cache_root, 4096)?,
+        )?;
+        agent::initialize(options)
+    })
+}
+
 /// Run a bounded turn. Empty/null session starts a new in-memory conversation;
 /// a nonempty ID must match the session returned by the last successful turn.
 ///
@@ -97,7 +123,40 @@ pub unsafe extern "C" fn arc_openhuman_turn(
             argument(session_id, 128)?
         };
         validation::turn(&prompt, &session)?;
-        agent::turn(prompt, session)
+        agent::turn(prompt, session, validation::Mode::ProposalOnly)
+    })
+}
+
+/// Text-only lab turn. Adds the validated request ID as a diagnostic line in
+/// the actual prompt; this is marker correlation, not an HTTP request header.
+/// The result includes the same ID and native elapsed time, including on a
+/// model failure. Prompt and reply content are not logged by this bridge.
+///
+/// # Safety
+/// `prompt`, `request_id` and any nonnull session must be valid C strings.
+#[no_mangle]
+pub unsafe extern "C" fn arc_openhuman_turn_lab(
+    prompt: *const c_char,
+    session_id: *const c_char,
+    request_id: *const c_char,
+) -> *mut c_char {
+    response(|| {
+        let request_id = argument(request_id, 38)?;
+        validation::lab_request_id(&request_id)?;
+        let prompt = argument(prompt, 12_000)?;
+        let session = if session_id.is_null() {
+            String::new()
+        } else {
+            argument(session_id, 128)?
+        };
+        validation::turn(&prompt, &session)?;
+        let start = std::time::Instant::now();
+        let marked_prompt = format!("[AW-LAB-REQUEST-ID: {request_id}]\n{prompt}");
+        let mut result = agent::turn(marked_prompt, session, validation::Mode::LabTextOnly)
+            .unwrap_or_else(|error| error.json());
+        result["request_id"] = request_id.into();
+        result["duration_ms"] = (start.elapsed().as_millis() as u64).into();
+        Ok(result)
     })
 }
 
@@ -144,6 +203,10 @@ mod tests {
         assert_eq!(value["ok"], true);
         assert_eq!(value["abi_version"], 1);
         assert_eq!(value["upstream_commit"], UPSTREAM_COMMIT);
+        assert_eq!(
+            value["supported_modes"],
+            serde_json::json!(["proposal-only", "lab-text-only"])
+        );
         assert!(value.get("api_key").is_none());
         assert_eq!(
             value["tools"],
@@ -156,6 +219,14 @@ mod tests {
             let null = std::ptr::null();
             assert_eq!(
                 take(arc_openhuman_init(null, null, null, null))["code"],
+                "INVALID_ARGUMENT"
+            );
+            assert_eq!(
+                take(arc_openhuman_init_lab(null, null, null, null))["code"],
+                "INVALID_ARGUMENT"
+            );
+            assert_eq!(
+                take(arc_openhuman_turn_lab(null, null, null))["code"],
                 "INVALID_ARGUMENT"
             );
             let bad = [0xffu8, 0];

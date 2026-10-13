@@ -1,0 +1,565 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "runtime": "biblioteca host real, OpenHuman real y ABI C real",
+    "inference": "fixture HTTP local sintético; no hay inferencia de un modelo real",
+    "android_verified": false,
+    "real_provider_verified": false,
+    "arc_network_verified": false,
+    "wallet_or_transaction_verified": false,
+    "production_certification": false
+  },
+  "started_utc": "2026-10-12T23:08:11Z",
+  "binary": {
+    "path": "/workspace/scratch/c1d292b20118/AW/target/debug/libarc_openhuman_bridge.so",
+    "sha256": "491af686ce500af968697535b9fddf175a2593e7ba0760d372e80decc29ddc0c",
+    "bytes": 187016808
+  },
+  "harness": {
+    "path": "/workspace/scratch/c1d292b20118/aw-lab-evidence/legacy-smoke/report.harness.py",
+    "sha256": "4e01c6fdc08e070dfc3bd9bf1d3b4eca43598728b321bf023077d856fbb6410d"
+  },
+  "host": {
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "build_provenance": "Binary hash observed; correspondence to source is not inferred by this smoke.",
+  "planned_cases": [
+    "lifecycle_json",
+    "sse_turn",
+    "host_tool_validation",
+    "cancel_and_recover",
+    "redirect_refused",
+    "json_size_limit",
+    "error_size_limit",
+    "sse_without_event_size_limit",
+    "credential_redaction",
+    "turn_timeout_120s",
+    "final_cleanup"
+  ],
+  "selected_cases": [
+    "lifecycle_json",
+    "sse_turn",
+    "host_tool_validation",
+    "cancel_and_recover",
+    "credential_redaction"
+  ],
+  "cases": [
+    {
+      "id": "lifecycle_json",
+      "status": "passed",
+      "evidence": {
+        "response": {
+          "live_reads": [],
+          "mode": "proposal-only",
+          "model_requested": "fixture-model",
+          "ok": true,
+          "reply": "FIXTURE_JSON_OK",
+          "runtime": "openhuman-embed",
+          "session_id": "embed-dde6cba7-0b56-4eb3-ad1d-aa7d12c6f08a"
+        },
+        "requests": [
+          {
+            "path": "/v1/chat/completions",
+            "model": "fixture-model",
+            "stream_requested": true,
+            "max_tokens_requested": 1024,
+            "max_completion_tokens_requested": null,
+            "tool_names": [
+              "arc_balance",
+              "arc_network_status"
+            ],
+            "authorization_matches_synthetic_key": true,
+            "message_roles": [
+              "system",
+              "user"
+            ],
+            "tool_results": []
+          }
+        ],
+        "status_after": {
+          "abi_version": 1,
+          "busy": false,
+          "inference": "remote",
+          "initialized": true,
+          "lab_context_tokens": 4096,
+          "max_turns_before_reset": 32,
+          "mode": "proposal-only",
+          "ok": true,
+          "requires_reset": false,
+          "rpc_timeout_seconds": 20,
+          "runtime": "openhuman-embed",
+          "session_storage": "memory",
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "target_arch": "x86_64",
+          "target_os": "linux",
+          "tools": [
+            "arc_network_status",
+            "arc_balance"
+          ],
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba"
+        },
+        "resume_session_matches": true,
+        "reset": {
+          "conversation_cleared": true,
+          "initialized": false,
+          "ok": true,
+          "provider_route_removed": true,
+          "runtime": "openhuman-embed"
+        },
+        "post_reset_turn": {
+          "code": "NOT_INITIALIZED",
+          "error": "Initialize the assistant before sending a message.",
+          "ok": false
+        }
+      },
+      "duration_seconds": 0.42
+    },
+    {
+      "id": "sse_turn",
+      "status": "passed",
+      "evidence": {
+        "response": {
+          "live_reads": [],
+          "mode": "proposal-only",
+          "model_requested": "fixture-model",
+          "ok": true,
+          "reply": "FIXTURE_SSE_OK",
+          "runtime": "openhuman-embed",
+          "session_id": "embed-7a3f46ae-7850-44d3-887f-bb9ab7a75c1a"
+        },
+        "requests": [
+          {
+            "path": "/v1/chat/completions",
+            "model": "fixture-model",
+            "stream_requested": true,
+            "max_tokens_requested": 1024,
+            "max_completion_tokens_requested": null,
+            "tool_names": [
+              "arc_balance",
+              "arc_network_status"
+            ],
+            "authorization_matches_synthetic_key": true,
+            "message_roles": [
+              "system",
+              "user"
+            ],
+            "tool_results": []
+          }
+        ],
+        "status_after": {
+          "abi_version": 1,
+          "busy": false,
+          "inference": "remote",
+          "initialized": true,
+          "lab_context_tokens": 4096,
+          "max_turns_before_reset": 32,
+          "mode": "proposal-only",
+          "ok": true,
+          "requires_reset": false,
+          "rpc_timeout_seconds": 20,
+          "runtime": "openhuman-embed",
+          "session_storage": "memory",
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "target_arch": "x86_64",
+          "target_os": "linux",
+          "tools": [
+            "arc_network_status",
+            "arc_balance"
+          ],
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba"
+        }
+      },
+      "duration_seconds": 0.048
+    },
+    {
+      "id": "host_tool_validation",
+      "status": "passed",
+      "evidence": {
+        "response": {
+          "live_reads": [
+            {
+              "result": {
+                "code": "INVALID_ADDRESS",
+                "error": "An address must contain 0x followed by exactly 40 hexadecimal digits.",
+                "ok": false
+              },
+              "tool": "arc_balance"
+            }
+          ],
+          "mode": "proposal-only",
+          "model_requested": "fixture-model",
+          "ok": true,
+          "reply": "FIXTURE_TOOL_ERROR_HANDLED",
+          "runtime": "openhuman-embed",
+          "session_id": "embed-7da65b96-87d8-48f8-9b27-1289b6555af8"
+        },
+        "requests": [
+          {
+            "path": "/v1/chat/completions",
+            "model": "fixture-model",
+            "stream_requested": true,
+            "max_tokens_requested": 1024,
+            "max_completion_tokens_requested": null,
+            "tool_names": [
+              "arc_balance",
+              "arc_network_status"
+            ],
+            "authorization_matches_synthetic_key": true,
+            "message_roles": [
+              "system",
+              "user"
+            ],
+            "tool_results": []
+          },
+          {
+            "path": "/v1/chat/completions",
+            "model": "fixture-model",
+            "stream_requested": true,
+            "max_tokens_requested": 1024,
+            "max_completion_tokens_requested": null,
+            "tool_names": [
+              "arc_balance",
+              "arc_network_status"
+            ],
+            "authorization_matches_synthetic_key": true,
+            "message_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "system"
+            ],
+            "tool_results": [
+              "{\"code\":\"INVALID_ADDRESS\",\"error\":\"An address must contain 0x followed by exactly 40 hexadecimal digits.\",\"ok\":false}"
+            ]
+          }
+        ],
+        "status_after": {
+          "abi_version": 1,
+          "busy": false,
+          "inference": "remote",
+          "initialized": true,
+          "lab_context_tokens": 4096,
+          "max_turns_before_reset": 32,
+          "mode": "proposal-only",
+          "ok": true,
+          "requires_reset": false,
+          "rpc_timeout_seconds": 20,
+          "runtime": "openhuman-embed",
+          "session_storage": "memory",
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "target_arch": "x86_64",
+          "target_os": "linux",
+          "tools": [
+            "arc_network_status",
+            "arc_balance"
+          ],
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba"
+        },
+        "arc_read": "invalid address rejected before RPC; no live network value established"
+      },
+      "duration_seconds": 0.088
+    },
+    {
+      "id": "cancel_and_recover",
+      "status": "passed",
+      "evidence": {
+        "native_result": {
+          "code": "CANCELLED",
+          "error": "The active operation was cancelled.",
+          "ok": false
+        },
+        "observed_seconds": 0.002,
+        "cancel": {
+          "busy": true,
+          "cancellation_requested": true,
+          "ok": true,
+          "runtime": "openhuman-embed"
+        },
+        "busy_reset": {
+          "code": "BUSY",
+          "error": "The assistant is busy. Cancel the active operation and wait before retrying.",
+          "ok": false
+        },
+        "busy_turn": {
+          "code": "BUSY",
+          "error": "The assistant is busy. Cancel the active operation and wait before retrying.",
+          "ok": false
+        },
+        "status_after_interruption": {
+          "abi_version": 1,
+          "busy": false,
+          "inference": "remote",
+          "initialized": true,
+          "lab_context_tokens": 4096,
+          "max_turns_before_reset": 32,
+          "mode": "proposal-only",
+          "ok": true,
+          "requires_reset": true,
+          "rpc_timeout_seconds": 20,
+          "runtime": "openhuman-embed",
+          "session_storage": "memory",
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "target_arch": "x86_64",
+          "target_os": "linux",
+          "tools": [
+            "arc_network_status",
+            "arc_balance"
+          ],
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba"
+        },
+        "resume_without_reset": {
+          "code": "RESET_REQUIRED",
+          "error": "Reset and initialize the assistant to discard the interrupted conversation before retrying.",
+          "ok": false
+        },
+        "requests": [
+          {
+            "path": "/v1/chat/completions",
+            "model": "fixture-model",
+            "stream_requested": true,
+            "max_tokens_requested": 1024,
+            "max_completion_tokens_requested": null,
+            "tool_names": [
+              "arc_balance",
+              "arc_network_status"
+            ],
+            "authorization_matches_synthetic_key": true,
+            "message_roles": [
+              "system",
+              "user"
+            ],
+            "tool_results": []
+          }
+        ],
+        "reset_and_reinitialize_succeeded": true
+      },
+      "duration_seconds": 0.107
+    },
+    {
+      "id": "redirect_refused",
+      "status": "skipped",
+      "reason": "Not selected for this run."
+    },
+    {
+      "id": "json_size_limit",
+      "status": "skipped",
+      "reason": "Not selected for this run."
+    },
+    {
+      "id": "error_size_limit",
+      "status": "skipped",
+      "reason": "Not selected for this run."
+    },
+    {
+      "id": "sse_without_event_size_limit",
+      "status": "skipped",
+      "reason": "Not selected for this run."
+    },
+    {
+      "id": "credential_redaction",
+      "status": "passed",
+      "evidence": {
+        "response": {
+          "live_reads": [],
+          "mode": "proposal-only",
+          "model_requested": "fixture-model",
+          "ok": true,
+          "reply": "FIXTURE_REFLECTED_KEY [redacted credential]",
+          "runtime": "openhuman-embed",
+          "session_id": "embed-e2a10063-4f61-4ae6-8dbb-d13aca251b8c"
+        },
+        "requests": [
+          {
+            "path": "/v1/chat/completions",
+            "model": "fixture-model",
+            "stream_requested": true,
+            "max_tokens_requested": 1024,
+            "max_completion_tokens_requested": null,
+            "tool_names": [
+              "arc_balance",
+              "arc_network_status"
+            ],
+            "authorization_matches_synthetic_key": true,
+            "message_roles": [
+              "system",
+              "user"
+            ],
+            "tool_results": []
+          }
+        ],
+        "status_after": {
+          "abi_version": 1,
+          "busy": false,
+          "inference": "remote",
+          "initialized": true,
+          "lab_context_tokens": 4096,
+          "max_turns_before_reset": 32,
+          "mode": "proposal-only",
+          "ok": true,
+          "requires_reset": false,
+          "rpc_timeout_seconds": 20,
+          "runtime": "openhuman-embed",
+          "session_storage": "memory",
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "target_arch": "x86_64",
+          "target_os": "linux",
+          "tools": [
+            "arc_network_status",
+            "arc_balance"
+          ],
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba"
+        }
+      },
+      "duration_seconds": 0.059
+    },
+    {
+      "id": "turn_timeout_120s",
+      "status": "skipped",
+      "reason": "Not selected for this run."
+    },
+    {
+      "id": "final_cleanup",
+      "status": "passed",
+      "evidence": {
+        "reset": {
+          "conversation_cleared": true,
+          "initialized": false,
+          "ok": true,
+          "provider_route_removed": true,
+          "runtime": "openhuman-embed"
+        },
+        "status": {
+          "abi_version": 1,
+          "busy": false,
+          "inference": "remote",
+          "initialized": false,
+          "lab_context_tokens": 4096,
+          "max_turns_before_reset": 32,
+          "mode": "proposal-only",
+          "ok": true,
+          "requires_reset": false,
+          "rpc_timeout_seconds": 20,
+          "runtime": "openhuman-embed",
+          "session_storage": "memory",
+          "supported_modes": [
+            "proposal-only",
+            "lab-text-only"
+          ],
+          "target_arch": "x86_64",
+          "target_os": "linux",
+          "tools": [
+            "arc_network_status",
+            "arc_balance"
+          ],
+          "turn_timeout_seconds": 120,
+          "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba"
+        }
+      },
+      "duration_seconds": 0.002
+    },
+    {
+      "id": "native_logs_credential_canary",
+      "status": "passed",
+      "observed_occurrences": 0,
+      "authenticated_fixture_request_evidenced": true,
+      "reason": null,
+      "scope": "Only captured stdout/stderr in this synthetic host run; not Android or all possible logs."
+    }
+  ],
+  "initial_status": {
+    "abi_version": 1,
+    "busy": false,
+    "inference": "remote",
+    "initialized": false,
+    "lab_context_tokens": 4096,
+    "max_turns_before_reset": 32,
+    "mode": "proposal-only",
+    "ok": true,
+    "requires_reset": false,
+    "rpc_timeout_seconds": 20,
+    "runtime": "openhuman-embed",
+    "session_storage": "memory",
+    "supported_modes": [
+      "proposal-only",
+      "lab-text-only"
+    ],
+    "target_arch": "x86_64",
+    "target_os": "linux",
+    "tools": [
+      "arc_network_status",
+      "arc_balance"
+    ],
+    "turn_timeout_seconds": 120,
+    "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba"
+  },
+  "final_reset": {
+    "conversation_cleared": true,
+    "initialized": false,
+    "ok": true,
+    "provider_route_removed": true,
+    "runtime": "openhuman-embed"
+  },
+  "final_status": {
+    "abi_version": 1,
+    "busy": false,
+    "inference": "remote",
+    "initialized": false,
+    "lab_context_tokens": 4096,
+    "max_turns_before_reset": 32,
+    "mode": "proposal-only",
+    "ok": true,
+    "requires_reset": false,
+    "rpc_timeout_seconds": 20,
+    "runtime": "openhuman-embed",
+    "session_storage": "memory",
+    "supported_modes": [
+      "proposal-only",
+      "lab-text-only"
+    ],
+    "target_arch": "x86_64",
+    "target_os": "linux",
+    "tools": [
+      "arc_network_status",
+      "arc_balance"
+    ],
+    "turn_timeout_seconds": 120,
+    "upstream_commit": "036b13e79e4e555ae249f6245966f384d15f35ba"
+  },
+  "completed_utc": "2026-10-12T23:08:13Z",
+  "process_exit_code": 0,
+  "logs": {
+    "stdout": "/workspace/scratch/c1d292b20118/aw-lab-evidence/legacy-smoke/report.stdout.log",
+    "stderr": "/workspace/scratch/c1d292b20118/aw-lab-evidence/legacy-smoke/report.stderr.log",
+    "stdout_sha256": "76831f2571fe8d4a61ec0f4d14e5139b7efad665f05e78f09030a7b0196afa65",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "skipped": 5,
+    "running": 0
+  },
+  "run_status": "passed"
+}

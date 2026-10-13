@@ -1,0 +1,69 @@
+{
+  "observed_at_utc": "2026-10-12T23:38:43.819627+00:00",
+  "runs": [
+    {
+      "event": "push",
+      "run_id": 38322612306,
+      "job_id": 115054353065,
+      "run_head_sha": "dacd5773820d6bb185ebdbc5be19f5f069e68fc8",
+      "checkout_sha": "dacd5773820d6bb185ebdbc5be19f5f069e68fc8",
+      "conclusion": "failure",
+      "failed_step": "Analyze and test Dart",
+      "flutter_analyze": "PASS",
+      "default_tests": {
+        "passed": 28,
+        "failed": 0,
+        "skipped": 3
+      },
+      "lab_tests": {
+        "passed": 29,
+        "failed": 1,
+        "skipped": 1
+      },
+      "failure": "New pre-init widget test searched the lazily built configuration button before scrolling to it.",
+      "primary_log": "push-38322612306-dacd577-job.log",
+      "bytes": 183636,
+      "sha256": "6fc8a2a18951c4b79aeb94ed4ad93fbe1b9be05d4a62f97ad1b6a2f4650f3c12",
+      "selected_lines": [
+        "2026-10-12T23:36:34.5401446Z No issues found! (ran in 8.8s)",
+        "2026-10-12T23:36:46.1895896Z \ud83c\udf89 28 tests passed, 3 skipped.",
+        "2026-10-12T23:36:57.8175883Z   Actual: _TextWidgetFinder:<Found 0 widgets with text \"Configurar laboratorio\": []>",
+        "2026-10-12T23:36:58.1695959Z ##[error]29 tests passed, 1 failed, 1 skipped."
+      ]
+    },
+    {
+      "event": "pull_request",
+      "run_id": 38322615489,
+      "job_id": 115054260444,
+      "run_head_sha": "dacd5773820d6bb185ebdbc5be19f5f069e68fc8",
+      "checkout_sha": "9d80b790dc48052eeb6130f24cb4d60b0a733ce1",
+      "conclusion": "failure",
+      "failed_step": "Analyze and test Dart",
+      "flutter_analyze": "PASS",
+      "default_tests": {
+        "passed": 28,
+        "failed": 0,
+        "skipped": 3
+      },
+      "lab_tests": {
+        "passed": 29,
+        "failed": 1,
+        "skipped": 1
+      },
+      "failure": "New pre-init widget test searched the lazily built configuration button before scrolling to it.",
+      "primary_log": "pr-38322615489-dacd577-job.log",
+      "bytes": 184705,
+      "sha256": "2d5c2d2a06289a15d6d1717c1b6ea33e1ec8fa02c28b11a0609765f16792ac7a",
+      "selected_lines": [
+        "2026-10-12T23:33:07.2602617Z HEAD is now at 9d80b79 Merge dacd5773820d6bb185ebdbc5be19f5f069e68fc8 into f5567e7819cf6c486a2cba9ae6d448ddada054fe",
+        "2026-10-12T23:37:15.3968124Z No issues found! (ran in 12.0s)",
+        "2026-10-12T23:37:30.5632122Z \ud83c\udf89 28 tests passed, 3 skipped.",
+        "2026-10-12T23:37:45.5528895Z   Actual: _TextWidgetFinder:<Found 0 widgets with text \"Configurar laboratorio\": []>",
+        "2026-10-12T23:37:46.0778830Z ##[error]29 tests passed, 1 failed, 1 skipped."
+      ]
+    }
+  ],
+  "correction_evidence": "preinit-widget-scroll-correction.json",
+  "next_commit_ci": "PENDING",
+  "scope": "No Android/native build was reached in these two failed runs. Preserve their successful analysis and individual tests without claiming the entire Dart gate or workflow passed."
+}

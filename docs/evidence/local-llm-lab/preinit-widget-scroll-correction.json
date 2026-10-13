@@ -1,0 +1,59 @@
+{
+  "observed_at_utc": "2026-10-12T23:38:10.876212+00:00",
+  "source_commit_tested": "dacd5773820d6bb185ebdbc5be19f5f069e68fc8",
+  "run_id": 38322612306,
+  "job_id": 115054353065,
+  "event": "push",
+  "primary_log": "push-38322612306-dacd577-job.log",
+  "primary_log_sha256": "6fc8a2a18951c4b79aeb94ed4ad93fbe1b9be05d4a62f97ad1b6a2f4650f3c12",
+  "flutter_analyze": "PASS: No issues found (8.8s)",
+  "default_tests": {
+    "passed": 28,
+    "skipped": 3,
+    "failed": 0
+  },
+  "lab_tests": {
+    "passed": 29,
+    "skipped": 1,
+    "failed": 1
+  },
+  "failed_test": "uninitialized native defaults are not presented as active lab permissions",
+  "failure": "Finder found zero Configurar laboratorio widgets at line 85 before scrolling to the lazily built button.",
+  "correction": "Scroll until the configuration button is visible before asserting its presence. Retain all policy and sendTurn assertions; production code unchanged.",
+  "changed_file": "test/lab_widget_test.dart",
+  "changed_file_sha256": "8396f36d548dc2bb96b8cf1d94ae20335cace0e64490b0feb1408858ba581d0a",
+  "main_sha256_unchanged": "44bb7b41b02617aedcefa8d3cd69e3cf89449712992c5e4649f729cc5492bd49",
+  "pubspec_lock_sha256_unchanged": "b38e9576f25b2253e0fbce1089711171fe23e5afacce4f5d240d361937890922",
+  "local_checks": [
+    {
+      "command": [
+        "/workspace/scratch/c1d292b20118/aw-lab-tools/dart-sdk/bin/dart",
+        "format",
+        "test/lab_widget_test.dart"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "/workspace/scratch/c1d292b20118/aw-lab-tools/dart-sdk/bin/dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "test/lab_widget_test.dart"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "test/lab_widget_test.dart"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "flutter_reexecution_after_correction": "NOT RUN: awaiting next CI commit, no local bootstrap retry.",
+  "scope": "Synthetic widget regression; does not verify native runtime, Android execution, authentication, or a real local model."
+}

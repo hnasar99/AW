@@ -19,6 +19,7 @@ import zipfile
 
 EXPECTED = {
     "arc_openhuman_init", "arc_openhuman_turn", "arc_openhuman_status",
+    "arc_openhuman_init_lab", "arc_openhuman_turn_lab",
     "arc_openhuman_reset", "arc_openhuman_cancel", "arc_openhuman_string_free",
 }
 PAGE_SIZE = 16384

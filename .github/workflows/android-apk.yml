@@ -74,14 +74,24 @@ jobs:
         run: |
           flutter analyze
           flutter test
+          flutter test --dart-define=AW_LAB_TEXT_ONLY=true
 
-      - name: Verify APK inspection gates
-        run: python3 -m unittest discover -s scripts/tests -p test_inspect_apk.py -v
+      - name: Verify APK, source and lab preflight gates
+        run: |
+          python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v
+          python3 -m unittest discover -s scripts/lab -p 'test_*.py' -v
 
       - name: Verify Rust bridge
         run: |
           cargo fmt -p arc_openhuman_bridge -- --check
           cargo test --locked -p arc_openhuman_bridge --lib
+
+      - name: Verify native text-only lab against local HTTP fixtures
+        run: |
+          mkdir -p artifacts
+          cargo build --locked -p arc_openhuman_bridge
+          python3 scripts/lab/smoke_native_lab.py --library target/debug/libarc_openhuman_bridge.so --include-timeout --report artifacts/lab-native-smoke.json
+          cargo tree --locked -p arc_openhuman_bridge --target aarch64-linux-android -e features -i reqwest > artifacts/android-reqwest-features.txt
 
       - name: Release temporary host test cache
         run: cargo clean --profile dev
@@ -99,13 +109,33 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs build/app/outputs/flutter-apk/app-qa-release.apk > artifacts/apk-signing.txt
           "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 build/app/outputs/flutter-apk/app-qa-release.apk > artifacts/apk-alignment.txt
           sha256sum build/app/outputs/flutter-apk/app-qa-release.apk > artifacts/SHA256SUMS.txt
+          cp build/app/outputs/flutter-apk/app-qa-release.apk artifacts/aw-qa-arm64.apk
+
+      - name: Build and inspect the text-only lab configuration of AW
+        run: |
+          flutter build apk --release --flavor qa --target-platform android-arm64 --dart-define=AW_LAB_TEXT_ONLY=true
+          cp build/app/outputs/flutter-apk/app-qa-release.apk artifacts/aw-lab-arm64.apk
+          python3 scripts/inspect_apk.py artifacts/aw-lab-arm64.apk --readelf "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" --aapt2 "$ANDROID_HOME/build-tools/36.0.0/aapt2" --pubspec pubspec.yaml --flavor qa --output artifacts/lab-apk-inspection.json
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifacts/aw-lab-arm64.apk > artifacts/lab-apk-signing.txt
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 artifacts/aw-lab-arm64.apk > artifacts/lab-apk-alignment.txt
+          sha256sum artifacts/aw-qa-arm64.apk artifacts/aw-lab-arm64.apk > artifacts/SHA256SUMS.txt
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('artifacts/build-modes.json').write_text(json.dumps({
+              'commit': os.environ['GITHUB_SHA'],
+              'aw-qa-arm64.apk': {'AW_LAB_TEXT_ONLY': False},
+              'aw-lab-arm64.apk': {'AW_LAB_TEXT_ONLY': True, 'context_budget_tokens': 4096},
+              'android_ui_to_real_model_verified': False,
+              'note': 'Build and synthetic tests only. Both APKs use the existing QA package; lab acceptance requires the operator device and local model.'
+          }, indent=2) + '\n')
+          PY
 
       - name: Upload APK and verification evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: aw-android-qa-${{ github.sha }}
           path: |
-            build/app/outputs/flutter-apk/app-qa-release.apk
             artifacts/
             Cargo.lock
             pubspec.lock

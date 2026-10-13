@@ -1,0 +1,94 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: unused import: `builder::provider_role_for_definition`
+  --> vendor/openhuman/crates/openhuman-core/src/agent/session_host/mod.rs:33:16
+   |
+33 | pub(crate) use builder::provider_role_for_definition;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `access_gates::current_host_requires_session`
+  --> vendor/openhuman/crates/openhuman-core/src/inference/provider/factory.rs:53:16
+   |
+53 | pub(crate) use access_gates::current_host_requires_session;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `lookups::composio_required_args`
+  --> vendor/openhuman/crates/openhuman-core/src/integrations/composio/catalog.rs:46:16
+   |
+46 | pub(crate) use lookups::composio_required_args;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `apply_probe_override` and `probe_tool_output_sample`
+  --> vendor/openhuman/crates/openhuman-core/src/integrations/composio/catalog.rs:49:24
+   |
+49 | pub(crate) use probe::{apply_probe_override, probe_tool_output_sample};
+   |                        ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `network::module_transport`
+  --> vendor/openhuman/crates/openhuman-core/src/integrations/composio/client.rs:27:16
+   |
+27 | pub(crate) use network::module_transport;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `pool_stats`
+  --> vendor/openhuman/crates/openhuman-core/src/runtime/client/mod.rs:24:36
+   |
+24 | pub(crate) use disabled::{execute, pool_stats, resolve, RuntimeCallError};
+   |                                    ^^^^^^^^^^
+
+warning: unused import: `browser::*`
+  --> vendor/openhuman/crates/openhuman-core/src/tools/impl/mod.rs:11:9
+   |
+11 | pub use browser::*;
+   |         ^^^^^^^^^^
+
+warning: unused import: `progress_bridge::spawn_progress_bridge`
+  --> vendor/openhuman/crates/openhuman-core/src/web_chat/mod.rs:99:16
+   |
+99 | pub(crate) use progress_bridge::spawn_progress_bridge;
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> vendor/openhuman/crates/openhuman-core/src/agent/session_host/builder/factory.rs:806:21
+    |
+806 |                 let mut catalogue = crate::skills::load_workflow_metadata(&config.workspace_dir);
+    |                     ----^^^^^^^^^
+    |                     |
+    |                     help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `browser_config`
+  --> vendor/openhuman/crates/openhuman-core/src/tools/ops.rs:79:5
+   |
+79 |     browser_config: &crate::config::BrowserConfig,
+   |     ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_browser_config`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `openhuman` (lib) generated 10 warnings (run `cargo fix --lib -p openhuman` to apply 10 suggestions)
+   Compiling arc_openhuman_bridge v0.2.0 (/workspace/scratch/c1d292b20118/AW/rust/arc_openhuman_bridge)
+    Finished `test` profile [unoptimized] target(s) in 2.61s
+     Running unittests src/lib.rs (target/debug/deps/arc_openhuman_bridge-90cc4cdb08d21f35)
+
+running 15 tests
+test agent::tests::cancellation_drops_the_operation_before_deadline ... ok
+test rpc::tests::exact_quantities_cover_dust_and_uint256 ... ok
+test agent::tests::memory_store_reset_changes_the_handles_without_file_storage ... ok
+test tests::abi_handles_null_invalid_utf8_and_owned_strings ... ok
+test tests::status_crosses_the_c_abi_without_provider_credentials ... ok
+test validation::tests::correlation_id_cannot_inject_instructions_or_log_lines ... ok
+test tests::panic_payload_is_not_disclosed ... ok
+test validation::tests::strict_address_and_session_validation ... ok
+test rpc::tests::tools_reject_method_url_and_unknown_fields_without_network ... ok
+test validation::tests::endpoint_checks_parsed_authority_not_a_prefix ... ok
+test validation::tests::lab_rejects_remote_routes_and_model_routing_syntax ... ok
+test rpc::tests::wrong_chain_stops_before_reading_balance ... ok
+test rpc::tests::balance_uses_verified_chain_and_a_block_snapshot ... ok
+test rpc::tests::mismatched_id_errors_and_large_bodies_are_rejected ... ok
+test agent::tests::timeout_is_enforced_when_the_provider_never_answers ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

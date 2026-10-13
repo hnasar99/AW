@@ -1,0 +1,79 @@
+{
+  "observed_at_utc": "2026-10-12T23:08:47.771764+00:00",
+  "source_base_commit": "f5567e7819cf6c486a2cba9ae6d448ddada054fe",
+  "source_files_sha256": {
+    "lib/main.dart": "42f6261d81dd6df5d30aa02c61c3b0ae9e1c10e26cea5c09ce3607bb58ae1d9f",
+    "lib/openhuman_bridge.dart": "124ed3e670a21d7c67bd7c98a6aaf34b5e35d1cee50052035b36ba4f02324d74",
+    "lib/domain/inference_config.dart": "cf7d8c210f88d940e867d394942e1c2de79de43e5b1e80a56479e9bab3ce14ae",
+    "test/widget_test.dart": "f5a7b1bc13ab6cbdd4da6748851c490335a54620cf99aea24441432afe388766",
+    "test/inference_lab_test.dart": "fc04cbc55165ab3c332cec8ef836302f02445f3897bf8400a12c4e0f649fb188",
+    "test/lab_widget_test.dart": "9811bc5b0287ca76649fa38bda5b92e30b322654ee9a2c082ed4c51b1dae56e2"
+  },
+  "pubspec_lock_sha256": "b38e9576f25b2253e0fbce1089711171fe23e5afacce4f5d240d361937890922",
+  "dart_formatter": {
+    "version": "3.13.5",
+    "status": "PASS",
+    "format_exit": 0,
+    "check_exit": 0,
+    "scope": "Syntax/format only. Package include flutter_lints unresolved because Flutter bootstrap did not finish."
+  },
+  "whitespace_diff": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "flutter_analyze": {
+    "status": "BLOCKED",
+    "reason": "SDK tool bootstrap dependency resolution interrupted by tool network-approval cancellation before a decision; no retry."
+  },
+  "flutter_tests": {
+    "status": "NOT RUN",
+    "reason": "Flutter SDK bootstrap incomplete; CI required for both build policies.",
+    "declared_tests_by_file": {
+      "arc_domain_test.dart": 13,
+      "widget_test.dart": 1,
+      "arc_rpc_test.dart": 5,
+      "lab_widget_test.dart": 2,
+      "inference_lab_test.dart": 9
+    },
+    "default_expected_active": 28,
+    "default_expected_skips": 2,
+    "lab_expected_active": 29,
+    "lab_expected_skips": 1,
+    "commands": [
+      "flutter analyze",
+      "flutter test",
+      "flutter test --dart-define=AW_LAB_TEXT_ONLY=true"
+    ]
+  },
+  "runtime_and_inference": {
+    "flutter_ui_to_native": "NOT RUN",
+    "real_lab_model": "BLOCKED",
+    "android_execution": "NOT RUN",
+    "authentication_boundary": "NOT RUN",
+    "financial_actions_initiated": false
+  },
+  "additional_download_observations": [
+    {
+      "url": "https://storage.googleapis.com/flutter_infra_release/flutter/releases/stable/linux/flutter_linux_3.47.7-stable.tar.xz",
+      "method": "GET Range",
+      "status": 404
+    },
+    {
+      "url": "https://storage.googleapis.com/dart-archive/channels/stable/release/3.13.5/sdk/dartsdk-linux-x64-release.zip",
+      "method": "GET Range",
+      "status": 206
+    }
+  ],
+  "flutter_sdk_source": {
+    "tag": "3.47.7",
+    "commit": "abaf9c523780a608bd46686fd5e53740a07077f8",
+    "engine_dart_download": "completed",
+    "flutter_tool_build": "BLOCKED during dependency resolution",
+    "evidence": "flutter-bootstrap.log"
+  },
+  "notes": [
+    "Two widget-only tests use explicit mocks and are not model/FFI/Android evidence.",
+    "No Android, Rust, scripts, workflow or documentation was edited by this task.",
+    "No provider query, wallet configuration, signature or financial action was initiated."
+  ]
+}

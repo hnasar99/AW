@@ -1,0 +1,25 @@
+{
+  "schema": "aw.lab.preflight.tests.v1",
+  "created_utc": "2026-10-12T22:55:26.382831+00:00",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts/lab",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "duration_seconds": 0.268,
+  "scope": "Python tests on Linux executor; network requests go only to synthetic HTTP fixtures created by these tests. No Ollama, real model, Android or user lab is exercised. TLS test inspects client policy, not a live TLS connection.",
+  "files_sha256": {
+    "scripts/lab/preflight.py": "c250f7f16e820953ce34796f104206f832ad163992f4faacc7aff39ac94dded0",
+    "scripts/lab/test_preflight.py": "56813b8855ca685a995fb9e2ca2bcaf792a18163acd296fdfc4c0a27934ef6d7"
+  },
+  "log_sha256": "67f3076ebdf14a2ab11aaaa3592037156ee12e84702fa6414b165debe9453694"
+}
