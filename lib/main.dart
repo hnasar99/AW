@@ -15,6 +15,7 @@ import 'domain/treasury_policy.dart';
 import 'openhuman_bridge.dart';
 import 'services/arc_rpc.dart';
 import 'services/wallet_session.dart';
+import 'ui/splash_view.dart';
 
 part 'ui/caja_view.dart';
 part 'ui/agente_view.dart';
@@ -23,13 +24,19 @@ part 'ui/ajustes_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ArcWalletApp());
+  runApp(const ArcWalletApp(showSplash: true));
 }
 
 class ArcWalletApp extends StatelessWidget {
-  const ArcWalletApp({super.key, this.autoInitialize = true, this.agent});
+  const ArcWalletApp({
+    super.key,
+    this.autoInitialize = true,
+    this.agent,
+    this.showSplash = false,
+  });
   final bool autoInitialize;
   final OpenHumanBridge? agent;
+  final bool showSplash;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -48,7 +55,11 @@ class ArcWalletApp extends StatelessWidget {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
-    home: WalletHome(autoInitialize: autoInitialize, agent: agent),
+    home: showSplash
+        ? FluuiXLaunch(
+            child: WalletHome(autoInitialize: autoInitialize, agent: agent),
+          )
+        : WalletHome(autoInitialize: autoInitialize, agent: agent),
   );
 }
 

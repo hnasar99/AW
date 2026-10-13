@@ -52,4 +52,24 @@ void main() {
     },
     skip: awLabTextOnly,
   );
+
+  testWidgets(
+    'the opening mark gives way to the box',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        const ArcWalletApp(autoInitialize: false, showSplash: true),
+      );
+      expect(find.byKey(const Key('fluuix-splash')), findsOneWidget);
+      expect(find.text('Caja en dólares'), findsWidgets);
+      await tester.pump(const Duration(milliseconds: 2900));
+      await tester.pump();
+      expect(find.byKey(const Key('fluuix-splash')), findsNothing);
+      expect(find.text('Caja en dólares'), findsOneWidget);
+    },
+    skip: awLabTextOnly,
+  );
 }
