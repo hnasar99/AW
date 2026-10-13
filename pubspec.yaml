@@ -1,7 +1,7 @@
 name: arc_wallet_flutter
-description: Arc Testnet wallet with an embedded OpenHuman Rust agent and reviewed USDC transfers.
+description: Fluuix EVM network profiles, Arc Testnet wallet and embedded OpenHuman Rust runtime.
 publish_to: "none"
-version: 0.2.0+2
+version: 0.3.0+3
 environment:
   sdk: ">=3.8.0 <4.0.0"
 dependencies:

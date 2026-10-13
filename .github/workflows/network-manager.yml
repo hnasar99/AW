@@ -1,0 +1,87 @@
+name: Fluuix configurable networks APK
+on:
+  push:
+    branches: ['build/fluuix-network-manager-20261013']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: network-manager-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      actions: read
+    env:
+      NDK_VERSION: '28.2.13676358'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
+        with:
+          cmdline-tools-version: '15859902'
+          packages: 'platform-tools'
+          accept-android-sdk-licenses: 'true'
+          log-accepted-android-sdk-licenses: 'false'
+      - name: Install pinned Android build components
+        run: |
+          sdkmanager --install 'platforms;android-35' 'platforms;android-36' 'build-tools;35.0.0' 'build-tools;36.0.0' 'cmake;3.22.1' "ndk;$NDK_VERSION"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+      - name: Resolve locked Dart packages and check app
+        run: |
+          flutter pub get --enforce-lockfile
+          flutter analyze
+          flutter test
+          flutter test --dart-define=AW_LAB_TEXT_ONLY=true
+          python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v
+      - name: Real read-only checks using the APK Dart client on the CI host
+        run: |
+          mkdir -p artifacts
+          dart run tool/network_read_smoke.dart | tee artifacts/dart-live-read-smoke.jsonl
+      - name: Download hash-anchored native baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/hnasar99/AW/actions/artifacts/11812527906/zip > "$RUNNER_TEMP/native-baseline.zip"
+          python3 scripts/networks/reuse_native.py "$RUNNER_TEMP/native-baseline.zip"
+      - name: Rebuild APK from new Flutter entry point
+        run: flutter build apk --release --flavor qa --target-platform android-arm64 --target lib/networked_main.dart --no-pub
+      - name: Inspect APK manifest, native code, alignment and QA signature
+        run: |
+          cp build/app/outputs/flutter-apk/app-qa-release.apk artifacts/Fluuix-0.3.0-networks-qa-arm64.apk
+          python3 scripts/inspect_apk.py artifacts/Fluuix-0.3.0-networks-qa-arm64.apk --readelf "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" --aapt2 "$ANDROID_HOME/build-tools/36.0.0/aapt2" --pubspec pubspec.yaml --flavor qa --output artifacts/apk-inspection.json
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifacts/Fluuix-0.3.0-networks-qa-arm64.apk > artifacts/apk-signing.txt
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 artifacts/Fluuix-0.3.0-networks-qa-arm64.apk > artifacts/apk-alignment.txt
+      - name: Package corresponding source with pinned dependencies
+        run: |
+          rustup toolchain install 1.96.1 --profile minimal
+          bash scripts/prepare_upstream.sh
+          cargo fetch --locked
+          python3 scripts/package_corresponding_source.py --include-dependency-sources --output "$RUNNER_TEMP/Fluuix-0.3.0-source.tar.gz"
+          cp "$RUNNER_TEMP/Fluuix-0.3.0-source.tar.gz" artifacts/
+          cp docs/NETWORKS_QA_RELEASE.md artifacts/RELEASE_NOTES.md
+          cp Cargo.lock pubspec.lock artifacts/
+          (cd artifacts && sha256sum Fluuix-0.3.0-networks-qa-arm64.apk Fluuix-0.3.0-source.tar.gz > SHA256SUMS.txt)
+          printf '%s\n' "$GITHUB_SHA" > artifacts/SOURCE_COMMIT.txt
+      - name: Upload APK, sources and evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: fluuix-networks-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
