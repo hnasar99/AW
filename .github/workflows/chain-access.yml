@@ -1,0 +1,30 @@
+name: Fluuix chain-access verification
+on:
+  push:
+    branches: ['deploy/fluuix-chain-access-*']
+  pull_request:
+    paths: ['services/chain-access/**', '.github/workflows/chain-access.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: chain-access-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+          submodules: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.16.0'
+      - name: Build deterministic Railway bundle
+        run: node services/chain-access/scripts/bundle.mjs
+      - name: Unit and contract tests with synthetic upstream
+        run: node --test services/chain-access/test/*.test.mjs
+      - name: Verify live public HTTP and testnet reads
+        run: node services/chain-access/scripts/smoke-live.mjs
