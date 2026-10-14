@@ -3,7 +3,7 @@ part of '../main.dart';
 extension _AjustesView on _WalletHomeState {
   List<Widget> _settingsView() => [
     Text(
-      awLabTextOnly ? 'Configuración del laboratorio' : 'Ajustes',
+      awLabTextOnly ? 'Configuración del laboratorio' : 'Firma e inferencia',
       style: Theme.of(context).textTheme.headlineSmall,
     ),
     const SizedBox(height: 16),

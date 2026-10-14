@@ -12,15 +12,22 @@ import 'package:url_launcher/url_launcher.dart';
 import 'domain/arc.dart';
 import 'domain/inference_config.dart';
 import 'domain/treasury_policy.dart';
+import 'networks/network_manager_screen.dart';
 import 'openhuman_bridge.dart';
 import 'services/arc_rpc.dart';
 import 'services/wallet_session.dart';
+import 'ui/fluuix_theme.dart';
 import 'ui/splash_view.dart';
+import 'ui/treasury_catalog.dart';
 
 part 'ui/caja_view.dart';
 part 'ui/agente_view.dart';
-part 'ui/red_view.dart';
 part 'ui/ajustes_view.dart';
+part 'ui/treasury_shell.dart';
+part 'ui/treasury_dashboard.dart';
+part 'ui/treasury_boxes.dart';
+part 'ui/treasury_flows.dart';
+part 'ui/treasury_chapters.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,19 +49,7 @@ class ArcWalletApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     title: awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX',
     debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xffc4b08a),
-        brightness: Brightness.dark,
-      ),
-      scaffoldBackgroundColor: const Color(0xff101017),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: const Color(0xff20202c),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    ),
+    theme: fluuixTheme(),
     home: showSplash
         ? FluuiXLaunch(
             child: WalletHome(autoInitialize: autoInitialize, agent: agent),
@@ -97,11 +92,16 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   final _recipient = TextEditingController();
   final _amount = TextEditingController(text: '1');
   final _recoverHash = TextEditingController();
+  final _company = TextEditingController();
+  final _purpose = TextEditingController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   int _tab = awLabTextOnly ? 1 : 0;
-  CajaPanel _cajaPanel = CajaPanel.pay;
+  TreasuryScreen _screen = TreasuryScreen.dashboard;
+  TreasuryGroup _menuGroup = TreasuryGroup.today;
+  String _corridor = 'Carta de crédito';
+  String _factorAsset = 'Mercadería';
   TreasuryDayLedger _ledger = TreasuryDayLedger.empty();
-  bool _missions = false;
   bool _busy = false;
   bool _settingsBusy = false;
   bool _agentBusy = false;
@@ -163,6 +163,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       _recipient,
       _amount,
       _recoverHash,
+      _company,
+      _purpose,
     ]) {
       controller.dispose();
     }
@@ -380,7 +382,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   Future<void> _connect() async {
     if (awLabTextOnly) return;
     if (!_wallet.configured) {
-      setState(() => _tab = 2);
+      _openScreen(TreasuryScreen.account);
       return;
     }
     if (_busy) return;
@@ -829,7 +831,12 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         _toolCalls = const [];
         _liveReads = const [];
         _labRequestAudit = null;
-        _tab = 1;
+        if (awLabTextOnly) {
+          _tab = 1;
+        } else {
+          _screen = TreasuryScreen.assistant;
+          _menuGroup = TreasuryGroup.fluuix;
+        }
         _agentStatus = awLabTextOnly
             ? 'Laboratorio listo · endpoint $endpoint · modelo solicitado ${_model.text.trim()}'
             : kimi
@@ -993,8 +1000,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     setState(() {
       _recipient.text = proposal.recipient;
       _amount.text = formatUnits(proposal.units, 6);
-      _cajaPanel = CajaPanel.pay;
-      _tab = 0;
+      _screen = TreasuryScreen.payments;
+      _menuGroup = TreasuryGroup.treasury;
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -1025,9 +1032,23 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     }
   }
 
-  void _showCajaPanel(CajaPanel panel) => setState(() => _cajaPanel = panel);
+  void _openSettingsTab() => awLabTextOnly
+      ? setState(() => _tab = 2)
+      : _openScreen(TreasuryScreen.account);
 
-  void _openSettingsTab() => setState(() => _tab = 2);
+  void _openScreen(TreasuryScreen screen) {
+    setState(() {
+      _screen = screen;
+      _menuGroup = treasuryItem(screen).group;
+    });
+  }
+
+  void _rememberMenuGroup(TreasuryGroup group) =>
+      setState(() => _menuGroup = group);
+
+  void _setCorridor(String value) => setState(() => _corridor = value);
+
+  void _setFactorAsset(String value) => setState(() => _factorAsset = value);
 
   void _noteEndpointEdited() {
     _settingsTouched = true;
@@ -1051,47 +1072,12 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     _settingsTouched = true;
   });
 
-  int get _selectedNav {
-    if (awLabTextOnly) return _tab - 1;
-    return switch (_tab) {
-      0 => 0,
-      1 => 1,
-      3 => 2,
-      _ => 3,
-    };
-  }
-
-  int _tabForNav(int value) {
-    if (awLabTextOnly) return value + 1;
-    return switch (value) {
-      0 => 0,
-      1 => 1,
-      2 => 3,
-      _ => 2,
-    };
-  }
-
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text(awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX'),
-      actions: [
-        if (!awLabTextOnly)
-          IconButton(
-            onPressed: () => setState(() => _missions = !_missions),
-            icon: Icon(
-              _missions ? Icons.dashboard_outlined : Icons.flag_outlined,
-            ),
-            tooltip: _missions ? 'Vista de caja' : 'Órdenes del día',
-          ),
-        if (!awLabTextOnly)
-          IconButton(
-            onPressed: _busy ? null : _checkNetwork,
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Actualizar Arc',
-          ),
-      ],
-    ),
+  Widget build(BuildContext context) =>
+      awLabTextOnly ? _labScaffold() : _treasuryScaffold();
+
+  Widget _labScaffold() => Scaffold(
+    appBar: AppBar(title: const Text('AW · Laboratorio de texto')),
     body: SafeArea(
       child: Center(
         child: ConstrainedBox(
@@ -1100,20 +1086,13 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
             key: ValueKey(_tab),
             padding: const EdgeInsets.all(20),
             children: [
-              if (awLabTextOnly) ...[_labBanner(), const SizedBox(height: 16)],
-              if (!awLabTextOnly && _missions) ...[
-                _ordenesCard(),
-                const SizedBox(height: 16),
-              ],
-              if (!awLabTextOnly && _tab == 0) ..._cajaView(),
+              _labBanner(),
+              const SizedBox(height: 16),
               if (_tab == 1) ..._agentView(),
-              if (!awLabTextOnly && _tab == 3) ..._redView(),
               if (_tab == 2) ..._settingsView(),
               const SizedBox(height: 24),
               const Text(
-                awLabTextOnly
-                    ? 'AW no cambia de proveedor automáticamente. Confirmá que el servidor autorizado ejecuta un modelo local; recibir texto no demuestra por sí solo su procedencia.'
-                    : 'Arc Testnet · USDC de prueba\nLa wallet externa controla tus claves y pide la firma. FluuiX no solicita frases semilla ni claves privadas.',
+                'AW no cambia de proveedor automáticamente. Confirmá que el servidor autorizado ejecuta un modelo local; recibir texto no demuestra por sí solo su procedencia.',
                 style: TextStyle(
                   color: Colors.white54,
                   fontSize: 12,
@@ -1126,21 +1105,13 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       ),
     ),
     bottomNavigationBar: NavigationBar(
-      selectedIndex: _selectedNav,
-      onDestinationSelected: (value) =>
-          setState(() => _tab = _tabForNav(value)),
+      selectedIndex: _tab - 1,
+      onDestinationSelected: (value) => setState(() => _tab = value + 1),
       destinations: const [
-        if (!awLabTextOnly)
-          NavigationDestination(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            label: 'Caja',
-          ),
         NavigationDestination(
           icon: Icon(Icons.psychology_outlined),
           label: 'Agente',
         ),
-        if (!awLabTextOnly)
-          NavigationDestination(icon: Icon(Icons.hub_outlined), label: 'Red'),
         NavigationDestination(
           icon: Icon(Icons.settings_outlined),
           label: 'Ajustes',
