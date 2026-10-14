@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'domain/inference_config.dart' show awLabTextOnly;
 import 'main.dart' as existing;
 import 'networks/network_manager_screen.dart';
 
-/// New entry point in AW: network manager plus the existing Arc workspace.
+/// Entry point for the company treasury. Network reads open from Cuenta.
 /// The lab remains the original isolated application, with no blockchain client.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(awLabTextOnly ? const existing.ArcWalletApp(showSplash: true) : const FluuixNetworksApp());
+  runApp(const existing.ArcWalletApp(showSplash: true));
 }
 
 class FluuixNetworksApp extends StatelessWidget {

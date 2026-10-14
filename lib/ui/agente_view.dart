@@ -3,7 +3,7 @@ part of '../main.dart';
 extension _AgenteView on _WalletHomeState {
   List<Widget> _agentView() => [
     Text(
-      awLabTextOnly ? 'Consulta al laboratorio' : 'Agente de la caja',
+      awLabTextOnly ? 'Consulta al laboratorio' : 'Asistente',
       style: Theme.of(context).textTheme.headlineSmall,
     ),
     const SizedBox(height: 10),
