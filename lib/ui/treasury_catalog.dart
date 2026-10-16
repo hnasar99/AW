@@ -46,7 +46,7 @@ class TreasuryItem {
 }
 
 const treasuryMenu = <TreasuryItem>[
-  TreasuryItem(TreasuryScreen.dashboard, TreasuryGroup.today, 'Dashboard'),
+  TreasuryItem(TreasuryScreen.dashboard, TreasuryGroup.today, 'Posición'),
   TreasuryItem(TreasuryScreen.alerts, TreasuryGroup.today, 'Avisos'),
   TreasuryItem(TreasuryScreen.boxDollars, TreasuryGroup.boxes, 'Caja en dólares'),
   TreasuryItem(TreasuryScreen.boxLocal, TreasuryGroup.boxes, 'Riel local'),

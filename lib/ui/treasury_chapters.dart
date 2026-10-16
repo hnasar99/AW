@@ -7,29 +7,72 @@ extension _TreasuryChapters on _WalletHomeState {
       style: TextStyle(height: 1.45),
     ),
     const SizedBox(height: 8),
-    _fichaLink(TreasuryScreen.tokenZone, 'Mercadería', 'Logística y entrega en la zona.'),
-    _fichaLink(TreasuryScreen.tokenContracts, 'Contratos', 'Un acuerdo que puede quedar en garantía.'),
-    _fichaLink(TreasuryScreen.tokenDocuments, 'Documentos', 'Un papel que pasa a ser verificable.'),
-    _fichaLink(TreasuryScreen.tokenProperty, 'Inmuebles', 'Un inmueble que admite participaciones.'),
-    _fichaLink(TreasuryScreen.tokenShares, 'Participaciones', 'Quién entra al capital o al fondo.'),
+    _fichaLink(
+      TreasuryScreen.tokenZone,
+      'Mercadería',
+      'Logística y entrega en la zona.',
+    ),
+    _fichaLink(
+      TreasuryScreen.tokenContracts,
+      'Contratos',
+      'Un acuerdo que puede quedar en garantía.',
+    ),
+    _fichaLink(
+      TreasuryScreen.tokenDocuments,
+      'Documentos',
+      'Un papel que pasa a ser verificable.',
+    ),
+    _fichaLink(
+      TreasuryScreen.tokenProperty,
+      'Inmuebles',
+      'Un inmueble que admite participaciones.',
+    ),
+    _fichaLink(
+      TreasuryScreen.tokenShares,
+      'Participaciones',
+      'Quién entra al capital o al fondo.',
+    ),
+    const SizedBox(height: 16),
+    ..._booksBlock('assets'),
   ];
 
-  Widget _fichaLink(TreasuryScreen screen, String title, String subtitle) => ListTile(
-    contentPadding: EdgeInsets.zero,
-    title: Text(title),
-    subtitle: Text(subtitle),
-    trailing: const Icon(Icons.chevron_right),
-    onTap: () => _openScreen(screen),
-  );
+  Widget _fichaLink(TreasuryScreen screen, String title, String subtitle) =>
+      LedgerRow(
+        title: title,
+        subtitle: subtitle,
+        onTap: () => _openScreen(screen),
+      );
 
   List<Widget> _chapterBody(TreasuryScreen screen) {
     final copy = _chapterCopy(screen);
+    final books = _booksKey(screen);
     return [
-      Text(copy.$1, style: const TextStyle(fontSize: 16, height: 1.45)),
-      const SizedBox(height: 14),
-      Text(copy.$2, style: const TextStyle(color: Colors.white70, height: 1.5)),
-      const SizedBox(height: 16),
-      const Text(treasuryNotOnPhone, style: TextStyle(color: fluuixAccent, height: 1.4)),
+      if (books != null) ..._booksBlock(books),
+      if (books != null) const SizedBox(height: 16),
+      LedgerPlate(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              copy.$1,
+              style: const TextStyle(
+                fontSize: 18,
+                height: 1.35,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              copy.$2,
+              style: const TextStyle(color: Colors.white70, height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            const BrandRule(),
+            const SizedBox(height: 12),
+            const PhoneBoundLine(),
+          ],
+        ),
+      ),
     ];
   }
 
@@ -105,7 +148,10 @@ extension _TreasuryChapters on _WalletHomeState {
       },
     ),
     const SizedBox(height: 16),
-    Text('Activo elegido: $_factorAsset', style: const TextStyle(color: Colors.white70)),
+    Text(
+      'Activo elegido: $_factorAsset',
+      style: const TextStyle(color: Colors.white70),
+    ),
     const SizedBox(height: 8),
     const Text(
       'Liquidez que se podría adelantar: sin cotización.',
@@ -117,7 +163,7 @@ extension _TreasuryChapters on _WalletHomeState {
       style: TextStyle(color: Colors.white70, height: 1.4),
     ),
     const SizedBox(height: 16),
-    const Text(treasuryNotOnPhone, style: TextStyle(color: fluuixAccent)),
+    const PhoneBoundLine(color: fluuixAccent),
   ];
 
   List<Widget> _quotesBody() => [
@@ -135,10 +181,22 @@ extension _TreasuryChapters on _WalletHomeState {
       style: const TextStyle(color: Colors.white70),
     ),
     if (_balance != null)
-      Text(
-        formatUnits(_balance!, 18, places: 2),
-        style: const TextStyle(fontFeatures: [FontFeature.tabularFigures()]),
+      Row(
+        children: [
+          const ReadingMark(size: 18),
+          const SizedBox(width: 8),
+          Text(
+            formatUnits(_balance!, 18, places: 2),
+            style: const TextStyle(
+              fontFeatures: [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
       ),
+    const SizedBox(height: 18),
+    Text('Fondos de la empresa', style: Theme.of(context).textTheme.titleMedium),
+    const SizedBox(height: 8),
+    ..._booksBlock('funds'),
     const SizedBox(height: 18),
     Text('Cotizaciones', style: Theme.of(context).textTheme.titleMedium),
     const SizedBox(height: 8),
@@ -146,6 +204,8 @@ extension _TreasuryChapters on _WalletHomeState {
       'No hay cotización.',
       style: TextStyle(color: Colors.white70, height: 1.4),
     ),
+    const SizedBox(height: 12),
+    const AbsentSeries(),
     const SizedBox(height: 16),
     OutlinedButton(
       onPressed: () => _openScreen(TreasuryScreen.assistant),
@@ -154,6 +214,8 @@ extension _TreasuryChapters on _WalletHomeState {
   ];
 
   List<Widget> _accountBody() => [
+    ..._zonafrancaAccountCard(),
+    ..._portalsBoard(),
     if (_wallet.connected)
       TextButton(
         onPressed: _busy ? null : _disconnect,

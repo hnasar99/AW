@@ -12,7 +12,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(const ArcWalletApp(autoInitialize: false));
-      expect(find.text('Dashboard'), findsWidgets);
+      expect(find.text('Posición'), findsWidgets);
       expect(
         find.descendant(
           of: find.byKey(const Key('treasury-body')),
@@ -40,11 +40,11 @@ void main() {
       expect(find.textContaining('APY'), findsNothing);
 
       await tester.tap(find.byTooltip('Menú'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.text('Cajas'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.text('Fideicomiso'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
       expect(
         find.text('Captar y distribuir con escrow fiduciario.'),
         findsOneWidget,
@@ -56,22 +56,23 @@ void main() {
         ),
         findsNothing,
       );
-      expect(find.text('Sin lectura'), findsWidgets);
+      expect(find.text('Conectá Zonafranca'), findsWidgets);
+      expect(find.textContaining('12,480'), findsNothing);
 
       await tester.tap(find.byTooltip('Menú'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.text('Tesorería'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.text('Conversión a USDC'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
       expect(find.textContaining('no está conectado'), findsOneWidget);
 
       await tester.tap(find.byTooltip('Menú'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.text('Fluuix'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.text('Asistente'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('Asistente'), findsWidgets);
       expect(find.text('Verificar ejecución nativa de Rust'), findsOneWidget);
       expect(find.text('OpenHuman local activo'), findsNothing);

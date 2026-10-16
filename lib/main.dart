@@ -16,9 +16,14 @@ import 'networks/network_manager_screen.dart';
 import 'openhuman_bridge.dart';
 import 'services/arc_rpc.dart';
 import 'services/wallet_session.dart';
+import 'services/ecosystem_mcp.dart';
+import 'services/zonafranca_api.dart';
+import 'ui/company_qr_scan.dart';
 import 'ui/fluuix_theme.dart';
 import 'ui/splash_view.dart';
 import 'ui/treasury_catalog.dart';
+import 'ui/treasury_glyphs.dart';
+import 'ui/treasury_motion.dart';
 
 part 'ui/caja_view.dart';
 part 'ui/agente_view.dart';
@@ -28,6 +33,7 @@ part 'ui/treasury_dashboard.dart';
 part 'ui/treasury_boxes.dart';
 part 'ui/treasury_flows.dart';
 part 'ui/treasury_chapters.dart';
+part 'ui/treasury_books.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,10 +46,18 @@ class ArcWalletApp extends StatelessWidget {
     this.autoInitialize = true,
     this.agent,
     this.showSplash = false,
+    this.zonafrancaPreview,
+    this.zonafrancaApi,
+    this.redeemCompanyLink,
+    this.linkedPreview,
   });
   final bool autoInitialize;
   final OpenHumanBridge? agent;
   final bool showSplash;
+  final ZonafrancaSnapshot? zonafrancaPreview;
+  final ZonafrancaAuthApi? zonafrancaApi;
+  final Future<ZonafrancaSession> Function(String payload)? redeemCompanyLink;
+  final ZonafrancaSnapshot? linkedPreview;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -52,16 +66,42 @@ class ArcWalletApp extends StatelessWidget {
     theme: fluuixTheme(),
     home: showSplash
         ? FluuiXLaunch(
-            child: WalletHome(autoInitialize: autoInitialize, agent: agent),
+            child: WalletHome(
+            autoInitialize: autoInitialize,
+            agent: agent,
+            zonafrancaPreview: zonafrancaPreview,
+            zonafrancaApi: zonafrancaApi,
+            redeemCompanyLink: redeemCompanyLink,
+            linkedPreview: linkedPreview,
+          ),
           )
-        : WalletHome(autoInitialize: autoInitialize, agent: agent),
+        : WalletHome(
+            autoInitialize: autoInitialize,
+            agent: agent,
+            zonafrancaPreview: zonafrancaPreview,
+            zonafrancaApi: zonafrancaApi,
+            redeemCompanyLink: redeemCompanyLink,
+            linkedPreview: linkedPreview,
+          ),
   );
 }
 
 class WalletHome extends StatefulWidget {
-  const WalletHome({super.key, this.autoInitialize = true, this.agent});
+  const WalletHome({
+    super.key,
+    this.autoInitialize = true,
+    this.agent,
+    this.zonafrancaPreview,
+    this.zonafrancaApi,
+    this.redeemCompanyLink,
+    this.linkedPreview,
+  });
   final bool autoInitialize;
   final OpenHumanBridge? agent;
+  final ZonafrancaSnapshot? zonafrancaPreview;
+  final ZonafrancaAuthApi? zonafrancaApi;
+  final Future<ZonafrancaSession> Function(String payload)? redeemCompanyLink;
+  final ZonafrancaSnapshot? linkedPreview;
   @override
   State<WalletHome> createState() => _WalletHomeState();
 }
@@ -94,11 +134,23 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   final _recoverHash = TextEditingController();
   final _company = TextEditingController();
   final _purpose = TextEditingController();
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final _zfEmail = TextEditingController();
+  final _zfPassword = TextEditingController();
+  final _zfCode = TextEditingController();
+  final _zfApiBase = TextEditingController();
+  final _zfAnon = TextEditingController();
+  final _zfQr = TextEditingController();
+  ZonafrancaSession? _zfSession;
+  ZonafrancaSnapshot? _zf;
+  bool _zfLoading = false;
+  bool _mcpBusy = false;
+  String? _zfError;
+  String? _mcpTool;
+  String? _mcpBody;
   int _tab = awLabTextOnly ? 1 : 0;
   TreasuryScreen _screen = TreasuryScreen.dashboard;
   TreasuryGroup _menuGroup = TreasuryGroup.today;
+  bool _navOpen = false;
   String _corridor = 'Carta de crédito';
   String _factorAsset = 'Mercadería';
   TreasuryDayLedger _ledger = TreasuryDayLedger.empty();
@@ -141,6 +193,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _zf = widget.zonafrancaPreview;
     _walletSession?.addListener(_walletChanged);
     if (widget.autoInitialize) {
       if (!awLabTextOnly) unawaited(_checkNetwork());
@@ -165,6 +218,12 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       _recoverHash,
       _company,
       _purpose,
+      _zfEmail,
+      _zfPassword,
+      _zfCode,
+      _zfApiBase,
+      _zfAnon,
+      _zfQr,
     ]) {
       controller.dispose();
     }
@@ -251,6 +310,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         }
       }
       setState(() => _storageReady = true);
+      await _restoreZonafranca();
       if (!awLabTextOnly && _projectId.text.trim().isNotEmpty) {
         await _configureWallet(persist: false);
       }
@@ -262,6 +322,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               ? 'No se pudieron restaurar los ajustes del laboratorio. Revisá la configuración segura antes de iniciar.'
               : 'No se pudieron restaurar los ajustes seguros. El envío está bloqueado hasta recuperar el estado y comprobar operaciones pendientes.';
         });
+        treasuryCueFault();
       }
     }
   }
@@ -315,7 +376,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _wallet.configure(_projectId.text.trim());
       if (persist) await _saveSettings();
     } catch (e) {
-      if (mounted) setState(() => _settingsError = _safeError(e));
+      if (mounted) {
+        setState(() => _settingsError = _safeError(e));
+        treasuryCueFault();
+      }
     } finally {
       if (mounted) setState(() => _settingsBusy = false);
     }
@@ -375,6 +439,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     } catch (e) {
       if (mounted && address == _wallet.address) {
         setState(() => _error = _safeError(e));
+        treasuryCueFault();
       }
     }
   }
@@ -397,10 +462,14 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           () => _error =
               'La sesión no autorizó Arc Testnet. Agregá la red a la wallet y reconectá autorizando 5042002.',
         );
+        treasuryCueFault();
       }
       await _refreshBalance();
     } catch (e) {
-      if (mounted) setState(() => _error = _safeError(e));
+      if (mounted) {
+        setState(() => _error = _safeError(e));
+        treasuryCueFault();
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -502,7 +571,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         );
       }
     } catch (e) {
-      if (mounted) setState(() => _error = _safeError(e));
+      if (mounted) {
+        setState(() => _error = _safeError(e));
+        treasuryCueFault();
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -513,7 +585,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     try {
       await _wallet.disconnect();
     } catch (e) {
-      if (mounted) setState(() => _error = _safeError(e));
+      if (mounted) {
+        setState(() => _error = _safeError(e));
+        treasuryCueFault();
+      }
     }
   }
 
@@ -575,6 +650,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               : _safeError(e);
         });
         if (!requested) await _saveTransfer().catchError((Object _) {});
+        treasuryCueFault();
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -662,6 +738,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _rpc.verifyNetwork();
       final result = await _rpc.receipt(current.hash, review: _lastReview);
       if (!mounted || _transaction?.hash != current.hash) return;
+      final previous = current.state;
       setState(() {
         _transaction = result;
         if (_lastReview != null &&
@@ -676,6 +753,13 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           );
         }
       });
+      if (result.state == TransactionState.confirmed &&
+          previous != TransactionState.confirmed) {
+        treasuryCueReceipt();
+      } else if (result.state == TransactionState.reverted &&
+          previous != TransactionState.reverted) {
+        treasuryCueFault();
+      }
       await _saveTransfer();
       if (result.state == TransactionState.confirmed) {
         await _saveLedger();
@@ -693,6 +777,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           );
           _error = _safeError(e);
         });
+        treasuryCueFault();
       }
     }
   }
@@ -707,7 +792,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       });
       await _checkReceipt();
     } catch (e) {
-      if (mounted) setState(() => _error = _safeError(e));
+      if (mounted) {
+        setState(() => _error = _safeError(e));
+        treasuryCueFault();
+      }
     }
   }
 
@@ -782,6 +870,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           _agentError =
               'No se pudo ejecutar la biblioteca nativa: ${_safeError(e)}';
         });
+        treasuryCueFault();
       }
     } finally {
       if (mounted) setState(() => _agentBusy = false);
@@ -849,6 +938,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           _agentReady = false;
           _agentError = _safeError(e);
         });
+        treasuryCueFault();
       }
     } finally {
       if (mounted) setState(() => _agentBusy = false);
@@ -899,6 +989,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           _agentError = _safeError(e);
           _finishLabAudit('error');
         });
+        treasuryCueFault();
       }
       try {
         final status = await _agent.status();
@@ -930,7 +1021,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _agentError = _safeError(e));
+      if (mounted) {
+        setState(() => _agentError = _safeError(e));
+        treasuryCueFault();
+      }
     }
   }
 
@@ -957,6 +1051,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           () => _agentError =
               'No se pudo verificar que el runtime se haya detenido: ${_safeError(e)}',
         );
+        treasuryCueFault();
       }
     } finally {
       // Forget persisted credentials even when a missing native library cannot
@@ -977,6 +1072,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               () => _settingsError =
                   'No se pudo confirmar el borrado de la clave guardada.',
             );
+            treasuryCueFault();
           }
         }
         if (mounted) setState(() => _agentBusy = false);
@@ -1041,6 +1137,13 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       _screen = screen;
       _menuGroup = treasuryItem(screen).group;
     });
+  }
+
+  void _toggleTreasuryNav() => setState(() => _navOpen = !_navOpen);
+
+  void _closeTreasuryNav() {
+    if (!_navOpen) return;
+    setState(() => _navOpen = false);
   }
 
   void _rememberMenuGroup(TreasuryGroup group) =>
@@ -1162,9 +1265,18 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         color: const Color(0xff37222b),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(
-        message,
-        style: const TextStyle(color: Color(0xffffc4cf), height: 1.4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const FaultMark(size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(color: Color(0xffffc4cf), height: 1.4),
+            ),
+          ),
+        ],
       ),
     ),
   );

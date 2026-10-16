@@ -97,6 +97,12 @@ extension _CajaView on _WalletHomeState {
   ];
 
   List<Widget> _capPanel() => [
+    CapacityGauge(
+      remaining: _ledger.remaining,
+      capacity: TreasuryPolicy.perDay,
+      nearLimit: _capNearLimit,
+    ),
+    const SizedBox(height: 12),
     Text('Por pago: ${formatUnits(TreasuryPolicy.perPayment, 6)} USDC'),
     Text('Por día: ${formatUnits(TreasuryPolicy.perDay, 6)} USDC'),
     Text('Usado hoy: ${formatUnits(_ledger.forToday().spent, 6)} USDC'),
@@ -119,7 +125,18 @@ extension _CajaView on _WalletHomeState {
     padding: const EdgeInsets.only(top: 8),
     child: _card(
       children: [
-        const Text('Confirmada', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Row(
+          children: [
+            PaymentMarkView(mark: PaymentMark.confirmed, size: 26),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Confirmada',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         SelectableText(hash),
         TextButton(
@@ -142,7 +159,27 @@ extension _CajaView on _WalletHomeState {
     };
     return _card(
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Row(
+          children: [
+            PaymentMarkView(
+              mark: switch (result.state) {
+                TransactionState.submitted ||
+                TransactionState.pending => PaymentMark.awaitingReceipt,
+                TransactionState.unknown => PaymentMark.uncertain,
+                TransactionState.confirmed => PaymentMark.confirmed,
+                TransactionState.reverted => PaymentMark.reverted,
+              },
+              size: 26,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         SelectableText(result.hash),
         if (result.blockNumber != null) Text('Bloque ${result.blockNumber}'),
@@ -163,5 +200,4 @@ extension _CajaView on _WalletHomeState {
       ],
     );
   }
-
 }

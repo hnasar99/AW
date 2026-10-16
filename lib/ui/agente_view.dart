@@ -1,6 +1,50 @@
 part of '../main.dart';
 
 extension _AgenteView on _WalletHomeState {
+  List<Widget> _mcpReads() {
+    final seen = <String>{};
+    final chips = <Widget>[
+      for (final portal in ecosystemPortals)
+        if (portal.readTool != null && seen.add(portal.readTool!))
+          ActionChip(
+            label: Text(portal.label),
+            onPressed: _mcpBusy
+                ? null
+                : () => _readMcp(portal.readTool!, portal.label),
+          ),
+    ];
+    return [
+      Text('Lecturas MCP', style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: 8),
+      const Text(
+        'Cada chip llama la lectura de ese portal. Una escritura queda fuera del MCP.',
+        style: TextStyle(color: Colors.white60, height: 1.4),
+      ),
+      const SizedBox(height: 10),
+      Wrap(spacing: 8, runSpacing: 8, children: chips),
+      if (_mcpTool != null) ...[
+        const SizedBox(height: 12),
+        _card(
+          children: [
+            Text(
+              'Lectura MCP · $_mcpTool',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (_mcpBusy)
+              const LinearProgressIndicator()
+            else
+              SelectableText(
+                _mcpBody ?? '',
+                style: const TextStyle(height: 1.4),
+              ),
+          ],
+        ),
+      ],
+      const SizedBox(height: 16),
+    ];
+  }
+
   List<Widget> _agentView() => [
     Text(
       awLabTextOnly ? 'Consulta al laboratorio' : 'Asistente',
@@ -14,10 +58,12 @@ extension _AgenteView on _WalletHomeState {
           ? 'OpenHuman coordina la consulta dentro de AW. El modelo debe ejecutarse en tu laboratorio, a través del endpoint loopback que configures. No se inicia ninguna consulta de blockchain.'
           : 'El agente propone órdenes con arc_network_status y arc_balance. '
                 'Una herramienta ejecutada muestra el dato que leyó Rust. '
-                'El texto del modelo no autoriza ni firma.',
+                'Con la empresa conectada, el MCP lee Fluuix, ZonaFranca, '
+                'TokenizaTuNegocio y los demás portales. No firma.',
       style: TextStyle(color: Colors.white70, height: 1.5),
     ),
-    const SizedBox(height: 16),
+      const SizedBox(height: 16),
+    if (!awLabTextOnly) ..._mcpReads(),
     OutlinedButton.icon(
       onPressed: _agentBusy ? null : _probeNative,
       icon: const Icon(Icons.memory),

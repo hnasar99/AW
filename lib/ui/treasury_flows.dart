@@ -11,6 +11,8 @@ extension _TreasuryFlows on _WalletHomeState {
       'No hay agenda de cobros ni pagos cargada.',
       style: TextStyle(color: Colors.white70, height: 1.45),
     ),
+    SizedBox(height: 18),
+    AbsentSeries(),
   ];
 
   List<Widget> _collectionsBody() => [
@@ -20,9 +22,15 @@ extension _TreasuryFlows on _WalletHomeState {
     ),
     const SizedBox(height: 16),
     ..._receivePanel(),
+    const SizedBox(height: 16),
+    ..._booksBlock('incoming'),
   ];
 
   List<Widget> _paymentsBody() => [
+    if (_liabilityMark != null) ...[
+      LiabilityRow(mark: _liabilityMark!),
+      const SizedBox(height: 16),
+    ],
     const Text(
       'Empresa de la zona, motivo y firma. Si supera el tope, la orden no se arma.',
       style: TextStyle(color: Colors.white70, height: 1.45),
@@ -30,6 +38,8 @@ extension _TreasuryFlows on _WalletHomeState {
     const SizedBox(height: 16),
     ..._payForm(),
     if (_error != null) _errorBox(_error!),
+    const SizedBox(height: 16),
+    ..._booksBlock('history'),
   ];
 
   List<Widget> _convertBody() => [
@@ -38,14 +48,23 @@ extension _TreasuryFlows on _WalletHomeState {
       style: TextStyle(height: 1.45),
     ),
     const SizedBox(height: 18),
-    _pocketLine('Caja en dólares', _balance == null ? 'Sin lectura' : 'Origen posible'),
+    _pocketLine(
+      'Caja en dólares',
+      _balance == null ? 'Sin lectura' : 'Origen posible',
+    ),
     _pocketLine('Riel local', 'Sin lectura'),
     _pocketLine('Entrada de dólares', 'Sin lectura'),
     const SizedBox(height: 16),
     const Text('Hacia la caja en dólares'),
     const SizedBox(height: 8),
-    const Text('Llegada: sin cotización', style: TextStyle(color: Colors.white70)),
-    const Text('Costo: sin cotización', style: TextStyle(color: Colors.white70)),
+    const Text(
+      'Llegada: sin cotización',
+      style: TextStyle(color: Colors.white70),
+    ),
+    const Text(
+      'Costo: sin cotización',
+      style: TextStyle(color: Colors.white70),
+    ),
     const SizedBox(height: 16),
     const Text(
       'El pasaje no está conectado. No se arma una conversión.',
@@ -53,14 +72,12 @@ extension _TreasuryFlows on _WalletHomeState {
     ),
   ];
 
-  Widget _pocketLine(String name, String state) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 6),
-    child: Row(
-      children: [
-        Expanded(child: Text(name)),
-        Text(state, style: const TextStyle(color: Colors.white54, fontSize: 13)),
-      ],
-    ),
+  Widget _pocketLine(String name, String state) => LedgerRow(
+    title: name,
+    trailing: state,
+    leading: state == 'Sin lectura'
+        ? const UnreadVessel(size: 22)
+        : const ReadingMark(size: 22),
   );
 
   List<Widget> _internationalBody() => [
@@ -87,9 +104,14 @@ extension _TreasuryFlows on _WalletHomeState {
     const SizedBox(height: 16),
     Text('Corredor: $_corridor', style: const TextStyle(color: Colors.white70)),
     const SizedBox(height: 8),
-    const Text('Moneda de llegada: sin cotización', style: TextStyle(color: Colors.white70)),
+    const Text(
+      'Moneda de llegada: sin cotización',
+      style: TextStyle(color: Colors.white70),
+    ),
     const SizedBox(height: 16),
-    const Text(treasuryNotOnPhone, style: TextStyle(color: fluuixAccent, height: 1.4)),
+    const PhoneBoundLine(color: fluuixAccent),
+    const SizedBox(height: 16),
+    ..._booksBlock('crossBorder'),
   ];
 
   List<Widget> _reconcileBody() => [
@@ -97,6 +119,8 @@ extension _TreasuryFlows on _WalletHomeState {
       'El comprobante guardado en este teléfono, contra el movimiento. Sin extracto bancario.',
       style: TextStyle(height: 1.45),
     ),
+    const SizedBox(height: 16),
+    ..._booksBlock('history'),
     const SizedBox(height: 16),
     if (_transaction == null && _savedReceipts.isEmpty)
       const Text(
@@ -109,9 +133,17 @@ extension _TreasuryFlows on _WalletHomeState {
     ],
     if (_requestUncertain) ...[
       const SizedBox(height: 16),
-      const Text(
-        'Solicitud sin resolver',
-        style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+      const Row(
+        children: [
+          PaymentMarkView(mark: PaymentMark.uncertain),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Solicitud sin resolver',
+              style: TextStyle(color: fluuixGold, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
       const SizedBox(height: 8),
       const Text(
@@ -126,7 +158,10 @@ extension _TreasuryFlows on _WalletHomeState {
       Wrap(
         spacing: 8,
         children: [
-          TextButton(onPressed: _recoverTransaction, child: const Text('Comprobar')),
+          TextButton(
+            onPressed: _recoverTransaction,
+            child: const Text('Comprobar'),
+          ),
           TextButton(
             onPressed: _wallet.requestPending ? null : _acknowledgeNoSend,
             child: const Text('La solicitud fue cancelada o rechazada'),
@@ -143,5 +178,7 @@ extension _TreasuryFlows on _WalletHomeState {
     ),
     const SizedBox(height: 16),
     ..._capPanel(),
+    const SizedBox(height: 16),
+    ..._booksBlock('caps'),
   ];
 }

@@ -63,28 +63,76 @@ _CashBox _cashBox(TreasuryScreen screen) => switch (screen) {
 extension _TreasuryBoxes on _WalletHomeState {
   List<Widget> _boxBody(TreasuryScreen screen) {
     final box = _cashBox(screen);
+    if (_apiBox(screen)) {
+      final key = _booksKey(screen)!;
+      return [
+        Text(box.role, style: const TextStyle(fontSize: 16, height: 1.4)),
+        const SizedBox(height: 18),
+        LedgerPlate(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _booksBlock(
+              key,
+              note: 'Esta caja no se suma a la caja en dólares.',
+            ),
+          ),
+        ),
+        if (box.vehicle) ...[const SizedBox(height: 20), ..._vehicleSteps()],
+      ];
+    }
     final live = box.live && _balance != null;
     return [
       Text(box.role, style: const TextStyle(fontSize: 16, height: 1.4)),
       const SizedBox(height: 18),
-      Text(
-        live ? formatUnits(_balance!, 18, places: 2) : '—',
-        style: const TextStyle(
-          fontSize: 48,
-          fontWeight: FontWeight.w600,
-          height: 1,
-          fontFeatures: [FontFeature.tabularFigures()],
+      LedgerPlate(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (live)
+              Text(
+                formatUnits(_balance!, 18, places: 2),
+                style: const TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.w500,
+                  height: 1,
+                  letterSpacing: -1,
+                  fontFeatures: [FontFeature.tabularFigures()],
+                ),
+              )
+            else
+              const Row(
+                children: [
+                  UnreadVessel(size: 22),
+                  SizedBox(width: 10),
+                  Text(
+                    'Sin lectura',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 12),
+            const BrandRule(),
+            const SizedBox(height: 12),
+            if (live)
+              const Text(
+                'USDC',
+                style: TextStyle(
+                  color: fluuixGold,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+            else if (!box.live)
+              const Text(
+                'Esta caja no se suma a la posición.',
+                style: TextStyle(color: Color(0xff9aa0ae), height: 1.4),
+              ),
+            const SizedBox(height: 8),
+            Text(
+              box.settle,
+              style: const TextStyle(color: Colors.white60, height: 1.4),
+            ),
+          ],
         ),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        live ? 'USDC' : 'Sin lectura',
-        style: const TextStyle(color: fluuixAccent),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        box.settle,
-        style: const TextStyle(color: Colors.white60, height: 1.4),
       ),
       if (box.live && !_networkVerified)
         Padding(
@@ -94,17 +142,7 @@ extension _TreasuryBoxes on _WalletHomeState {
             style: const TextStyle(color: Colors.white54, fontSize: 12),
           ),
         ),
-      if (!box.live) ...[
-        const SizedBox(height: 12),
-        const Text(
-          'Esta caja no se suma a la posición.',
-          style: TextStyle(color: Colors.white60, fontSize: 13),
-        ),
-      ],
-      if (box.vehicle) ...[
-        const SizedBox(height: 20),
-        ..._vehicleSteps(),
-      ],
+      if (box.vehicle) ...[const SizedBox(height: 20), ..._vehicleSteps()],
       if (box.live) ...[
         const SizedBox(height: 20),
         Row(
@@ -142,11 +180,14 @@ extension _TreasuryBoxes on _WalletHomeState {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            const Icon(Icons.radio_button_unchecked, size: 16, color: Colors.white38),
+            const UnreadVessel(size: 16),
             const SizedBox(width: 8),
             Text(step),
             const Spacer(),
-            const Text('Sin movimiento', style: TextStyle(color: Colors.white54, fontSize: 12)),
+            const Text(
+              'Sin movimiento',
+              style: TextStyle(color: Colors.white54, fontSize: 12),
+            ),
           ],
         ),
       ),

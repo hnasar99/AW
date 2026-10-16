@@ -190,7 +190,7 @@ class _Mark extends StatelessWidget {
           children: [
             Image.asset(
               'assets/brand/fluuix_logo.png',
-              width: 220,
+              width: 248,
               filterQuality: FilterQuality.high,
               semanticLabel: 'FluuiX',
             ),
