@@ -1,8 +1,18 @@
-# AW · Arc Wallet + OpenHuman
+# FluuiX · AW on Monad
 
-Aplicación Flutter para **Android y Arc Testnet**, con el runtime Rust de OpenHuman integrado como biblioteca nativa. La inferencia usa un proveedor OpenAI compatible elegido por el operador; los pesos del modelo no se ejecutan en el teléfono. El agente consulta la red y puede proponer una transferencia. La aprobación final y la firma pertenecen a una wallet externa.
+Android treasury app. **Monad Testnet is a first-class network.** OpenHuman stays on the phone. The language model is optional.
 
-Esta iteración se identifica como **0.2.0+2**. Consulte [DELIVERY_STATUS.md](DELIVERY_STATUS.md) para conocer las pruebas ejecutadas y las pendientes. `release` describe el modo de compilación; no constituye una aprobación para operar con dinero real.
+## Features on Monad
+
+| Feature | What it does |
+|---|---|
+| Monad Testnet | Chain ID `10143`. Native asset **MON**, 18 decimals. Not USDC. |
+| Fluuix read gateway | Preconfigured profile `https://fluuix-chain-access-testnet.up.railway.app/v1/rpc/monad-testnet`. Upstream is `https://testnet-rpc.monad.xyz`. The app checks `eth_chainId` before a balance read. A failed read stays unknown; it is not shown as zero. |
+| Arc Testnet payments | Chain ID `5042002`, USDC. Review, simulation and gas estimate, then an external WalletConnect signature. Monad reads do not sign, swap or bridge. |
+| Network screen | Arc and Monad ship as profiles. More EVM HTTPS profiles can be added after the chain identity check. No automatic failover. Entry point: `lib/networked_main.dart`. |
+| Optional agent model | **Kimi** (`kimi-k3` at `https://api.moonshot.ai/v1`) is the model for the Monad track narrative. Ollama on loopback and any other OpenAI-compatible `/v1` model are valid too. The model may fill a transfer proposal. It never signs and it does not write to Monad. No API key is shipped in the app. |
+
+Esta iteración de la app de redes es **0.3.0+3**. Consulte [DELIVERY_STATUS.md](DELIVERY_STATUS.md) para conocer las pruebas ejecutadas y las pendientes. `release` describe el modo de compilación; no constituye una aprobación para operar con dinero real.
 
 ## Laboratorio de texto local
 
@@ -32,7 +42,7 @@ La [guía del laboratorio](docs/LOCAL_LLM_LAB.md) comienza con un inventario sin
 4. Agregue Arc Testnet cuando sea necesario y obtenga USDC de prueba desde el faucet oficial. Compruebe el saldo, ingrese el destinatario y el importe y revise la comisión máxima.
 5. Verifique de nuevo los campos en la wallet externa antes de firmar. La app comprueba hash, transacción y recibo. Un timeout se muestra como pendiente o incierto, sin autorizar un segundo envío.
 6. En **Agente**, pulse **Verificar ejecución nativa de Rust**. El ABI responde desde la biblioteca cargada; este resultado por sí solo no demuestra inferencia ni una operación on-chain.
-7. Configure en **Ajustes** el endpoint HTTPS, el ID de modelo y su API key autorizada. Use la raíz compatible, como `https://proveedor.example/v1`, sin añadir `/chat/completions`. Inicie el agente y envíe una consulta.
+7. En **Ajustes**, el modelo es opcional. **Completar con Kimi** carga `https://api.moonshot.ai/v1` y `kimi-k3` para la narrativa de Monad. Ollama usa un loopback como `http://127.0.0.1:11434/v1` y el ID del modelo local. Cualquier otra raíz compatible con `/v1` también sirve. No añada `/chat/completions`. La API key, si el proveedor la pide, la ingresa el operador.
 
 Recordar la API key es optativo. Se conserva junto con su endpoint mediante almacenamiento seguro de Android; editar el endpoint limpia la clave de la interfaz. Los mensajes y resultados de herramientas necesarios para responder se envían al proveedor. Reiniciar el agente limpia su sesión en memoria, pero no borra registros que un proveedor remoto pueda conservar. La UI distingue el texto del modelo de las lecturas efectivamente registradas por las herramientas.
 

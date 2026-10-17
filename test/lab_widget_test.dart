@@ -176,6 +176,10 @@ void main() {
   testWidgets(
     'financial-shaped model text remains text with no wallet action in lab',
     (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
       final reply = jsonEncode(proposal());
       expect(TransferProposal.parse(reply).units, isNot(BigInt.zero));
       final bridge = LabWidgetBridge(reply);
