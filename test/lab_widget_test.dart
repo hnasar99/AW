@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:arc_wallet_flutter/domain/arc.dart';
 import 'package:arc_wallet_flutter/domain/inference_config.dart';
 import 'package:arc_wallet_flutter/main.dart';
 import 'package:arc_wallet_flutter/openhuman_bridge.dart';
