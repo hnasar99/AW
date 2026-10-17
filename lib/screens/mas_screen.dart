@@ -198,14 +198,17 @@ class MasScreen extends StatelessWidget {
             helperMaxLines: 2,
           ),
         ),
-        CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          value: appState.rememberKey,
-          onChanged:
-              appState.agentReady || appState.agentBusy
-                  ? null
-                  : appState.setRememberKey,
-          title: Text(l10n.rememberKey),
+        Material(
+          color: Colors.transparent,
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            value: appState.rememberKey,
+            onChanged:
+                appState.agentReady || appState.agentBusy
+                    ? null
+                    : appState.setRememberKey,
+            title: Text(l10n.rememberKey),
+          ),
         ),
         const SizedBox(height: 6),
         Text(
