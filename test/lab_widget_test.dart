@@ -61,7 +61,11 @@ void main() {
       });
       final bridge = LabWidgetBridge('', nativeStatus: status);
       await tester.pumpWidget(
-        ArcWalletApp(autoInitialize: false, agent: bridge),
+        ArcWalletApp(
+          autoInitialize: false,
+          agent: bridge,
+          overrideLocale: const Locale('es'),
+        ),
       );
       final probe = find.text('Verificar ejecución nativa de Rust');
       await tester.scrollUntilVisible(
@@ -110,7 +114,9 @@ void main() {
       var httpClients = 0;
       await HttpOverrides.runZoned(
         () async {
-          await tester.pumpWidget(const ArcWalletApp());
+          await tester.pumpWidget(
+            const ArcWalletApp(overrideLocale: Locale('es')),
+          );
           await tester.pumpAndSettle();
           tester.binding.handleAppLifecycleStateChanged(
             AppLifecycleState.paused,
@@ -174,7 +180,11 @@ void main() {
       expect(TransferProposal.parse(reply).units, isNot(BigInt.zero));
       final bridge = LabWidgetBridge(reply);
       await tester.pumpWidget(
-        ArcWalletApp(autoInitialize: false, agent: bridge),
+        ArcWalletApp(
+          autoInitialize: false,
+          agent: bridge,
+          overrideLocale: const Locale('es'),
+        ),
       );
       final probe = find.text('Verificar ejecución nativa de Rust');
       await tester.scrollUntilVisible(
