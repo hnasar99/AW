@@ -766,4 +766,147 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get languageChinese => '中文';
+
+  @override
+  String get navInicio => 'Início';
+
+  @override
+  String get navRieles => 'Trilhos';
+
+  @override
+  String get navMas => 'Mais';
+
+  @override
+  String get homeWelcome => 'Bem-vindo ao FluuiX';
+
+  @override
+  String get homeConnectedStatus => 'Carteira conectada';
+
+  @override
+  String get homeDisconnectedStatus => 'Carteira desconectada';
+
+  @override
+  String get homeLayers => 'Camadas';
+
+  @override
+  String get homeLayerAgentes => 'Agentes';
+
+  @override
+  String get homeLayerAgentesDesc => 'IA que propõe operações';
+
+  @override
+  String get homeLayerRieles => 'Trilhos';
+
+  @override
+  String get homeLayerRielesDesc => 'Instrumentos locais';
+
+  @override
+  String get homeLayerContratos => 'Contratos';
+
+  @override
+  String get homeLayerContratosDesc => 'Contratos inteligentes';
+
+  @override
+  String get homeLayerWallets => 'Carteiras';
+
+  @override
+  String get homeLayerWalletsDesc => 'Gestão de carteiras';
+
+  @override
+  String get homeLayerSettlement => 'Liquidação';
+
+  @override
+  String get homeLayerSettlementDesc => 'Liquidação final';
+
+  @override
+  String get homeLayerMultichain => 'Multicadeia';
+
+  @override
+  String get homeLayerMultichainDesc => 'Pontes entre cadeias';
+
+  @override
+  String get layerStateActive => 'Ativo';
+
+  @override
+  String get layerStatePartial => 'Parcial';
+
+  @override
+  String get homeQuickActions => 'Ações rápidas';
+
+  @override
+  String get homeAskAgent => 'Perguntar';
+
+  @override
+  String get homeSystemStatus => 'Status do sistema';
+
+  @override
+  String get passageComingSoon => 'Em breve';
+
+  @override
+  String get passageDescription =>
+      'A ponte CCTP permite mover USDC nativamente entre cadeias. Quando ativo, você poderá passar fundos do Arbitrum ou outras redes.';
+
+  @override
+  String get capPolicyTitle => 'Política de limites';
+
+  @override
+  String get rielesTitle => 'Trilhos';
+
+  @override
+  String get rielesDescription =>
+      'Os trilhos conectam diferentes instrumentos com a caixa. Cada trilho tem seu próprio saldo e condições.';
+
+  @override
+  String get rielUsdcNative => 'USDC nativo';
+
+  @override
+  String get rielActive => 'Ativo';
+
+  @override
+  String get rielesHowItWorks => 'Como funcionam os trilhos';
+
+  @override
+  String get rielesExplanation =>
+      'Um trilho é um canal de liquidação entre a caixa e um instrumento. O trilho local (Twin) permite operar com pesos tokenizados. A reserva (cirBTC) é um instrumento de poupança. USDC é o saldo nativo do Arc.';
+
+  @override
+  String get paymentChecklist => 'Lista de verificação';
+
+  @override
+  String get checkRpcConnected => 'RPC conectado';
+
+  @override
+  String get checkWalletConnected => 'Carteira conectada';
+
+  @override
+  String get checkArcSupported => 'Arc autorizado';
+
+  @override
+  String get checkWithinLimit => 'Dentro do limite diário';
+
+  @override
+  String get paymentSheetDisclaimer =>
+      'FluuiX prepara a ordem e a exibe para revisão. Sua carteira externa solicita a assinatura. O texto do modelo não autoriza nem assina pagamentos.';
+
+  @override
+  String get sheetChainRail => 'Cadeia e trilho';
+
+  @override
+  String get sheetNoAuthNoSign => 'Não autoriza nem assina';
+
+  @override
+  String get proposalSheetTitle => 'Proposta do agente';
+
+  @override
+  String get proposalFromAgent => 'OpenHuman propõe esta transferência';
+
+  @override
+  String get proposalNotFound => 'Proposta não encontrada';
+
+  @override
+  String get proposalDisclaimer =>
+      'O agente apenas propõe. A assinatura requer sua revisão na carteira. Verifique destinatário, valor e taxa antes de aprovar.';
+
+  @override
+  String get proposalCopyToForm => 'Copiar para formulário';
 }
