@@ -1,0 +1,667 @@
+{
+  "@@locale": "es",
+  "@@last_modified": "2026-10-17",
+
+  "appTitle": "FluuiX",
+  "@appTitle": {"description": "Application title"},
+
+  "appTitleLab": "AW · Laboratorio de texto",
+  "@appTitleLab": {"description": "Application title in lab mode"},
+
+  "taglineDollarBox": "Caja en dólares",
+  "@taglineDollarBox": {"description": "Main tagline shown in splash"},
+
+  "testnetBadge": "TESTNET",
+  "@testnetBadge": {"description": "Badge indicating testnet environment"},
+
+  "navCaja": "Caja",
+  "@navCaja": {"description": "Bottom navigation: wallet/box tab"},
+
+  "navAgente": "Agente",
+  "@navAgente": {"description": "Bottom navigation: agent tab"},
+
+  "navRed": "Red",
+  "@navRed": {"description": "Bottom navigation: network tab"},
+
+  "navAjustes": "Ajustes",
+  "@navAjustes": {"description": "Bottom navigation: settings tab"},
+
+  "connectionPending": "Conexión pendiente",
+  "@connectionPending": {"description": "Status when RPC connection is pending"},
+
+  "rpcVerified": "RPC verificado · Arc Testnet",
+  "@rpcVerified": {"description": "Status when RPC is verified"},
+
+  "cajaEnDolares": "Caja en dólares",
+  "@cajaEnDolares": {"description": "Dollar box section title"},
+
+  "balanceUsdc": "USDC",
+  "@balanceUsdc": {"description": "USDC token symbol"},
+
+  "arcTestnetSingleBalance": "Arc Testnet · un solo saldo para pagos y comisiones. No incluye el riel local ni la reserva.",
+  "@arcTestnetSingleBalance": {"description": "Explanation of Arc Testnet balance"},
+
+  "arcVerified": "Arc verificado",
+  "@arcVerified": {"description": "Status chip: Arc verified"},
+
+  "arcNotVerified": "Arc sin verificar",
+  "@arcNotVerified": {"description": "Status chip: Arc not verified"},
+
+  "sessionActive": "Sesión activa",
+  "@sessionActive": {"description": "Status chip: session active"},
+
+  "noSession": "Sin sesión",
+  "@noSession": {"description": "Status chip: no session"},
+
+  "remainingCapLabel": "Tope restante {amount} USDC",
+  "@remainingCapLabel": {"description": "Status chip showing remaining cap", "placeholders": {"amount": {"type": "String"}}},
+
+  "sessionOnArcTestnet": "Sesión en Arc Testnet · cadena {chainId}",
+  "@sessionOnArcTestnet": {"description": "Session info with chain ID", "placeholders": {"chainId": {"type": "String"}}},
+
+  "disconnect": "Desconectar",
+  "@disconnect": {"description": "Button to disconnect wallet"},
+
+  "viewAccount": "Ver cuenta",
+  "@viewAccount": {"description": "Button to view account in explorer"},
+
+  "localRail": "Riel local",
+  "@localRail": {"description": "Local rail card title"},
+
+  "reserve": "Reserva",
+  "@reserve": {"description": "Reserve card title"},
+
+  "noContract": "Sin contrato",
+  "@noContract": {"description": "Status when no contract is deployed"},
+
+  "notAddedToBox": "No se suma a la caja.",
+  "@notAddedToBox": {"description": "Note that rail is not added to box"},
+
+  "pay": "Pagar",
+  "@pay": {"description": "Pay panel button"},
+
+  "receive": "Recibir",
+  "@receive": {"description": "Receive panel button"},
+
+  "passage": "Pasar",
+  "@passage": {"description": "Bridge/passage panel button"},
+
+  "cap": "Tope",
+  "@cap": {"description": "Cap/limit panel button"},
+
+  "payTitle": "Pagar",
+  "@payTitle": {"description": "Pay form title"},
+
+  "payDescription": "La orden se revisa en FluuiX y se firma en tu wallet. Si supera el tope, no se arma.",
+  "@payDescription": {"description": "Pay form description"},
+
+  "recipientAddress": "Dirección del destinatario",
+  "@recipientAddress": {"description": "Recipient address field label"},
+
+  "recipientHint": "0x…",
+  "@recipientHint": {"description": "Recipient address field hint"},
+
+  "amount": "Importe",
+  "@amount": {"description": "Amount field label"},
+
+  "amountHelper": "Hasta 6 decimales. No se redondea.",
+  "@amountHelper": {"description": "Amount field helper text"},
+
+  "processing": "Procesando…",
+  "@processing": {"description": "Processing state text"},
+
+  "reviewTransfer": "Revisar transferencia",
+  "@reviewTransfer": {"description": "Button to review transfer"},
+
+  "connectWallet": "Conectar wallet",
+  "@connectWallet": {"description": "Button to connect wallet"},
+
+  "requestAddArcTestnet": "Solicitar agregar Arc Testnet",
+  "@requestAddArcTestnet": {"description": "Button to request adding Arc Testnet to wallet"},
+
+  "getTestUsdc": "Obtener USDC de prueba",
+  "@getTestUsdc": {"description": "Link to get test USDC from faucet"},
+
+  "receiveTitle": "Recibir",
+  "@receiveTitle": {"description": "Receive panel title"},
+
+  "receiveConnectPrompt": "Conectá la wallet para mostrar la dirección de la caja. FluuiX no genera una cuenta propia.",
+  "@receiveConnectPrompt": {"description": "Prompt to connect wallet to see address"},
+
+  "receiveDescription": "Esta dirección recibe USDC en Arc Testnet. No es una cuenta bancaria.",
+  "@receiveDescription": {"description": "Receive address description"},
+
+  "passageTitle": "Pasar",
+  "@passageTitle": {"description": "Passage/bridge panel title"},
+
+  "passageNotConnected": "El pasaje Arbitrum → Arc por CCTP no está conectado. No hay saldo de otra cadena en esta pantalla y no se arma un puente.",
+  "@passageNotConnected": {"description": "Passage not connected message"},
+
+  "capTitle": "Tope",
+  "@capTitle": {"description": "Cap panel title"},
+
+  "perPaymentCap": "Por pago: {amount} USDC",
+  "@perPaymentCap": {"description": "Per-payment cap display", "placeholders": {"amount": {"type": "String"}}},
+
+  "perDayCap": "Por día: {amount} USDC",
+  "@perDayCap": {"description": "Per-day cap display", "placeholders": {"amount": {"type": "String"}}},
+
+  "usedToday": "Usado hoy: {amount} USDC",
+  "@usedToday": {"description": "Amount used today", "placeholders": {"amount": {"type": "String"}}},
+
+  "remainingToday": "Restante hoy: {amount} USDC",
+  "@remainingToday": {"description": "Remaining amount today", "placeholders": {"amount": {"type": "String"}}},
+
+  "capPolicyExplanation": "Política local de esta app, contada con recibos confirmados en este teléfono. No es un Agent Wallet de Circle. Si el importe la supera, la orden no se arma.",
+  "@capPolicyExplanation": {"description": "Explanation of local cap policy"},
+
+  "activity": "Actividad",
+  "@activity": {"description": "Activity section title"},
+
+  "noReceiptSaved": "Todavía no hay un recibo guardado en este teléfono.",
+  "@noReceiptSaved": {"description": "Message when no receipts are saved"},
+
+  "hashIsReceipt": "El hash es el recibo. No reemplaza el extracto del banco.",
+  "@hashIsReceipt": {"description": "Note about transaction hash"},
+
+  "unresolvedRequest": "Solicitud sin resolver",
+  "@unresolvedRequest": {"description": "Unresolved request warning title"},
+
+  "checkWalletHistory": "Revisá el historial y las solicitudes en tu wallet antes de otro envío. Si hay un hash, pegalo para comprobarlo.",
+  "@checkWalletHistory": {"description": "Instructions to check wallet history"},
+
+  "transactionHashLabel": "Hash de transacción 0x…",
+  "@transactionHashLabel": {"description": "Transaction hash input label"},
+
+  "checkHash": "Comprobar hash",
+  "@checkHash": {"description": "Button to check hash"},
+
+  "requestCancelledOrRejected": "La solicitud fue cancelada o rechazada",
+  "@requestCancelledOrRejected": {"description": "Button to acknowledge cancelled request"},
+
+  "txSubmitted": "Enviada · esperando recibo",
+  "@txSubmitted": {"description": "Transaction state: submitted"},
+
+  "txConfirmed": "Confirmada · ejecución exitosa",
+  "@txConfirmed": {"description": "Transaction state: confirmed"},
+
+  "txReverted": "Revertida · la operación falló en la red",
+  "@txReverted": {"description": "Transaction state: reverted"},
+
+  "txPending": "Pendiente · todavía sin recibo",
+  "@txPending": {"description": "Transaction state: pending"},
+
+  "txUnknown": "Estado no verificado · consultá el explorador",
+  "@txUnknown": {"description": "Transaction state: unknown"},
+
+  "confirmed": "Confirmada",
+  "@confirmed": {"description": "Confirmed status label"},
+
+  "blockLabel": "Bloque {number}",
+  "@blockLabel": {"description": "Block number display", "placeholders": {"number": {"type": "String"}}},
+
+  "checkReceipt": "Comprobar recibo",
+  "@checkReceipt": {"description": "Button to check receipt"},
+
+  "openExplorer": "Abrir explorador",
+  "@openExplorer": {"description": "Button to open block explorer"},
+
+  "dailyOrders": "Órdenes del día",
+  "@dailyOrders": {"description": "Daily orders/missions title"},
+
+  "ordersExplanation": "Cada ítem refleja un evento ya observado en esta sesión. No es una transferencia simulada.",
+  "@ordersExplanation": {"description": "Explanation of daily orders checklist"},
+
+  "orderVerifyArc": "Verificar Arc Testnet",
+  "@orderVerifyArc": {"description": "Order: verify Arc Testnet"},
+
+  "orderExecuteRust": "Ejecutar Rust en el dispositivo",
+  "@orderExecuteRust": {"description": "Order: execute Rust on device"},
+
+  "orderActivateOpenHuman": "Activar OpenHuman",
+  "@orderActivateOpenHuman": {"description": "Order: activate OpenHuman agent"},
+
+  "orderConnectArcAccount": "Conectar una cuenta en Arc",
+  "@orderConnectArcAccount": {"description": "Order: connect Arc account"},
+
+  "orderConfirmTransfer": "Confirmar una transferencia real de testnet",
+  "@orderConfirmTransfer": {"description": "Order: confirm real testnet transfer"},
+
+  "agentBoxTitle": "Agente de la caja",
+  "@agentBoxTitle": {"description": "Agent section title"},
+
+  "agentLabTitle": "Consulta al laboratorio",
+  "@agentLabTitle": {"description": "Agent section title in lab mode"},
+
+  "agentVerifyStatus": "Verificá el runtime y configurá la inferencia",
+  "@agentVerifyStatus": {"description": "Initial agent status message"},
+
+  "agentDescription": "El agente propone órdenes con arc_network_status y arc_balance. Una herramienta ejecutada muestra el dato que leyó Rust. El texto del modelo no autoriza ni firma.",
+  "@agentDescription": {"description": "Agent description"},
+
+  "agentLabDescription": "OpenHuman coordina la consulta dentro de AW. El modelo debe ejecutarse en tu laboratorio, a través del endpoint loopback que configures. No se inicia ninguna consulta de blockchain.",
+  "@agentLabDescription": {"description": "Agent description in lab mode"},
+
+  "verifyNativeRust": "Verificar ejecución nativa de Rust",
+  "@verifyNativeRust": {"description": "Button to verify native Rust execution"},
+
+  "libraryExecuted": "Biblioteca ejecutada: {os} / {arch}",
+  "@libraryExecuted": {"description": "Library execution info", "placeholders": {"os": {"type": "String"}, "arch": {"type": "String"}}},
+
+  "allowedTools": "Herramientas permitidas: {tools}",
+  "@allowedTools": {"description": "Allowed tools list", "placeholders": {"tools": {"type": "String"}}},
+
+  "noTools": "ninguna",
+  "@noTools": {"description": "No tools allowed"},
+
+  "runtimeNotInitialized": "Runtime sin inicializar. La política de herramientas se comprueba al inicializar.",
+  "@runtimeNotInitialized": {"description": "Runtime not initialized message"},
+
+  "nativePolicy": "Política nativa: {mode}",
+  "@nativePolicy": {"description": "Native policy mode", "placeholders": {"mode": {"type": "String"}}},
+
+  "notStarted": "sin iniciar",
+  "@notStarted": {"description": "Not started status"},
+
+  "agentBudget": "Presupuesto del agente: {tokens} tokens. No acredita la capacidad real del modelo.",
+  "@agentBudget": {"description": "Agent token budget", "placeholders": {"tokens": {"type": "String"}}},
+
+  "localTestDisclaimer": "Esta prueba local no implica que la inferencia o una transferencia hayan sido verificadas.",
+  "@localTestDisclaimer": {"description": "Disclaimer about local test"},
+
+  "labTestDisclaimer": "Ejecutar esta biblioteca no verifica todavía el modelo del laboratorio.",
+  "@labTestDisclaimer": {"description": "Lab test disclaimer"},
+
+  "configureLabButton": "Configurar laboratorio",
+  "@configureLabButton": {"description": "Button to configure lab"},
+
+  "configureProviderButton": "Configurar proveedor e iniciar agente",
+  "@configureProviderButton": {"description": "Button to configure provider"},
+
+  "queryLabel": "Tu consulta al agente",
+  "@queryLabel": {"description": "Agent query input label"},
+
+  "presetArcStatus": "Estado real de Arc",
+  "@presetArcStatus": {"description": "Preset query: Arc status"},
+
+  "presetMyBalance": "Consultar mi saldo",
+  "@presetMyBalance": {"description": "Preset query: check balance"},
+
+  "agentWorking": "Agente trabajando…",
+  "@agentWorking": {"description": "Agent busy status"},
+
+  "queryOpenHuman": "Consultar OpenHuman",
+  "@queryOpenHuman": {"description": "Button to query agent"},
+
+  "cancelTurn": "Cancelar turno",
+  "@cancelTurn": {"description": "Button to cancel agent turn"},
+
+  "modelText": "Texto del modelo",
+  "@modelText": {"description": "Model text section title"},
+
+  "modelTextDisclaimer": "Eso es texto del modelo. No es una lectura de red ni una firma.",
+  "@modelTextDisclaimer": {"description": "Model text disclaimer"},
+
+  "toolsExecuted": "Herramientas ejecutadas: {tools}",
+  "@toolsExecuted": {"description": "Executed tools list", "placeholders": {"tools": {"type": "String"}}},
+
+  "liveReadTool": "Lectura ejecutada · {tool}",
+  "@liveReadTool": {"description": "Live read tool name", "placeholders": {"tool": {"type": "String"}}},
+
+  "blockNumber": "Bloque: {number}",
+  "@blockNumber": {"description": "Block number", "placeholders": {"number": {"type": "String"}}},
+
+  "balanceUsdcLabel": "Saldo USDC: {balance}",
+  "@balanceUsdcLabel": {"description": "USDC balance label", "placeholders": {"balance": {"type": "String"}}},
+
+  "observationUnix": "Observación UNIX: {timestamp}",
+  "@observationUnix": {"description": "Unix timestamp observation", "placeholders": {"timestamp": {"type": "String"}}},
+
+  "toolResultOk": "Resultado obtenido por la herramienta Rust",
+  "@toolResultOk": {"description": "Tool result success"},
+
+  "toolResultFailed": "La herramienta no pudo completar la lectura",
+  "@toolResultFailed": {"description": "Tool result failure"},
+
+  "applyProposal": "Llevar propuesta al formulario",
+  "@applyProposal": {"description": "Button to apply agent proposal"},
+
+  "agentResponseDisclaimer": "Una respuesta del modelo no es una confirmación de pago. El agente sólo propone; la firma requiere tu revisión en la wallet.",
+  "@agentResponseDisclaimer": {"description": "Agent response disclaimer"},
+
+  "labResponseDisclaimer": "La salida del modelo es texto no confiable. No se interpreta como una instrucción ni habilita acciones.",
+  "@labResponseDisclaimer": {"description": "Lab response disclaimer"},
+
+  "lastQueryLog": "Registro de la última consulta",
+  "@lastQueryLog": {"description": "Last query log title"},
+
+  "logMetadataNote": "Sólo metadatos del cliente. Cotejá este ID con el procesamiento real en tu servidor y con la respuesta visible. No se incluyen mensajes ni claves.",
+  "@logMetadataNote": {"description": "Log metadata note"},
+
+  "copyLogWithoutKeys": "Copiar registro sin mensajes ni claves",
+  "@copyLogWithoutKeys": {"description": "Button to copy log without sensitive data"},
+
+  "restartAfterInterrupted": "Reiniciar después del turno interrumpido",
+  "@restartAfterInterrupted": {"description": "Button to restart after interrupted turn"},
+
+  "networkTitle": "Red FluuiX",
+  "@networkTitle": {"description": "Network section title"},
+
+  "networkDescription": "Cada módulo está sin contrato hasta que el operador entregue endpoint, autenticación y catálogo. No hay saldos, tasas ni préstamos.",
+  "@networkDescription": {"description": "Network section description"},
+
+  "zonaBankTitle": "ZonaBank",
+  "@zonaBankTitle": {"description": "ZonaBank module title"},
+
+  "zonaBankDesc": "Cuentas, contactos, intents y rieles de liquidación. ZonaBank no guarda claves y no es un banco licenciado.",
+  "@zonaBankDesc": {"description": "ZonaBank module description"},
+
+  "lendingTitle": "Lending",
+  "@lendingTitle": {"description": "Lending module title"},
+
+  "lendingDesc": "El mapa público habla de financiamiento contra colateral tokenizado. No hay catálogo, tasa ni préstamo en esta app.",
+  "@lendingDesc": {"description": "Lending module description"},
+
+  "zonaFrancaTitle": "ZonaFranca",
+  "@zonaFrancaTitle": {"description": "ZonaFranca module title"},
+
+  "zonaFrancaDesc": "Registro y trazabilidad de mercancía y logística. Solo lectura cuando haya catálogo.",
+  "@zonaFrancaDesc": {"description": "ZonaFranca module description"},
+
+  "ttnTitle": "TTN",
+  "@ttnTitle": {"description": "TTN module title"},
+
+  "ttnDesc": "Instrumentos ya emitidos por TokenizaTuNegocio. Emitir un token no es una orden del teléfono.",
+  "@ttnDesc": {"description": "TTN module description"},
+
+  "capitalSection": "Capital",
+  "@capitalSection": {"description": "Capital section title"},
+
+  "fideicomisosTitle": "Fideicomisos",
+  "@fideicomisosTitle": {"description": "Fideicomisos module title"},
+
+  "fideicomisosDesc": "Vehículo de capital del mismo motor. Sin posición que mostrar.",
+  "@fideicomisosDesc": {"description": "Fideicomisos module description"},
+
+  "fondosTitle": "Fondos",
+  "@fondosTitle": {"description": "Fondos module title"},
+
+  "fondosDesc": "Vehículo de capital del mismo motor. Sin posición que mostrar.",
+  "@fondosDesc": {"description": "Fondos module description"},
+
+  "crowdTitle": "Crowd",
+  "@crowdTitle": {"description": "Crowd module title"},
+
+  "crowdDesc": "Financiamiento con la comunidad. Sin campaña cargada.",
+  "@crowdDesc": {"description": "Crowd module description"},
+
+  "licitacionesTitle": "Licitaciones",
+  "@licitacionesTitle": {"description": "Licitaciones module title"},
+
+  "licitacionesDesc": "Compras con recibo verificable. Sin proceso cargado.",
+  "@licitacionesDesc": {"description": "Licitaciones module description"},
+
+  "donacionesTitle": "Donaciones",
+  "@donacionesTitle": {"description": "Donaciones module title"},
+
+  "donacionesDesc": "Donación con trazabilidad. Sin campaña cargada.",
+  "@donacionesDesc": {"description": "Donaciones module description"},
+
+  "academiaTitle": "Academia",
+  "@academiaTitle": {"description": "Academia module title"},
+
+  "academiaDesc": "Formación de TokenizaTuNegocio. No mueve fondos.",
+  "@academiaDesc": {"description": "Academia module description"},
+
+  "whatProductPublishes": "Qué publica el producto",
+  "@whatProductPublishes": {"description": "Link to product public page"},
+
+  "settingsTitle": "Ajustes",
+  "@settingsTitle": {"description": "Settings section title"},
+
+  "settingsLabTitle": "Configuración del laboratorio",
+  "@settingsLabTitle": {"description": "Settings title in lab mode"},
+
+  "walletConnectTitle": "WalletConnect / Reown",
+  "@walletConnectTitle": {"description": "WalletConnect settings section"},
+
+  "walletConnectDescription": "Ingresá el Project ID de tu proyecto. Se puede cambiar sin recompilar. La sesión de wallet permanece sólo en memoria; al reiniciar la app se vuelve a conectar. FluuiX no pide la frase semilla ni la clave privada.",
+  "@walletConnectDescription": {"description": "WalletConnect settings description"},
+
+  "projectIdLabel": "Project ID",
+  "@projectIdLabel": {"description": "Project ID input label"},
+
+  "projectIdHint": "32 caracteres hexadecimales",
+  "@projectIdHint": {"description": "Project ID input hint"},
+
+  "connecting": "Conectando…",
+  "@connecting": {"description": "Connecting state"},
+
+  "saveAndConnectReown": "Guardar y conectar Reown",
+  "@saveAndConnectReown": {"description": "Button to save and connect Reown"},
+
+  "reownClientInitialized": "Cliente Reown inicializado",
+  "@reownClientInitialized": {"description": "Reown client initialized status"},
+
+  "inferenceTitle": "Inferencia para OpenHuman",
+  "@inferenceTitle": {"description": "Inference settings section"},
+
+  "inferenceLabTitle": "Servidor de texto local",
+  "@inferenceLabTitle": {"description": "Inference settings title in lab mode"},
+
+  "inferenceDescription": "Elegí un endpoint compatible con OpenAI y el modelo habilitado por tu proveedor. El modelo usa Internet; el runtime Rust se ejecuta en el teléfono.",
+  "@inferenceDescription": {"description": "Inference settings description"},
+
+  "inferenceLabDescription": "Ingresá la IP loopback literal y la ruta /v1 del transporte que estableciste hacia tu servidor autorizado. Elegí un modelo que ya esté instalado allí. No hay endpoint ni modelo predeterminados.",
+  "@inferenceLabDescription": {"description": "Inference settings description in lab mode"},
+
+  "endpointLabel": "Endpoint HTTPS",
+  "@endpointLabel": {"description": "Endpoint input label"},
+
+  "endpointLabLabel": "Endpoint loopback /v1",
+  "@endpointLabLabel": {"description": "Endpoint input label in lab mode"},
+
+  "endpointHint": "https://provider.example/v1",
+  "@endpointHint": {"description": "Endpoint input hint"},
+
+  "endpointLabHint": "Completá tu endpoint autorizado",
+  "@endpointLabHint": {"description": "Endpoint input hint in lab mode"},
+
+  "modelLabel": "ID del modelo",
+  "@modelLabel": {"description": "Model ID input label"},
+
+  "modelHint": "Modelo habilitado en tu proveedor",
+  "@modelHint": {"description": "Model ID input hint"},
+
+  "modelLabHint": "ID exacto del modelo local instalado",
+  "@modelLabHint": {"description": "Model ID input hint in lab mode"},
+
+  "apiKeyLabel": "API key de inferencia",
+  "@apiKeyLabel": {"description": "API key input label"},
+
+  "apiKeyLabLabel": "Clave o marcador del servidor",
+  "@apiKeyLabLabel": {"description": "API key input label in lab mode"},
+
+  "apiKeyLabHelper": "Un marcador sintético no protege ni autentica el servidor.",
+  "@apiKeyLabHelper": {"description": "API key helper text in lab mode"},
+
+  "rememberKey": "Recordar la clave en el almacenamiento seguro del sistema",
+  "@rememberKey": {"description": "Remember key checkbox label"},
+
+  "queriesSentTo": "Al activar y consultar, enviás tus mensajes y el contexto necesario a {host}.",
+  "@queriesSentTo": {"description": "Note about where queries are sent", "placeholders": {"host": {"type": "String"}}},
+
+  "labQueriesNote": "Las consultas se envían únicamente al endpoint indicado. Los ajustes del laboratorio se guardan separados de los del modo Arc.",
+  "@labQueriesNote": {"description": "Lab queries note"},
+
+  "initializing": "Inicializando…",
+  "@initializing": {"description": "Initializing state"},
+
+  "startLabButton": "Iniciar laboratorio de texto",
+  "@startLabButton": {"description": "Button to start lab"},
+
+  "activateOpenHumanButton": "Activar OpenHuman con este proveedor",
+  "@activateOpenHumanButton": {"description": "Button to activate OpenHuman"},
+
+  "stopAgentForgetKey": "Detener agente y olvidar la clave",
+  "@stopAgentForgetKey": {"description": "Button to stop agent and forget key"},
+
+  "addArcTestnetManually": "Agregar Arc Testnet manualmente",
+  "@addArcTestnetManually": {"description": "Expansion tile: add Arc manually"},
+
+  "arcManualInfo": "Nombre: Arc Testnet\nChain ID: 5042002\nMoneda nativa: USDC · 18 decimales",
+  "@arcManualInfo": {"description": "Arc Testnet manual configuration info"},
+
+  "arcManualInstructions": "Agregá la red en tu wallet, luego reconectá autorizando Arc Testnet. Agregar una red no amplía automáticamente los permisos de una sesión existente.",
+  "@arcManualInstructions": {"description": "Arc Testnet manual configuration instructions"},
+
+  "officialDocs": "Documentación oficial",
+  "@officialDocs": {"description": "Link to official documentation"},
+
+  "retrySecureStorage": "Volver a leer el estado seguro",
+  "@retrySecureStorage": {"description": "Button to retry reading secure storage"},
+
+  "connectYourWallet": "Conectá tu wallet",
+  "@connectYourWallet": {"description": "Dialog title: connect wallet"},
+
+  "scanFromOtherScreen": "Escaneá desde otra pantalla o abrí una wallet compatible con WalletConnect. Volvé a FluuiX después de aprobar.",
+  "@scanFromOtherScreen": {"description": "Wallet connect dialog instructions"},
+
+  "walletMustHaveArc": "La wallet debe tener Arc Testnet configurada. La conexión no envía fondos.",
+  "@walletMustHaveArc": {"description": "Wallet connect dialog note"},
+
+  "goBack": "Volver",
+  "@goBack": {"description": "Button: go back"},
+
+  "copyUri": "Copiar URI",
+  "@copyUri": {"description": "Button: copy URI"},
+
+  "openWallet": "Abrir wallet",
+  "@openWallet": {"description": "Button: open wallet"},
+
+  "uriCopied": "URI copiada. Pegala en WalletConnect dentro de tu wallet.",
+  "@uriCopied": {"description": "Snackbar: URI copied"},
+
+  "useCopyUriOrQr": "Usá Copiar URI y pegala en tu wallet, o escaneá el QR.",
+  "@useCopyUriOrQr": {"description": "Snackbar: use copy or QR"},
+
+  "noWalletForLink": "No se encontró una wallet para este enlace. Usá el QR o copiá la URI.",
+  "@noWalletForLink": {"description": "Snackbar: no wallet for link"},
+
+  "reviewTransferTitle": "Revisá la transferencia",
+  "@reviewTransferTitle": {"description": "Review dialog title"},
+
+  "arcTestnetTestFunds": "Arc Testnet · fondos de prueba",
+  "@arcTestnetTestFunds": {"description": "Review dialog: testnet funds note"},
+
+  "from": "Desde",
+  "@from": {"description": "Review dialog: from label"},
+
+  "recipient": "Destinatario",
+  "@recipient": {"description": "Review dialog: recipient label"},
+
+  "maxFee": "Comisión máxima: {amount} USDC",
+  "@maxFee": {"description": "Review dialog: max fee", "placeholders": {"amount": {"type": "String"}}},
+
+  "maxTotal": "Total máximo: {amount} USDC",
+  "@maxTotal": {"description": "Review dialog: max total", "placeholders": {"amount": {"type": "String"}}},
+
+  "reviewExpiry": "La revisión vence en 2 minutos. Verificá en tu wallet que la red, el destinatario, el importe y la comisión coincidan. Tu wallet solicita la firma final.",
+  "@reviewExpiry": {"description": "Review dialog: expiry note"},
+
+  "cancel": "Cancelar",
+  "@cancel": {"description": "Button: cancel"},
+
+  "requestApproval": "Solicitar aprobación",
+  "@requestApproval": {"description": "Button: request approval"},
+
+  "confirmWalletState": "Confirmá el estado en tu wallet",
+  "@confirmWalletState": {"description": "Dialog title: confirm wallet state"},
+
+  "confirmNoSendMessage": "Continuá sólo si verificaste que la solicitud anterior fue rechazada o cancelada y que no existe una transferencia pendiente o enviada. Repetir un envío puede duplicar el pago.",
+  "@confirmNoSendMessage": {"description": "Confirm no send dialog message"},
+
+  "verifiedNotSent": "Verifiqué que no se envió",
+  "@verifiedNotSent": {"description": "Button: verified not sent"},
+
+  "proposalValidatedCopied": "Propuesta validada y copiada. Revisá destinatario, importe y comisión antes de firmar.",
+  "@proposalValidatedCopied": {"description": "Snackbar: proposal validated"},
+
+  "couldNotOpenLink": "No se pudo abrir el enlace.",
+  "@couldNotOpenLink": {"description": "Snackbar: could not open link"},
+
+  "footerArcTestnet": "Arc Testnet · USDC de prueba\nLa wallet externa controla tus claves y pide la firma. FluuiX no solicita frases semilla ni claves privadas.",
+  "@footerArcTestnet": {"description": "Footer disclaimer"},
+
+  "footerLab": "AW no cambia de proveedor automáticamente. Confirmá que el servidor autorizado ejecuta un modelo local; recibir texto no demuestra por sí solo su procedencia.",
+  "@footerLab": {"description": "Footer disclaimer in lab mode"},
+
+  "labBannerTitle": "Laboratorio · sólo texto",
+  "@labBannerTitle": {"description": "Lab banner title"},
+
+  "labBannerDesc": "Wallet, pagos, propuestas y consultas Arc deshabilitados. El agente no dispone de herramientas. Este modo queda fijo al compilar la app.",
+  "@labBannerDesc": {"description": "Lab banner description"},
+
+  "ordersViewTooltip": "Vista de caja",
+  "@ordersViewTooltip": {"description": "Tooltip: orders view"},
+
+  "missionViewTooltip": "Órdenes del día",
+  "@missionViewTooltip": {"description": "Tooltip: mission view"},
+
+  "refreshArcTooltip": "Actualizar Arc",
+  "@refreshArcTooltip": {"description": "Tooltip: refresh Arc"},
+
+  "agentStoppedStatus": "Agente detenido y conversación local descartada",
+  "@agentStoppedStatus": {"description": "Agent stopped status"},
+
+  "openHumanLocalActive": "OpenHuman local activo · inferencia en {host}",
+  "@openHumanLocalActive": {"description": "OpenHuman active status", "placeholders": {"host": {"type": "String"}}},
+
+  "labReadyStatus": "Laboratorio listo · endpoint {endpoint} · modelo solicitado {model}",
+  "@labReadyStatus": {"description": "Lab ready status", "placeholders": {"endpoint": {"type": "String"}, "model": {"type": "String"}}},
+
+  "turnCompletedStatus": "Turno completado por OpenHuman",
+  "@turnCompletedStatus": {"description": "Turn completed status"},
+
+  "labResponseReceivedStatus": "Respuesta recibida · cotejá el ID con el registro de tu servidor",
+  "@labResponseReceivedStatus": {"description": "Lab response received status"},
+
+  "rustExecutedStatus": "Rust ejecutado en {os}/{arch} · ABI 1",
+  "@rustExecutedStatus": {"description": "Rust executed status", "placeholders": {"os": {"type": "String"}, "arch": {"type": "String"}}},
+
+  "contextBarLayer": "Capa",
+  "@contextBarLayer": {"description": "Context bar: layer label"},
+
+  "contextBarDisconnected": "Desconectada",
+  "@contextBarDisconnected": {"description": "Context bar: disconnected"},
+
+  "contextBarConnected": "Conectada",
+  "@contextBarConnected": {"description": "Context bar: connected"},
+
+  "languageSettings": "Idioma",
+  "@languageSettings": {"description": "Language settings section"},
+
+  "languageAuto": "Automático (sistema)",
+  "@languageAuto": {"description": "Automatic language option"},
+
+  "languageSpanish": "Español",
+  "@languageSpanish": {"description": "Spanish language option"},
+
+  "languageEnglish": "English",
+  "@languageEnglish": {"description": "English language option"},
+
+  "languagePortuguese": "Português",
+  "@languagePortuguese": {"description": "Portuguese language option"},
+
+  "languageFrench": "Français",
+  "@languageFrench": {"description": "French language option"},
+
+  "languageGerman": "Deutsch",
+  "@languageGerman": {"description": "German language option"},
+
+  "languageItalian": "Italiano",
+  "@languageItalian": {"description": "Italian language option"},
+
+  "languageChinese": "中文",
+  "@languageChinese": {"description": "Chinese language option"}
+}

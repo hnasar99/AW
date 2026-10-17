@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -15,7 +16,11 @@ import 'domain/treasury_policy.dart';
 import 'openhuman_bridge.dart';
 import 'services/arc_rpc.dart';
 import 'services/wallet_session.dart';
+import 'ui/context_bar.dart';
 import 'ui/splash_view.dart';
+import 'ui/theme.dart';
+
+import 'l10n/app_localizations.dart';
 
 part 'ui/caja_view.dart';
 part 'ui/agente_view.dart';
@@ -27,46 +32,79 @@ void main() {
   runApp(const ArcWalletApp(showSplash: true));
 }
 
-class ArcWalletApp extends StatelessWidget {
+class ArcWalletApp extends StatefulWidget {
   const ArcWalletApp({
     super.key,
     this.autoInitialize = true,
     this.agent,
     this.showSplash = false,
+    this.overrideLocale,
   });
   final bool autoInitialize;
   final OpenHumanBridge? agent;
   final bool showSplash;
+  final Locale? overrideLocale;
+
+  @override
+  State<ArcWalletApp> createState() => _ArcWalletAppState();
+}
+
+class _ArcWalletAppState extends State<ArcWalletApp> {
+  Locale? _locale;
+
+  void _setLocale(Locale? locale) {
+    setState(() => _locale = locale);
+  }
 
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX',
     debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xffc4b08a),
-        brightness: Brightness.dark,
-      ),
-      scaffoldBackgroundColor: const Color(0xff101017),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: const Color(0xff20202c),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    ),
-    home: showSplash
+    theme: fluuixTheme(),
+    locale: widget.overrideLocale ?? _locale,
+    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    localeResolutionCallback: (locale, supportedLocales) {
+      if (_locale != null) return _locale;
+      for (final supportedLocale in supportedLocales) {
+        if (supportedLocale.languageCode == locale?.languageCode) {
+          return supportedLocale;
+        }
+      }
+      return const Locale('es');
+    },
+    home: widget.showSplash
         ? FluuiXLaunch(
-            child: WalletHome(autoInitialize: autoInitialize, agent: agent),
+            child: WalletHome(
+              autoInitialize: widget.autoInitialize,
+              agent: widget.agent,
+              onLocaleChanged: _setLocale,
+            ),
           )
-        : WalletHome(autoInitialize: autoInitialize, agent: agent),
+        : WalletHome(
+            autoInitialize: widget.autoInitialize,
+            agent: widget.agent,
+            onLocaleChanged: _setLocale,
+          ),
   );
 }
 
 class WalletHome extends StatefulWidget {
-  const WalletHome({super.key, this.autoInitialize = true, this.agent});
+  const WalletHome({
+    super.key,
+    this.autoInitialize = true,
+    this.agent,
+    this.onLocaleChanged,
+  });
   final bool autoInitialize;
   final OpenHumanBridge? agent;
+  final void Function(Locale?)? onLocaleChanged;
+
   @override
   State<WalletHome> createState() => _WalletHomeState();
 }
@@ -114,8 +152,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   bool _networkVerified = false;
   bool _requestUncertain = false;
   bool _polling = false;
-  String _networkStatus = 'Conexión pendiente';
-  String _agentStatus = 'Verificá el runtime y configurá la inferencia';
+  String _networkStatus = 'connectionPending';
+  String _agentStatus = 'agentVerifyStatus';
   String? _error;
   String? _agentError;
   String? _settingsError;
@@ -129,6 +167,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   BigInt? _balance;
   TransactionResult? _transaction;
   TransferReview? _lastReview;
+  Locale? _selectedLocale;
 
   bool get _transferBlocked =>
       awLabTextOnly ||
@@ -184,7 +223,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     }
   }
 
-  // Errors shown by dependencies are scrubbed before being displayed.
   String _safeError(Object error) {
     var text = error.toString();
     if (_key.text.isNotEmpty) text = text.replaceAll(_key.text, '[redacted]');
@@ -201,7 +239,12 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       final transfer = awLabTextOnly
           ? null
           : await _storage.read(key: 'aw_transfer_v1');
+      final languageCode = await _storage.read(key: 'aw_language_v1');
       if (!mounted) return;
+      if (languageCode != null) {
+        _selectedLocale = Locale(languageCode);
+        widget.onLocaleChanged?.call(_selectedLocale);
+      }
       if (saved != null && !_settingsTouched) {
         final value = jsonDecode(saved) as Map<String, dynamic>;
         final endpoint = value['endpoint'] as String? ?? _endpoint.text;
@@ -218,7 +261,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         }
         _endpoint.text = endpoint;
         _model.text = model;
-        // The saved key and endpoint form one record; a host edit clears the key.
         _key.text = value['key'] as String? ?? '';
         _rememberKey = _key.text.isNotEmpty;
       }
@@ -259,8 +301,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         setState(() {
           _storageReady = false;
           _settingsError = awLabTextOnly
-              ? 'No se pudieron restaurar los ajustes del laboratorio. Revisá la configuración segura antes de iniciar.'
-              : 'No se pudieron restaurar los ajustes seguros. El envío está bloqueado hasta recuperar el estado y comprobar operaciones pendientes.';
+              ? 'settingsErrorLab'
+              : 'settingsErrorArc';
         });
       }
     }
@@ -302,6 +344,19 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       key: treasuryLedgerKey,
       value: jsonEncode(current.toJson()),
     );
+  }
+
+  Future<void> _saveLocale(Locale? locale) async {
+    _selectedLocale = locale;
+    widget.onLocaleChanged?.call(locale);
+    try {
+      if (locale == null) {
+        await _storage.delete(key: 'aw_language_v1');
+      } else {
+        await _storage.write(key: 'aw_language_v1', value: locale.languageCode);
+      }
+    } catch (_) {}
+    if (mounted) setState(() {});
   }
 
   Future<void> _configureWallet({bool persist = true}) async {
@@ -346,7 +401,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       if (!mounted) return;
       setState(() {
         _networkVerified = true;
-        _networkStatus = 'RPC verificado · Arc Testnet';
+        _networkStatus = 'rpcVerified';
       });
       await _refreshBalance();
     } catch (e) {
@@ -394,8 +449,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _wallet.connect(_showPairing);
       if (mounted && !_wallet.supportsArc) {
         setState(
-          () => _error =
-              'La sesión no autorizó Arc Testnet. Agregá la red a la wallet y reconectá autorizando 5042002.',
+          () => _error = 'sessionNotAuthorizedArc',
         );
       }
       await _refreshBalance();
@@ -408,48 +462,41 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
 
   Future<void> _showPairing(Uri uri) async {
     if (awLabTextOnly || !mounted) return;
+    final l10n = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: const Text('Conectá tu wallet'),
+        title: Text(l10n.connectYourWallet),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Escaneá desde otra pantalla o abrí una wallet compatible con WalletConnect. Volvé a FluuiX después de aprobar.',
-              ),
+              Text(l10n.scanFromOtherScreen),
               const SizedBox(height: 12),
               ColoredBox(
                 color: Colors.white,
                 child: QrImageView(data: '$uri', size: 210),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'La wallet debe tener Arc Testnet configurada. La conexión no envía fondos.',
-              ),
+              Text(l10n.walletMustHaveArc),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog),
-            child: const Text('Volver'),
+            child: Text(l10n.goBack),
           ),
           TextButton(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: '$uri'));
               if (dialog.mounted) {
                 ScaffoldMessenger.of(dialog).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'URI copiada. Pegala en WalletConnect dentro de tu wallet.',
-                    ),
-                  ),
+                  SnackBar(content: Text(l10n.uriCopied)),
                 );
               }
             },
-            child: const Text('Copiar URI'),
+            child: Text(l10n.copyUri),
           ),
           FilledButton(
             onPressed: () async {
@@ -460,27 +507,19 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                 );
                 if (!opened && dialog.mounted) {
                   ScaffoldMessenger.of(dialog).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Usá Copiar URI y pegala en tu wallet, o escaneá el QR.',
-                      ),
-                    ),
+                    SnackBar(content: Text(l10n.useCopyUriOrQr)),
                   );
                 }
                 if (opened && dialog.mounted) Navigator.pop(dialog);
               } catch (_) {
                 if (dialog.mounted) {
                   ScaffoldMessenger.of(dialog).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'No se encontró una wallet para este enlace. Usá el QR o copiá la URI.',
-                      ),
-                    ),
+                    SnackBar(content: Text(l10n.noWalletForLink)),
                   );
                 }
               }
             },
-            child: const Text('Abrir wallet'),
+            child: Text(l10n.openWallet),
           ),
         ],
       ),
@@ -496,10 +535,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     try {
       await _wallet.requestArcNetwork();
       if (mounted) {
-        setState(
-          () => _error =
-              'Red solicitada. Volvé a conectar la wallet y autorizá Arc Testnet en la nueva sesión.',
-        );
+        setState(() => _error = 'networkRequestedReconnect');
       }
     } catch (e) {
       if (mounted) setState(() => _error = _safeError(e));
@@ -550,7 +586,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _rpc.verifyFunds(review);
       if (!mounted) return;
       _wallet.verifyReview(review);
-      // Persist the uncertainty marker before any wallet authorization request.
       _lastReview = review;
       _transaction = null;
       _requestUncertain = true;
@@ -581,55 +616,54 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     }
   }
 
-  Future<bool?> _showReview(TransferReview review) => showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialog) => AlertDialog(
-      title: const Text('Revisá la transferencia'),
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Arc Testnet · fondos de prueba',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              '${formatUnits(review.units, 6)} USDC',
-              style: Theme.of(dialog).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 14),
-            const Text('Desde'),
-            SelectableText(review.sender),
-            const SizedBox(height: 10),
-            const Text('Destinatario'),
-            SelectableText(review.recipient),
-            const SizedBox(height: 10),
-            Text('Comisión máxima: ${formatUnits(review.maximumFee, 18)} USDC'),
-            Text(
-              'Total máximo: ${formatUnits(review.nativeRequired, 18)} USDC',
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'La revisión vence en 2 minutos. Verificá en tu wallet que la red, el destinatario, el importe y la comisión coincidan. Tu wallet solicita la firma final.',
-            ),
-          ],
+  Future<bool?> _showReview(TransferReview review) {
+    final l10n = AppLocalizations.of(context);
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialog) => AlertDialog(
+        title: Text(l10n.reviewTransferTitle),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.arcTestnetTestFunds,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                '${formatUnits(review.units, 6)} USDC',
+                style: Theme.of(dialog).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 14),
+              Text(l10n.from),
+              SelectableText(review.sender),
+              const SizedBox(height: 10),
+              Text(l10n.recipient),
+              SelectableText(review.recipient),
+              const SizedBox(height: 10),
+              Text(l10n.maxFee(formatUnits(review.maximumFee, 18))),
+              Text(l10n.maxTotal(formatUnits(review.nativeRequired, 18))),
+              const SizedBox(height: 10),
+              Text(l10n.reviewExpiry),
+            ],
+          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialog, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialog, true),
+            child: Text(l10n.requestApproval),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialog, false),
-          child: const Text('Cancelar'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(dialog, true),
-          child: const Text('Solicitar aprobación'),
-        ),
-      ],
-    ),
-  );
+    );
+  }
 
   Future<void> _pollReceipt() async {
     if (awLabTextOnly || _polling || _transaction == null) return;
@@ -714,21 +748,20 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   Future<void> _acknowledgeNoSend() async {
     if (awLabTextOnly) return;
     if (_wallet.requestPending) return;
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: const Text('Confirmá el estado en tu wallet'),
-        content: const Text(
-          'Continuá sólo si verificaste que la solicitud anterior fue rechazada o cancelada y que no existe una transferencia pendiente o enviada. Repetir un envío puede duplicar el pago.',
-        ),
+        title: Text(l10n.confirmWalletState),
+        content: Text(l10n.confirmNoSendMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog, false),
-            child: const Text('Volver'),
+            child: Text(l10n.goBack),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialog, true),
-            child: const Text('Verifiqué que no se envió'),
+            child: Text(l10n.verifiedNotSent),
           ),
         ],
       ),
@@ -772,7 +805,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       setState(() {
         _nativeStatus = status;
         _agentReady = _statusAllowsQueries(status);
-        _agentStatus = 'Rust ejecutado en ${status.os}/${status.arch} · ABI 1';
+        _agentStatus = 'rustExecutedStatus';
       });
     } catch (e) {
       if (mounted) {
@@ -832,8 +865,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         _labRequestAudit = null;
         _tab = 1;
         _agentStatus = awLabTextOnly
-            ? 'Laboratorio listo · endpoint $endpoint · modelo solicitado ${_model.text.trim()}'
-            : 'OpenHuman local activo · inferencia en ${Uri.parse(endpoint).host}';
+            ? 'labReadyStatus'
+            : 'openHumanLocalActive';
       });
     } catch (e) {
       if (mounted) {
@@ -882,8 +915,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         _liveReads = turn.liveReads;
         _finishLabAudit('response_received', durationMs: turn.durationMs);
         _agentStatus = awLabTextOnly
-            ? 'Respuesta recibida · cotejá el ID con el registro de tu servidor'
-            : 'Turno completado por OpenHuman';
+            ? 'labResponseReceivedStatus'
+            : 'turnCompletedStatus';
       });
     } catch (e) {
       if (mounted) {
@@ -941,7 +974,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         _agentError = null;
         _toolCalls = const [];
         _liveReads = const [];
-        _agentStatus = 'Agente detenido y conversación local descartada';
+        _agentStatus = 'agentStoppedStatus';
       });
     } catch (e) {
       if (mounted) {
@@ -951,8 +984,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         );
       }
     } finally {
-      // Forget persisted credentials even when a missing native library cannot
-      // be reset. A runtime failure remains visible and is never called success.
       if (mounted) {
         setState(() {
           _key.clear();
@@ -989,6 +1020,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     if (awLabTextOnly) return;
     final proposal = _proposal;
     if (proposal == null || _busy) return;
+    final l10n = AppLocalizations.of(context);
     setState(() {
       _recipient.text = proposal.recipient;
       _amount.text = formatUnits(proposal.units, 6);
@@ -996,15 +1028,12 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       _tab = 0;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Propuesta validada y copiada. Revisá destinatario, importe y comisión antes de firmar.',
-        ),
-      ),
+      SnackBar(content: Text(l10n.proposalValidatedCopied)),
     );
   }
 
   Future<void> _open(String url) async {
+    final l10n = AppLocalizations.of(context);
     try {
       final opened = await launchUrl(
         Uri.parse(url),
@@ -1012,13 +1041,13 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       );
       if (!opened && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo abrir el enlace.')),
+          SnackBar(content: Text(l10n.couldNotOpenLink)),
         );
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo abrir el enlace.')),
+          SnackBar(content: Text(l10n.couldNotOpenLink)),
         );
       }
     }
@@ -1059,106 +1088,129 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     };
   }
 
+  String _getNetworkStatusText(AppLocalizations l10n) {
+    if (_networkStatus == 'connectionPending') return l10n.connectionPending;
+    if (_networkStatus == 'rpcVerified') return l10n.rpcVerified;
+    return _networkStatus;
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text(awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX'),
-      actions: [
-        if (!awLabTextOnly)
-          IconButton(
-            onPressed: () => setState(() => _missions = !_missions),
-            icon: Icon(
-              _missions ? Icons.dashboard_outlined : Icons.flag_outlined,
-            ),
-            tooltip: _missions ? 'Vista de caja' : 'Órdenes del día',
-          ),
-        if (!awLabTextOnly)
-          IconButton(
-            onPressed: _busy ? null : _checkNetwork,
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Actualizar Arc',
-          ),
-      ],
-    ),
-    body: SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 660),
-          child: ListView(
-            key: ValueKey(_tab),
-            padding: const EdgeInsets.all(20),
-            children: [
-              if (awLabTextOnly) ...[_labBanner(), const SizedBox(height: 16)],
-              if (!awLabTextOnly && _missions) ...[
-                _ordenesCard(),
-                const SizedBox(height: 16),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            if (!awLabTextOnly)
+              FluuixContextBar(
+                activeLayer: l10n.navCaja,
+                chainName: 'Arc Testnet',
+                rpcConnected: _networkVerified,
+                railName: 'Twin · ARGt',
+                walletConnected: _wallet.connected,
+                walletAddress: _wallet.address,
+                isTestnet: true,
+              ),
+            AppBar(
+              title: Text(awLabTextOnly ? l10n.appTitleLab : l10n.appTitle),
+              actions: [
+                if (!awLabTextOnly)
+                  IconButton(
+                    onPressed: () => setState(() => _missions = !_missions),
+                    icon: Icon(
+                      _missions ? Icons.dashboard_outlined : Icons.flag_outlined,
+                    ),
+                    tooltip: _missions ? l10n.ordersViewTooltip : l10n.missionViewTooltip,
+                  ),
+                if (!awLabTextOnly)
+                  IconButton(
+                    onPressed: _busy ? null : _checkNetwork,
+                    icon: const Icon(Icons.refresh),
+                    tooltip: l10n.refreshArcTooltip,
+                  ),
               ],
-              if (!awLabTextOnly && _tab == 0) ..._cajaView(),
-              if (_tab == 1) ..._agentView(),
-              if (!awLabTextOnly && _tab == 3) ..._redView(),
-              if (_tab == 2) ..._settingsView(),
-              const SizedBox(height: 24),
-              const Text(
-                awLabTextOnly
-                    ? 'AW no cambia de proveedor automáticamente. Confirmá que el servidor autorizado ejecuta un modelo local; recibir texto no demuestra por sí solo su procedencia.'
-                    : 'Arc Testnet · USDC de prueba\nLa wallet externa controla tus claves y pide la firma. FluuiX no solicita frases semilla ni claves privadas.',
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 12,
-                  height: 1.5,
+            ),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 660),
+                  child: ListView(
+                    key: ValueKey(_tab),
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      if (awLabTextOnly) ...[_labBanner(l10n), const SizedBox(height: 16)],
+                      if (!awLabTextOnly && _missions) ...[
+                        _ordenesCard(l10n),
+                        const SizedBox(height: 16),
+                      ],
+                      if (!awLabTextOnly && _tab == 0) ..._cajaView(l10n),
+                      if (_tab == 1) ..._agentView(l10n),
+                      if (!awLabTextOnly && _tab == 3) ..._redView(l10n),
+                      if (_tab == 2) ..._settingsView(l10n),
+                      const SizedBox(height: 24),
+                      Text(
+                        awLabTextOnly ? l10n.footerLab : l10n.footerArcTestnet,
+                        style: const TextStyle(
+                          color: FluuixColors.textMuted,
+                          fontSize: 12,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    ),
-    bottomNavigationBar: NavigationBar(
-      selectedIndex: _selectedNav,
-      onDestinationSelected: (value) =>
-          setState(() => _tab = _tabForNav(value)),
-      destinations: const [
-        if (!awLabTextOnly)
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedNav,
+        onDestinationSelected: (value) =>
+            setState(() => _tab = _tabForNav(value)),
+        destinations: [
+          if (!awLabTextOnly)
+            NavigationDestination(
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              label: l10n.navCaja,
+            ),
           NavigationDestination(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            label: 'Caja',
+            icon: const Icon(Icons.psychology_outlined),
+            label: l10n.navAgente,
           ),
-        NavigationDestination(
-          icon: Icon(Icons.psychology_outlined),
-          label: 'Agente',
-        ),
-        if (!awLabTextOnly)
-          NavigationDestination(icon: Icon(Icons.hub_outlined), label: 'Red'),
-        NavigationDestination(
-          icon: Icon(Icons.settings_outlined),
-          label: 'Ajustes',
-        ),
-      ],
-    ),
-  );
+          if (!awLabTextOnly)
+            NavigationDestination(
+              icon: const Icon(Icons.hub_outlined),
+              label: l10n.navRed,
+            ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            label: l10n.navAjustes,
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget _labBanner() => _card(
+  Widget _labBanner(AppLocalizations l10n) => _card(
     children: [
-      const Text(
-        'Laboratorio · sólo texto',
-        style: TextStyle(fontWeight: FontWeight.bold),
+      Text(
+        l10n.labBannerTitle,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       const SizedBox(height: 8),
-      const Text(
-        'Wallet, pagos, propuestas y consultas Arc deshabilitados. '
-        'El agente no dispone de herramientas. '
-        'Este modo queda fijo al compilar la app.',
-      ),
+      Text(l10n.labBannerDesc),
     ],
   );
 
   Widget _card({required List<Widget> children}) => SizedBox(
     width: double.infinity,
     child: Material(
-      color: const Color(0xff191923),
+      color: FluuixColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xff353347)),
+        side: const BorderSide(color: FluuixColors.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -1176,12 +1228,13 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xff37222b),
+        color: FluuixColors.error.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: FluuixColors.error.withValues(alpha: 0.3)),
       ),
       child: Text(
         message,
-        style: const TextStyle(color: Color(0xffffc4cf), height: 1.4),
+        style: const TextStyle(color: FluuixColors.error, height: 1.4),
       ),
     ),
   );
