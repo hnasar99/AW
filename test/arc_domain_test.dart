@@ -211,6 +211,22 @@ void main() {
     });
   });
 
+  group('Kimi agent engine', () {
+    test('recognizes only the Moonshot chat root', () {
+      expect(isKimiInferenceEndpoint(kimiInferenceRoot), isTrue);
+      expect(isKimiInferenceEndpoint('https://api.moonshot.ai/v1/'), isFalse);
+      expect(isKimiInferenceEndpoint('https://api.moonshot.ai.evil/v1'), isFalse);
+      expect(isKimiInferenceEndpoint('http://api.moonshot.ai/v1'), isFalse);
+      expect(isKimiInferenceEndpoint('https://api.openai.com/v1'), isFalse);
+    });
+    test('accepts Moonshot model ids and rejects other names', () {
+      expect(validateKimiModel('kimi-k3'), 'kimi-k3');
+      expect(validateKimiModel(' kimi-k2.6 '), 'kimi-k2.6');
+      expect(() => validateKimiModel('gpt-4o'), throwsFormatException);
+      expect(() => validateKimiModel('kimi-'), throwsFormatException);
+    });
+  });
+
   group('Inference endpoint credential boundary', () {
     test('allows HTTPS and exact loopback only', () {
       for (final endpoint in [

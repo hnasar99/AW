@@ -192,8 +192,8 @@ class _Mark extends StatelessWidget {
           children: [
             Image.asset(
               'assets/brand/fluuix_logo.png',
-              width: 210,
-              filterQuality: FilterQuality.medium,
+              width: 248,
+              filterQuality: FilterQuality.high,
               semanticLabel: 'FluuiX',
             ),
             if (glint > 0.04)

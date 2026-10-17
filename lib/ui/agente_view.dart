@@ -1,74 +1,101 @@
 part of '../main.dart';
 
 extension _AgenteView on _WalletHomeState {
-  String _getAgentStatusText(AppLocalizations l10n) {
-    switch (_agentStatus) {
-      case 'agentVerifyStatus':
-        return l10n.agentVerifyStatus;
-      case 'rustExecutedStatus':
-        return l10n.rustExecutedStatus(
-          _nativeStatus?.os ?? '?',
-          _nativeStatus?.arch ?? '?',
-        );
-      case 'labReadyStatus':
-        return l10n.labReadyStatus(
-          _endpoint.text.trim(),
-          _model.text.trim(),
-        );
-      case 'openHumanLocalActive':
-        return l10n.openHumanLocalActive(
-          Uri.tryParse(_endpoint.text)?.host ?? 'provider',
-        );
-      case 'turnCompletedStatus':
-        return l10n.turnCompletedStatus;
-      case 'labResponseReceivedStatus':
-        return l10n.labResponseReceivedStatus;
-      case 'agentStoppedStatus':
-        return l10n.agentStoppedStatus;
-      default:
-        return _agentStatus;
-    }
+  List<Widget> _mcpReads() {
+    final seen = <String>{};
+    final chips = <Widget>[
+      for (final portal in ecosystemPortals)
+        if (portal.readTool != null && seen.add(portal.readTool!))
+          ActionChip(
+            label: Text(portal.label),
+            onPressed: _mcpBusy
+                ? null
+                : () => _readMcp(portal.readTool!, portal.label),
+          ),
+    ];
+    return [
+      Text('Lecturas MCP', style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: 8),
+      const Text(
+        'Cada chip llama la lectura de ese portal. Una escritura queda fuera del MCP.',
+        style: TextStyle(color: Colors.white60, height: 1.4),
+      ),
+      const SizedBox(height: 10),
+      Wrap(spacing: 8, runSpacing: 8, children: chips),
+      if (_mcpTool != null) ...[
+        const SizedBox(height: 12),
+        _card(
+          children: [
+            Text(
+              'Lectura MCP · $_mcpTool',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (_mcpBusy)
+              const LinearProgressIndicator()
+            else
+              SelectableText(
+                _mcpBody ?? '',
+                style: const TextStyle(height: 1.4),
+              ),
+          ],
+        ),
+      ],
+      const SizedBox(height: 16),
+    ];
   }
 
-  List<Widget> _agentView(AppLocalizations l10n) => [
+  List<Widget> _agentView() => [
     Text(
-      awLabTextOnly ? l10n.agentLabTitle : l10n.agentBoxTitle,
+      awLabTextOnly ? 'Consulta al laboratorio' : 'Asistente',
       style: Theme.of(context).textTheme.headlineSmall,
     ),
     const SizedBox(height: 10),
-    Text(_getAgentStatusText(l10n)),
+    Text(_agentStatus),
     const SizedBox(height: 10),
-    Text(
-      awLabTextOnly ? l10n.agentLabDescription : l10n.agentDescription,
-      style: const TextStyle(color: FluuixColors.textMuted, height: 1.5),
+    const Text(
+      awLabTextOnly
+          ? 'OpenHuman coordina la consulta dentro de AW. El modelo debe ejecutarse en tu laboratorio, a través del endpoint loopback que configures. No se inicia ninguna consulta de blockchain.'
+          : 'El agente propone órdenes con arc_network_status y arc_balance. '
+                'Una herramienta ejecutada muestra el dato que leyó Rust. '
+                'Con la empresa conectada, el MCP lee Fluuix, ZonaFranca, '
+                'TokenizaTuNegocio y los demás portales. No firma.',
+      style: TextStyle(color: Colors.white70, height: 1.5),
     ),
-    const SizedBox(height: 16),
+      const SizedBox(height: 16),
+    if (!awLabTextOnly) ..._mcpReads(),
     OutlinedButton.icon(
       onPressed: _agentBusy ? null : _probeNative,
       icon: const Icon(Icons.memory),
-      label: Text(l10n.verifyNativeRust),
+      label: const Text('Verificar ejecución nativa de Rust'),
     ),
     if (_nativeStatus != null) ...[
       const SizedBox(height: 10),
       _card(
         children: [
-          Text(l10n.libraryExecuted(_nativeStatus!.os, _nativeStatus!.arch)),
+          Text(
+            'Biblioteca ejecutada: ${_nativeStatus!.os} / ${_nativeStatus!.arch}',
+          ),
           Text('OpenHuman ${shorten(_nativeStatus!.commit)}'),
           if (_nativeStatus!.initialized)
-            Text(l10n.allowedTools(
-              _nativeStatus!.tools.isEmpty
-                  ? l10n.noTools
-                  : _nativeStatus!.tools.join(', '),
-            ))
+            Text(
+              'Herramientas permitidas: ${_nativeStatus!.tools.isEmpty ? 'ninguna' : _nativeStatus!.tools.join(', ')}',
+            )
           else
-            Text(l10n.runtimeNotInitialized),
+            const Text(
+              'Runtime sin inicializar. La política de herramientas se comprueba al inicializar.',
+            ),
           if (awLabTextOnly && _nativeStatus!.initialized)
-            Text(l10n.nativePolicy(_nativeStatus!.mode ?? l10n.notStarted)),
+            Text('Política nativa: ${_nativeStatus!.mode ?? 'sin iniciar'}'),
           if (awLabTextOnly && _nativeStatus!.labContextTokens != null)
-            Text(l10n.agentBudget(_nativeStatus!.labContextTokens.toString())),
-          Text(
-            awLabTextOnly ? l10n.labTestDisclaimer : l10n.localTestDisclaimer,
-            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            Text(
+              'Presupuesto del agente: ${_nativeStatus!.labContextTokens} tokens. No acredita la capacidad real del modelo.',
+            ),
+          const Text(
+            awLabTextOnly
+                ? 'Ejecutar esta biblioteca no verifica todavía el modelo del laboratorio.'
+                : 'Esta prueba local no implica que la inferencia o una transferencia hayan sido verificadas.',
+            style: TextStyle(color: Colors.white60, fontSize: 12),
           ),
         ],
       ),
@@ -77,8 +104,10 @@ extension _AgenteView on _WalletHomeState {
     if (!_agentReady)
       FilledButton(
         onPressed: _openSettingsTab,
-        child: Text(
-          awLabTextOnly ? l10n.configureLabButton : l10n.configureProviderButton,
+        child: const Text(
+          awLabTextOnly
+              ? 'Configurar laboratorio'
+              : 'Configurar proveedor e iniciar agente',
         ),
       ),
     if (_agentReady) ...[
@@ -87,7 +116,7 @@ extension _AgenteView on _WalletHomeState {
         minLines: 3,
         maxLines: 8,
         enabled: !_agentBusy,
-        decoration: InputDecoration(labelText: l10n.queryLabel),
+        decoration: const InputDecoration(labelText: 'Tu consulta al agente'),
       ),
       const SizedBox(height: 10),
       if (!awLabTextOnly)
@@ -95,7 +124,7 @@ extension _AgenteView on _WalletHomeState {
           spacing: 8,
           children: [
             ActionChip(
-              label: Text(l10n.presetArcStatus),
+              label: const Text('Estado real de Arc'),
               onPressed: _agentBusy
                   ? null
                   : () => _prompt.text =
@@ -103,7 +132,7 @@ extension _AgenteView on _WalletHomeState {
             ),
             if (_wallet.address != null)
               ActionChip(
-                label: Text(l10n.presetMyBalance),
+                label: const Text('Consultar mi saldo'),
                 onPressed: _agentBusy
                     ? null
                     : () => _prompt.text =
@@ -115,14 +144,14 @@ extension _AgenteView on _WalletHomeState {
       FilledButton.icon(
         onPressed: _agentBusy ? null : _askAgent,
         icon: const Icon(Icons.psychology_outlined),
-        label: Text(_agentBusy ? l10n.agentWorking : l10n.queryOpenHuman),
+        label: Text(_agentBusy ? 'Agente trabajando…' : 'Consultar OpenHuman'),
       ),
       if (_agentBusy) ...[
         const SizedBox(height: 8),
         const LinearProgressIndicator(),
         TextButton(
           onPressed: _cancelAgent,
-          child: Text(l10n.cancelTurn),
+          child: const Text('Cancelar turno'),
         ),
       ],
     ],
@@ -131,9 +160,9 @@ extension _AgenteView on _WalletHomeState {
       _card(
         children: [
           if (!awLabTextOnly) ...[
-            Text(
-              l10n.modelText,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            const Text(
+              'Texto del modelo',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
           ],
@@ -141,15 +170,15 @@ extension _AgenteView on _WalletHomeState {
         ],
       ),
       if (!awLabTextOnly)
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
+        const Padding(
+          padding: EdgeInsets.only(top: 8),
           child: Text(
-            l10n.modelTextDisclaimer,
-            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            'Eso es texto del modelo. No es una lectura de red ni una firma.',
+            style: TextStyle(color: Colors.white60, fontSize: 12),
           ),
         ),
       if (!awLabTextOnly && _toolCalls.isNotEmpty)
-        Text(l10n.toolsExecuted(_toolCalls.join(', '))),
+        Text('Herramientas ejecutadas: ${_toolCalls.join(', ')}'),
       if (!awLabTextOnly)
         ..._liveReads.map(
           (read) => Padding(
@@ -157,19 +186,19 @@ extension _AgenteView on _WalletHomeState {
             child: _card(
               children: [
                 Text(
-                  l10n.liveReadTool(read.tool),
+                  'Lectura ejecutada · ${read.tool}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 if (read.result['block_number'] != null)
-                  Text(l10n.blockNumber(read.result['block_number'].toString())),
+                  Text('Bloque: ${read.result['block_number']}'),
                 if (read.result['balance_usdc'] != null)
-                  Text(l10n.balanceUsdcLabel(read.result['balance_usdc'].toString())),
+                  Text('Saldo USDC: ${read.result['balance_usdc']}'),
                 if (read.result['observed_at_unix'] != null)
-                  Text(l10n.observationUnix(read.result['observed_at_unix'].toString())),
+                  Text('Observación UNIX: ${read.result['observed_at_unix']}'),
                 Text(
                   read.result['ok'] == true
-                      ? l10n.toolResultOk
-                      : l10n.toolResultFailed,
+                      ? 'Resultado obtenido por la herramienta Rust'
+                      : 'La herramienta no pudo completar la lectura',
                 ),
               ],
             ),
@@ -179,33 +208,35 @@ extension _AgenteView on _WalletHomeState {
         OutlinedButton.icon(
           onPressed: _busy ? null : _applyProposal,
           icon: const Icon(Icons.assignment_return_outlined),
-          label: Text(l10n.applyProposal),
+          label: const Text('Llevar propuesta al formulario'),
         ),
       const SizedBox(height: 8),
-      Text(
-        awLabTextOnly ? l10n.labResponseDisclaimer : l10n.agentResponseDisclaimer,
-        style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+      const Text(
+        awLabTextOnly
+            ? 'La salida del modelo es texto no confiable. No se interpreta como una instrucción ni habilita acciones.'
+            : 'Una respuesta del modelo no es una confirmación de pago. El agente sólo propone; la firma requiere tu revisión en la wallet.',
+        style: TextStyle(color: Colors.white60, fontSize: 12),
       ),
     ],
     if (awLabTextOnly && _labRequestAudit != null) ...[
       const SizedBox(height: 16),
       _card(
         children: [
-          Text(l10n.lastQueryLog),
+          const Text('Registro de la última consulta'),
           const SizedBox(height: 8),
           SelectableText(
             const JsonEncoder.withIndent('  ').convert(_labRequestAudit),
           ),
           const SizedBox(height: 8),
-          Text(
-            l10n.logMetadataNote,
-            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+          const Text(
+            'Sólo metadatos del cliente. Cotejá este ID con el procesamiento real en tu servidor y con la respuesta visible. No se incluyen mensajes ni claves.',
+            style: TextStyle(color: Colors.white60, fontSize: 12),
           ),
           TextButton(
             onPressed: () => Clipboard.setData(
               ClipboardData(text: jsonEncode(_labRequestAudit)),
             ),
-            child: Text(l10n.copyLogWithoutKeys),
+            child: const Text('Copiar registro sin mensajes ni claves'),
           ),
         ],
       ),
@@ -215,7 +246,7 @@ extension _AgenteView on _WalletHomeState {
         (awLabTextOnly && _nativeStatus?.initialized == true && !_agentReady))
       OutlinedButton(
         onPressed: _agentBusy ? null : _resetAgent,
-        child: Text(l10n.restartAfterInterrupted),
+        child: const Text('Reiniciar después del turno interrumpido'),
       ),
   ];
 }

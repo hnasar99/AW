@@ -69,6 +69,34 @@ String newLabRequestId() {
 bool isLabRequestId(String value) =>
     value.length == 38 && RegExp(r'^awlab-[a-f0-9]{32}$').hasMatch(value);
 
+/// Optional Kimi preset for the Monad-track narrative. OpenHuman also accepts
+/// Ollama and any other reviewed OpenAI-compatible `/v1` root.
+/// https://platform.kimi.ai/docs/guide/migrating-from-openai-to-kimi
+const String kimiInferenceRoot = 'https://api.moonshot.ai/v1';
+const String kimiModelId = 'kimi-k3';
+
+bool isKimiInferenceEndpoint(String input) {
+  try {
+    final uri = validateInferenceEndpoint(input);
+    return uri.scheme == 'https' &&
+        uri.host == 'api.moonshot.ai' &&
+        uri.path == '/v1';
+  } on FormatException {
+    return false;
+  }
+}
+
+/// Checks the optional Kimi preset. Starting the agent does not require it.
+String validateKimiModel(String input) {
+  final model = input.trim();
+  if (!RegExp(r'^kimi-[A-Za-z0-9._-]{1,64}$').hasMatch(model)) {
+    throw const FormatException(
+      'El motor Kimi exige un ID de modelo de Moonshot, por ejemplo kimi-k3.',
+    );
+  }
+  return model;
+}
+
 /// Credentials are only sent to an explicitly reviewed, absolute endpoint.
 Uri validateInferenceEndpoint(String input) {
   final raw = input.trim();

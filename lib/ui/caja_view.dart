@@ -1,212 +1,19 @@
 part of '../main.dart';
 
-enum CajaPanel { pay, receive, passage, cap }
-
 extension _CajaView on _WalletHomeState {
-  List<Widget> _cajaView(AppLocalizations l10n) => [
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _card(
-          children: [
-            Text(
-              l10n.cajaEnDolares,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _getNetworkStatusText(l10n),
-              style: const TextStyle(color: FluuixColors.textMuted, fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _balance == null ? '—' : formatUnits(_balance!, 18, places: 6),
-              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w700),
-            ),
-            Text(
-              l10n.balanceUsdc,
-              style: const TextStyle(color: FluuixColors.gold, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.arcTestnetSingleBalance,
-              style: const TextStyle(
-                color: FluuixColors.textMuted,
-                fontSize: 12,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _statusChip(
-                  _networkVerified ? l10n.arcVerified : l10n.arcNotVerified,
-                  _networkVerified,
-                ),
-                _statusChip(
-                  _wallet.connected ? l10n.sessionActive : l10n.noSession,
-                  _wallet.connected,
-                ),
-                _statusChip(
-                  l10n.remainingCapLabel(formatUnits(_ledger.remaining, 6)),
-                  _ledger.remaining > BigInt.zero,
-                ),
-              ],
-            ),
-            if (_wallet.address != null) ...[
-              const Divider(height: 28),
-              SelectableText(_wallet.address!),
-              Text(
-                l10n.sessionOnArcTestnet(_wallet.chainId?.toString() ?? '?'),
-                style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
-              ),
-              Wrap(
-                spacing: 8,
-                children: [
-                  TextButton(
-                    onPressed: _busy ? null : _disconnect,
-                    child: Text(l10n.disconnect),
-                  ),
-                  TextButton(
-                    onPressed: () => _open(
-                      '${ArcNetwork.explorer}/address/${_wallet.address}',
-                    ),
-                    child: Text(l10n.viewAccount),
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: _railCard(l10n.localRail, 'Twin · ARGt', l10n)),
-            const SizedBox(width: 12),
-            Expanded(child: _railCard(l10n.reserve, 'cirBTC', l10n)),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _panelButton(l10n.pay, CajaPanel.pay),
-            _panelButton(l10n.receive, CajaPanel.receive),
-            _panelButton(l10n.passage, CajaPanel.passage),
-            _panelButton(l10n.cap, CajaPanel.cap),
-          ],
-        ),
-        const SizedBox(height: 16),
-        ...switch (_cajaPanel) {
-          CajaPanel.pay => _payForm(l10n),
-          CajaPanel.receive => _receivePanel(l10n),
-          CajaPanel.passage => _passagePanel(l10n),
-          CajaPanel.cap => _capPanel(l10n),
-        },
-        const SizedBox(height: 20),
-        Text(l10n.activity, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        if (_transaction == null && _savedReceipts.isEmpty)
-          Text(
-            l10n.noReceiptSaved,
-            style: const TextStyle(color: FluuixColors.textMuted),
-          )
-        else ...[
-          Text(
-            l10n.hashIsReceipt,
-            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
-          ),
-          const SizedBox(height: 8),
-          if (_transaction != null) _transactionCard(l10n),
-          ..._savedReceipts.map((h) => _savedReceiptCard(h, l10n)),
-        ],
-        if (_requestUncertain) ...[
-          const SizedBox(height: 16),
-          _card(
-            children: [
-              Text(
-                l10n.unresolvedRequest,
-                style: const TextStyle(
-                  color: FluuixColors.warning,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(l10n.checkWalletHistory),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _recoverHash,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  labelText: l10n.transactionHashLabel,
-                ),
-              ),
-              TextButton(
-                onPressed: _recoverTransaction,
-                child: Text(l10n.checkHash),
-              ),
-              TextButton(
-                onPressed: _wallet.requestPending ? null : _acknowledgeNoSend,
-                child: Text(l10n.requestCancelledOrRejected),
-              ),
-            ],
-          ),
-        ],
-        if (_error != null) _errorBox(_error!),
-      ],
+  List<Widget> _payForm() => [
+    TextField(
+      controller: _company,
+      enabled: !_busy,
+      textCapitalization: TextCapitalization.sentences,
+      decoration: const InputDecoration(labelText: 'Empresa de la zona'),
     ),
-  ];
-
-  Widget _railCard(String title, String instrument, AppLocalizations l10n) => _card(
-    children: [
-      Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      const SizedBox(height: 6),
-      Text(instrument, style: const TextStyle(color: FluuixColors.textMuted)),
-      const SizedBox(height: 8),
-      Text(l10n.noContract, style: const TextStyle(color: FluuixColors.gold)),
-      const SizedBox(height: 4),
-      Text(
-        l10n.notAddedToBox,
-        style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
-      ),
-    ],
-  );
-
-  Widget _statusChip(String label, bool on) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: FluuixColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(
-        color: on ? FluuixColors.success : FluuixColors.border,
-      ),
-    ),
-    child: Text(label, style: const TextStyle(fontSize: 12)),
-  );
-
-  Widget _panelButton(String label, CajaPanel panel) {
-    final selected = _cajaPanel == panel;
-    return selected
-        ? FilledButton(
-            onPressed: () => _showCajaPanel(panel),
-            child: Text(label),
-          )
-        : OutlinedButton(
-            onPressed: () => _showCajaPanel(panel),
-            child: Text(label),
-          );
-  }
-
-  List<Widget> _payForm(AppLocalizations l10n) => [
-    Text(l10n.payTitle, style: Theme.of(context).textTheme.titleLarge),
-    const SizedBox(height: 8),
-    Text(
-      l10n.payDescription,
-      style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.4),
+    const SizedBox(height: 12),
+    TextField(
+      controller: _purpose,
+      enabled: !_busy,
+      textCapitalization: TextCapitalization.sentences,
+      decoration: const InputDecoration(labelText: 'Motivo'),
     ),
     const SizedBox(height: 12),
     TextField(
@@ -214,9 +21,9 @@ extension _CajaView on _WalletHomeState {
       enabled: !_busy,
       autocorrect: false,
       enableSuggestions: false,
-      decoration: InputDecoration(
-        labelText: l10n.recipientAddress,
-        hintText: l10n.recipientHint,
+      decoration: const InputDecoration(
+        labelText: 'Cuenta de destino',
+        hintText: '0x…',
       ),
     ),
     const SizedBox(height: 12),
@@ -224,20 +31,20 @@ extension _CajaView on _WalletHomeState {
       controller: _amount,
       enabled: !_busy,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: l10n.amount,
-        suffixText: l10n.balanceUsdc,
-        helperText: l10n.amountHelper,
+      decoration: const InputDecoration(
+        labelText: 'Importe',
+        suffixText: 'USDC',
+        helperText: 'Hasta 6 decimales. No se redondea.',
       ),
     ),
     const SizedBox(height: 12),
     FilledButton.icon(
       onPressed:
           _busy ||
-          _wallet.requestPending ||
-          (_wallet.connected && _transferBlocked)
-      ? null
-      : (_wallet.connected ? _reviewAndSend : _connect),
+              _wallet.requestPending ||
+              (_wallet.connected && _transferBlocked)
+          ? null
+          : (_wallet.connected ? _reviewAndSend : _connect),
       icon: _busy
           ? const SizedBox(
               width: 18,
@@ -247,35 +54,34 @@ extension _CajaView on _WalletHomeState {
           : const Icon(Icons.fact_check_outlined),
       label: Text(
         _busy
-            ? l10n.processing
+            ? 'Procesando…'
             : _wallet.connected
-            ? l10n.reviewTransfer
-            : l10n.connectWallet,
+            ? 'Revisar y firmar'
+            : 'Conectar la cuenta de la empresa',
       ),
     ),
     if (_wallet.connected && !_wallet.supportsArc)
       OutlinedButton(
         onPressed: _busy ? null : _addArc,
-        child: Text(l10n.requestAddArcTestnet),
+        child: const Text('Solicitar agregar Arc Testnet'),
       ),
     TextButton(
       onPressed: () => _open('https://faucet.circle.com/'),
-      child: Text(l10n.getTestUsdc),
+      child: const Text('Obtener USDC de prueba'),
     ),
   ];
 
-  List<Widget> _receivePanel(AppLocalizations l10n) => [
-    Text(l10n.receiveTitle, style: Theme.of(context).textTheme.titleLarge),
-    const SizedBox(height: 8),
+  List<Widget> _receivePanel() => [
     if (_wallet.address == null)
-      Text(
-        l10n.receiveConnectPrompt,
-        style: const TextStyle(color: FluuixColors.textMuted, height: 1.4),
+      const Text(
+        'Conectá la wallet para mostrar la dirección de la caja. '
+        'FluuiX no genera una cuenta propia.',
+        style: TextStyle(color: Colors.white70, height: 1.4),
       )
     else ...[
-      Text(
-        l10n.receiveDescription,
-        style: const TextStyle(color: FluuixColors.textMuted, height: 1.4),
+      const Text(
+        'Esta dirección recibe USDC en Arc Testnet. No es una cuenta bancaria.',
+        style: TextStyle(color: Colors.white70, height: 1.4),
       ),
       const SizedBox(height: 12),
       Center(
@@ -290,26 +96,22 @@ extension _CajaView on _WalletHomeState {
     ],
   ];
 
-  List<Widget> _passagePanel(AppLocalizations l10n) => [
-    Text(l10n.passageTitle, style: Theme.of(context).textTheme.titleLarge),
-    const SizedBox(height: 8),
-    Text(
-      l10n.passageNotConnected,
-      style: const TextStyle(color: FluuixColors.textMuted, height: 1.45),
+  List<Widget> _capPanel() => [
+    CapacityGauge(
+      remaining: _ledger.remaining,
+      capacity: TreasuryPolicy.perDay,
+      nearLimit: _capNearLimit,
     ),
-  ];
-
-  List<Widget> _capPanel(AppLocalizations l10n) => [
-    Text(l10n.capTitle, style: Theme.of(context).textTheme.titleLarge),
+    const SizedBox(height: 12),
+    Text('Por pago: ${formatUnits(TreasuryPolicy.perPayment, 6)} USDC'),
+    Text('Por día: ${formatUnits(TreasuryPolicy.perDay, 6)} USDC'),
+    Text('Usado hoy: ${formatUnits(_ledger.forToday().spent, 6)} USDC'),
+    Text('Restante hoy: ${formatUnits(_ledger.remaining, 6)} USDC'),
     const SizedBox(height: 8),
-    Text(l10n.perPaymentCap(formatUnits(TreasuryPolicy.perPayment, 6))),
-    Text(l10n.perDayCap(formatUnits(TreasuryPolicy.perDay, 6))),
-    Text(l10n.usedToday(formatUnits(_ledger.forToday().spent, 6))),
-    Text(l10n.remainingToday(formatUnits(_ledger.remaining, 6))),
-    const SizedBox(height: 8),
-    Text(
-      l10n.capPolicyExplanation,
-      style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.45),
+    const Text(
+      'Política local de esta app, contada con recibos confirmados en este teléfono. '
+      'No es un Agent Wallet de Circle. Si el importe la supera, la orden no se arma.',
+      style: TextStyle(color: Colors.white60, fontSize: 12, height: 1.45),
     ),
   ];
 
@@ -319,92 +121,81 @@ extension _CajaView on _WalletHomeState {
       ..sort();
   }
 
-  Widget _savedReceiptCard(String hash, AppLocalizations l10n) => Padding(
+  Widget _savedReceiptCard(String hash) => Padding(
     padding: const EdgeInsets.only(top: 8),
     child: _card(
       children: [
-        Text(l10n.confirmed, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const Row(
+          children: [
+            PaymentMarkView(mark: PaymentMark.confirmed, size: 26),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Confirmada',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         SelectableText(hash),
         TextButton(
           onPressed: () => _open('${ArcNetwork.explorer}/tx/$hash'),
-          child: Text(l10n.openExplorer),
+          child: const Text('Abrir explorador'),
         ),
       ],
     ),
   );
 
-  Widget _transactionCard(AppLocalizations l10n) {
+  Widget _transactionCard() {
     final result = _transaction!;
     final label = switch (result.state) {
-      TransactionState.submitted => l10n.txSubmitted,
-      TransactionState.confirmed => l10n.txConfirmed,
-      TransactionState.reverted => l10n.txReverted,
-      TransactionState.pending => l10n.txPending,
-      TransactionState.unknown => l10n.txUnknown,
+      TransactionState.submitted => 'Enviada · esperando recibo',
+      TransactionState.confirmed => 'Confirmada · ejecución exitosa',
+      TransactionState.reverted => 'Revertida · la operación falló en la red',
+      TransactionState.pending => 'Pendiente · todavía sin recibo',
+      TransactionState.unknown =>
+        'Estado no verificado · consultá el explorador',
     };
     return _card(
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Row(
+          children: [
+            PaymentMarkView(
+              mark: switch (result.state) {
+                TransactionState.submitted ||
+                TransactionState.pending => PaymentMark.awaitingReceipt,
+                TransactionState.unknown => PaymentMark.uncertain,
+                TransactionState.confirmed => PaymentMark.confirmed,
+                TransactionState.reverted => PaymentMark.reverted,
+              },
+              size: 26,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         SelectableText(result.hash),
-        if (result.blockNumber != null) Text(l10n.blockLabel(result.blockNumber.toString())),
+        if (result.blockNumber != null) Text('Bloque ${result.blockNumber}'),
         Wrap(
           spacing: 8,
           children: [
             TextButton(
               onPressed: _checkReceipt,
-              child: Text(l10n.checkReceipt),
+              child: const Text('Comprobar recibo'),
             ),
             TextButton(
               onPressed: () =>
                   _open('${ArcNetwork.explorer}/tx/${result.hash}'),
-              child: Text(l10n.openExplorer),
+              child: const Text('Abrir explorador'),
             ),
           ],
-        ),
-      ],
-    );
-  }
-
-  Widget _ordenesCard(AppLocalizations l10n) {
-    final steps = <(String, bool)>[
-      (l10n.orderVerifyArc, _networkVerified),
-      (l10n.orderExecuteRust, _nativeStatus != null),
-      (l10n.orderActivateOpenHuman, _agentReady),
-      (l10n.orderConnectArcAccount, _wallet.supportsArc),
-      (
-        l10n.orderConfirmTransfer,
-        _transaction?.state == TransactionState.confirmed,
-      ),
-    ];
-    return _card(
-      children: [
-        Text(
-          l10n.dailyOrders,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          l10n.ordersExplanation,
-          style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.4),
-        ),
-        const SizedBox(height: 8),
-        ...steps.map(
-          (step) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Icon(
-                  step.$2 ? Icons.check_circle : Icons.radio_button_unchecked,
-                  size: 18,
-                  color: step.$2 ? FluuixColors.success : FluuixColors.textMuted,
-                ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(step.$1)),
-              ],
-            ),
-          ),
         ),
       ],
     );

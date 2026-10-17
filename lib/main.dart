@@ -13,55 +13,62 @@ import 'package:url_launcher/url_launcher.dart';
 import 'domain/arc.dart';
 import 'domain/inference_config.dart';
 import 'domain/treasury_policy.dart';
+import 'l10n/app_localizations.dart';
+import 'networks/network_manager_screen.dart';
 import 'openhuman_bridge.dart';
 import 'services/arc_rpc.dart';
 import 'services/wallet_session.dart';
-import 'ui/context_bar.dart';
+import 'services/ecosystem_mcp.dart';
+import 'services/zonafranca_api.dart';
+import 'ui/company_qr_scan.dart';
+import 'ui/fluuix_theme.dart';
 import 'ui/splash_view.dart';
-import 'ui/theme.dart';
-
-import 'l10n/app_localizations.dart';
+import 'ui/treasury_catalog.dart';
+import 'ui/treasury_glyphs.dart';
+import 'ui/treasury_motion.dart';
 
 part 'ui/caja_view.dart';
 part 'ui/agente_view.dart';
-part 'ui/red_view.dart';
 part 'ui/ajustes_view.dart';
+part 'ui/treasury_shell.dart';
+part 'ui/treasury_dashboard.dart';
+part 'ui/treasury_boxes.dart';
+part 'ui/treasury_flows.dart';
+part 'ui/treasury_chapters.dart';
+part 'ui/treasury_books.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const ArcWalletApp(showSplash: true));
 }
 
-class ArcWalletApp extends StatefulWidget {
+class ArcWalletApp extends StatelessWidget {
   const ArcWalletApp({
     super.key,
     this.autoInitialize = true,
     this.agent,
     this.showSplash = false,
+    this.zonafrancaPreview,
+    this.zonafrancaApi,
+    this.redeemCompanyLink,
+    this.linkedPreview,
     this.overrideLocale,
   });
   final bool autoInitialize;
   final OpenHumanBridge? agent;
   final bool showSplash;
+  final ZonafrancaSnapshot? zonafrancaPreview;
+  final ZonafrancaAuthApi? zonafrancaApi;
+  final Future<ZonafrancaSession> Function(String payload)? redeemCompanyLink;
+  final ZonafrancaSnapshot? linkedPreview;
   final Locale? overrideLocale;
-
-  @override
-  State<ArcWalletApp> createState() => _ArcWalletAppState();
-}
-
-class _ArcWalletAppState extends State<ArcWalletApp> {
-  Locale? _locale;
-
-  void _setLocale(Locale? locale) {
-    setState(() => _locale = locale);
-  }
 
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX',
     debugShowCheckedModeBanner: false,
     theme: fluuixTheme(),
-    locale: widget.overrideLocale ?? _locale,
+    locale: overrideLocale,
     supportedLocales: AppLocalizations.supportedLocales,
     localizationsDelegates: const [
       AppLocalizations.delegate,
@@ -69,27 +76,24 @@ class _ArcWalletAppState extends State<ArcWalletApp> {
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
     ],
-    localeResolutionCallback: (locale, supportedLocales) {
-      if (_locale != null) return _locale;
-      for (final supportedLocale in supportedLocales) {
-        if (supportedLocale.languageCode == locale?.languageCode) {
-          return supportedLocale;
-        }
-      }
-      return const Locale('es');
-    },
-    home: widget.showSplash
+    home: showSplash
         ? FluuiXLaunch(
             child: WalletHome(
-              autoInitialize: widget.autoInitialize,
-              agent: widget.agent,
-              onLocaleChanged: _setLocale,
-            ),
+            autoInitialize: autoInitialize,
+            agent: agent,
+            zonafrancaPreview: zonafrancaPreview,
+            zonafrancaApi: zonafrancaApi,
+            redeemCompanyLink: redeemCompanyLink,
+            linkedPreview: linkedPreview,
+          ),
           )
         : WalletHome(
-            autoInitialize: widget.autoInitialize,
-            agent: widget.agent,
-            onLocaleChanged: _setLocale,
+            autoInitialize: autoInitialize,
+            agent: agent,
+            zonafrancaPreview: zonafrancaPreview,
+            zonafrancaApi: zonafrancaApi,
+            redeemCompanyLink: redeemCompanyLink,
+            linkedPreview: linkedPreview,
           ),
   );
 }
@@ -99,12 +103,17 @@ class WalletHome extends StatefulWidget {
     super.key,
     this.autoInitialize = true,
     this.agent,
-    this.onLocaleChanged,
+    this.zonafrancaPreview,
+    this.zonafrancaApi,
+    this.redeemCompanyLink,
+    this.linkedPreview,
   });
   final bool autoInitialize;
   final OpenHumanBridge? agent;
-  final void Function(Locale?)? onLocaleChanged;
-
+  final ZonafrancaSnapshot? zonafrancaPreview;
+  final ZonafrancaAuthApi? zonafrancaApi;
+  final Future<ZonafrancaSession> Function(String payload)? redeemCompanyLink;
+  final ZonafrancaSnapshot? linkedPreview;
   @override
   State<WalletHome> createState() => _WalletHomeState();
 }
@@ -124,9 +133,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         ? ''
         : const String.fromEnvironment('WALLETCONNECT_PROJECT_ID'),
   );
-  final _endpoint = TextEditingController(
-    text: awLabTextOnly ? '' : 'https://api.openai.com/v1',
-  );
+  final _endpoint = TextEditingController();
   final _model = TextEditingController();
   final _key = TextEditingController();
   final _prompt = TextEditingController(
@@ -137,11 +144,28 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   final _recipient = TextEditingController();
   final _amount = TextEditingController(text: '1');
   final _recoverHash = TextEditingController();
-
+  final _company = TextEditingController();
+  final _purpose = TextEditingController();
+  final _zfEmail = TextEditingController();
+  final _zfPassword = TextEditingController();
+  final _zfCode = TextEditingController();
+  final _zfApiBase = TextEditingController();
+  final _zfAnon = TextEditingController();
+  final _zfQr = TextEditingController();
+  ZonafrancaSession? _zfSession;
+  ZonafrancaSnapshot? _zf;
+  bool _zfLoading = false;
+  bool _mcpBusy = false;
+  String? _zfError;
+  String? _mcpTool;
+  String? _mcpBody;
   int _tab = awLabTextOnly ? 1 : 0;
-  CajaPanel _cajaPanel = CajaPanel.pay;
+  TreasuryScreen _screen = TreasuryScreen.dashboard;
+  TreasuryGroup _menuGroup = TreasuryGroup.today;
+  bool _navOpen = false;
+  String _corridor = 'Carta de crédito';
+  String _factorAsset = 'Mercadería';
   TreasuryDayLedger _ledger = TreasuryDayLedger.empty();
-  bool _missions = false;
   bool _busy = false;
   bool _settingsBusy = false;
   bool _agentBusy = false;
@@ -152,8 +176,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   bool _networkVerified = false;
   bool _requestUncertain = false;
   bool _polling = false;
-  String _networkStatus = 'connectionPending';
-  String _agentStatus = 'agentVerifyStatus';
+  String _networkStatus = 'Conexión pendiente';
+  String _agentStatus = 'Verificá el runtime y configurá la inferencia';
   String? _error;
   String? _agentError;
   String? _settingsError;
@@ -167,7 +191,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   BigInt? _balance;
   TransactionResult? _transaction;
   TransferReview? _lastReview;
-  Locale? _selectedLocale;
 
   bool get _transferBlocked =>
       awLabTextOnly ||
@@ -182,6 +205,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _zf = widget.zonafrancaPreview;
     _walletSession?.addListener(_walletChanged);
     if (widget.autoInitialize) {
       if (!awLabTextOnly) unawaited(_checkNetwork());
@@ -204,6 +228,14 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       _recipient,
       _amount,
       _recoverHash,
+      _company,
+      _purpose,
+      _zfEmail,
+      _zfPassword,
+      _zfCode,
+      _zfApiBase,
+      _zfAnon,
+      _zfQr,
     ]) {
       controller.dispose();
     }
@@ -223,6 +255,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     }
   }
 
+  // Errors shown by dependencies are scrubbed before being displayed.
   String _safeError(Object error) {
     var text = error.toString();
     if (_key.text.isNotEmpty) text = text.replaceAll(_key.text, '[redacted]');
@@ -239,12 +272,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       final transfer = awLabTextOnly
           ? null
           : await _storage.read(key: 'aw_transfer_v1');
-      final languageCode = await _storage.read(key: 'aw_language_v1');
       if (!mounted) return;
-      if (languageCode != null) {
-        _selectedLocale = Locale(languageCode);
-        widget.onLocaleChanged?.call(_selectedLocale);
-      }
       if (saved != null && !_settingsTouched) {
         final value = jsonDecode(saved) as Map<String, dynamic>;
         final endpoint = value['endpoint'] as String? ?? _endpoint.text;
@@ -261,6 +289,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         }
         _endpoint.text = endpoint;
         _model.text = model;
+        // The saved key and endpoint form one record; a host edit clears the key.
         _key.text = value['key'] as String? ?? '';
         _rememberKey = _key.text.isNotEmpty;
       }
@@ -293,6 +322,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         }
       }
       setState(() => _storageReady = true);
+      await _restoreZonafranca();
       if (!awLabTextOnly && _projectId.text.trim().isNotEmpty) {
         await _configureWallet(persist: false);
       }
@@ -301,9 +331,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         setState(() {
           _storageReady = false;
           _settingsError = awLabTextOnly
-              ? 'settingsErrorLab'
-              : 'settingsErrorArc';
+              ? 'No se pudieron restaurar los ajustes del laboratorio. Revisá la configuración segura antes de iniciar.'
+              : 'No se pudieron restaurar los ajustes seguros. El envío está bloqueado hasta recuperar el estado y comprobar operaciones pendientes.';
         });
+        treasuryCueFault();
       }
     }
   }
@@ -346,19 +377,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> _saveLocale(Locale? locale) async {
-    _selectedLocale = locale;
-    widget.onLocaleChanged?.call(locale);
-    try {
-      if (locale == null) {
-        await _storage.delete(key: 'aw_language_v1');
-      } else {
-        await _storage.write(key: 'aw_language_v1', value: locale.languageCode);
-      }
-    } catch (_) {}
-    if (mounted) setState(() {});
-  }
-
   Future<void> _configureWallet({bool persist = true}) async {
     if (awLabTextOnly) return;
     if (_settingsBusy || _busy) return;
@@ -370,7 +388,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _wallet.configure(_projectId.text.trim());
       if (persist) await _saveSettings();
     } catch (e) {
-      if (mounted) setState(() => _settingsError = _safeError(e));
+      if (mounted) {
+        setState(() => _settingsError = _safeError(e));
+        treasuryCueFault();
+      }
     } finally {
       if (mounted) setState(() => _settingsBusy = false);
     }
@@ -401,7 +422,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       if (!mounted) return;
       setState(() {
         _networkVerified = true;
-        _networkStatus = 'rpcVerified';
+        _networkStatus = 'RPC verificado · Arc Testnet';
       });
       await _refreshBalance();
     } catch (e) {
@@ -430,6 +451,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     } catch (e) {
       if (mounted && address == _wallet.address) {
         setState(() => _error = _safeError(e));
+        treasuryCueFault();
       }
     }
   }
@@ -437,7 +459,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   Future<void> _connect() async {
     if (awLabTextOnly) return;
     if (!_wallet.configured) {
-      setState(() => _tab = 2);
+      _openScreen(TreasuryScreen.account);
       return;
     }
     if (_busy) return;
@@ -449,12 +471,17 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _wallet.connect(_showPairing);
       if (mounted && !_wallet.supportsArc) {
         setState(
-          () => _error = 'sessionNotAuthorizedArc',
+          () => _error =
+              'La sesión no autorizó Arc Testnet. Agregá la red a la wallet y reconectá autorizando 5042002.',
         );
+        treasuryCueFault();
       }
       await _refreshBalance();
     } catch (e) {
-      if (mounted) setState(() => _error = _safeError(e));
+      if (mounted) {
+        setState(() => _error = _safeError(e));
+        treasuryCueFault();
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -462,41 +489,48 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
 
   Future<void> _showPairing(Uri uri) async {
     if (awLabTextOnly || !mounted) return;
-    final l10n = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: Text(l10n.connectYourWallet),
+        title: const Text('Conectá tu wallet'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l10n.scanFromOtherScreen),
+              const Text(
+                'Escaneá desde otra pantalla o abrí una wallet compatible con WalletConnect. Volvé a FluuiX después de aprobar.',
+              ),
               const SizedBox(height: 12),
               ColoredBox(
                 color: Colors.white,
                 child: QrImageView(data: '$uri', size: 210),
               ),
               const SizedBox(height: 10),
-              Text(l10n.walletMustHaveArc),
+              const Text(
+                'La wallet debe tener Arc Testnet configurada. La conexión no envía fondos.',
+              ),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog),
-            child: Text(l10n.goBack),
+            child: const Text('Volver'),
           ),
           TextButton(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: '$uri'));
               if (dialog.mounted) {
                 ScaffoldMessenger.of(dialog).showSnackBar(
-                  SnackBar(content: Text(l10n.uriCopied)),
+                  const SnackBar(
+                    content: Text(
+                      'URI copiada. Pegala en WalletConnect dentro de tu wallet.',
+                    ),
+                  ),
                 );
               }
             },
-            child: Text(l10n.copyUri),
+            child: const Text('Copiar URI'),
           ),
           FilledButton(
             onPressed: () async {
@@ -507,19 +541,27 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                 );
                 if (!opened && dialog.mounted) {
                   ScaffoldMessenger.of(dialog).showSnackBar(
-                    SnackBar(content: Text(l10n.useCopyUriOrQr)),
+                    const SnackBar(
+                      content: Text(
+                        'Usá Copiar URI y pegala en tu wallet, o escaneá el QR.',
+                      ),
+                    ),
                   );
                 }
                 if (opened && dialog.mounted) Navigator.pop(dialog);
               } catch (_) {
                 if (dialog.mounted) {
                   ScaffoldMessenger.of(dialog).showSnackBar(
-                    SnackBar(content: Text(l10n.noWalletForLink)),
+                    const SnackBar(
+                      content: Text(
+                        'No se encontró una wallet para este enlace. Usá el QR o copiá la URI.',
+                      ),
+                    ),
                   );
                 }
               }
             },
-            child: Text(l10n.openWallet),
+            child: const Text('Abrir wallet'),
           ),
         ],
       ),
@@ -535,10 +577,16 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     try {
       await _wallet.requestArcNetwork();
       if (mounted) {
-        setState(() => _error = 'networkRequestedReconnect');
+        setState(
+          () => _error =
+              'Red solicitada. Volvé a conectar la wallet y autorizá Arc Testnet en la nueva sesión.',
+        );
       }
     } catch (e) {
-      if (mounted) setState(() => _error = _safeError(e));
+      if (mounted) {
+        setState(() => _error = _safeError(e));
+        treasuryCueFault();
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -549,7 +597,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     try {
       await _wallet.disconnect();
     } catch (e) {
-      if (mounted) setState(() => _error = _safeError(e));
+      if (mounted) {
+        setState(() => _error = _safeError(e));
+        treasuryCueFault();
+      }
     }
   }
 
@@ -586,6 +637,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _rpc.verifyFunds(review);
       if (!mounted) return;
       _wallet.verifyReview(review);
+      // Persist the uncertainty marker before any wallet authorization request.
       _lastReview = review;
       _transaction = null;
       _requestUncertain = true;
@@ -610,60 +662,62 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               : _safeError(e);
         });
         if (!requested) await _saveTransfer().catchError((Object _) {});
+        treasuryCueFault();
       }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
-  Future<bool?> _showReview(TransferReview review) {
-    final l10n = AppLocalizations.of(context);
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialog) => AlertDialog(
-        title: Text(l10n.reviewTransferTitle),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.arcTestnetTestFunds,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                '${formatUnits(review.units, 6)} USDC',
-                style: Theme.of(dialog).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 14),
-              Text(l10n.from),
-              SelectableText(review.sender),
-              const SizedBox(height: 10),
-              Text(l10n.recipient),
-              SelectableText(review.recipient),
-              const SizedBox(height: 10),
-              Text(l10n.maxFee(formatUnits(review.maximumFee, 18))),
-              Text(l10n.maxTotal(formatUnits(review.nativeRequired, 18))),
-              const SizedBox(height: 10),
-              Text(l10n.reviewExpiry),
-            ],
-          ),
+  Future<bool?> _showReview(TransferReview review) => showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialog) => AlertDialog(
+      title: const Text('Revisá la transferencia'),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Arc Testnet · fondos de prueba',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              '${formatUnits(review.units, 6)} USDC',
+              style: Theme.of(dialog).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 14),
+            const Text('Desde'),
+            SelectableText(review.sender),
+            const SizedBox(height: 10),
+            const Text('Destinatario'),
+            SelectableText(review.recipient),
+            const SizedBox(height: 10),
+            Text('Comisión máxima: ${formatUnits(review.maximumFee, 18)} USDC'),
+            Text(
+              'Total máximo: ${formatUnits(review.nativeRequired, 18)} USDC',
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'La revisión vence en 2 minutos. Verificá en tu wallet que la red, el destinatario, el importe y la comisión coincidan. Tu wallet solicita la firma final.',
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialog, false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialog, true),
-            child: Text(l10n.requestApproval),
-          ),
-        ],
       ),
-    );
-  }
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialog, false),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(dialog, true),
+          child: const Text('Solicitar aprobación'),
+        ),
+      ],
+    ),
+  );
 
   Future<void> _pollReceipt() async {
     if (awLabTextOnly || _polling || _transaction == null) return;
@@ -696,6 +750,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       await _rpc.verifyNetwork();
       final result = await _rpc.receipt(current.hash, review: _lastReview);
       if (!mounted || _transaction?.hash != current.hash) return;
+      final previous = current.state;
       setState(() {
         _transaction = result;
         if (_lastReview != null &&
@@ -710,6 +765,13 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           );
         }
       });
+      if (result.state == TransactionState.confirmed &&
+          previous != TransactionState.confirmed) {
+        treasuryCueReceipt();
+      } else if (result.state == TransactionState.reverted &&
+          previous != TransactionState.reverted) {
+        treasuryCueFault();
+      }
       await _saveTransfer();
       if (result.state == TransactionState.confirmed) {
         await _saveLedger();
@@ -727,6 +789,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           );
           _error = _safeError(e);
         });
+        treasuryCueFault();
       }
     }
   }
@@ -741,27 +804,31 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       });
       await _checkReceipt();
     } catch (e) {
-      if (mounted) setState(() => _error = _safeError(e));
+      if (mounted) {
+        setState(() => _error = _safeError(e));
+        treasuryCueFault();
+      }
     }
   }
 
   Future<void> _acknowledgeNoSend() async {
     if (awLabTextOnly) return;
     if (_wallet.requestPending) return;
-    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: Text(l10n.confirmWalletState),
-        content: Text(l10n.confirmNoSendMessage),
+        title: const Text('Confirmá el estado en tu wallet'),
+        content: const Text(
+          'Continuá sólo si verificaste que la solicitud anterior fue rechazada o cancelada y que no existe una transferencia pendiente o enviada. Repetir un envío puede duplicar el pago.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog, false),
-            child: Text(l10n.goBack),
+            child: const Text('Volver'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialog, true),
-            child: Text(l10n.verifiedNotSent),
+            child: const Text('Verifiqué que no se envió'),
           ),
         ],
       ),
@@ -805,7 +872,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       setState(() {
         _nativeStatus = status;
         _agentReady = _statusAllowsQueries(status);
-        _agentStatus = 'rustExecutedStatus';
+        _agentStatus = 'Rust ejecutado en ${status.os}/${status.arch} · ABI 1';
       });
     } catch (e) {
       if (mounted) {
@@ -815,6 +882,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           _agentError =
               'No se pudo ejecutar la biblioteca nativa: ${_safeError(e)}';
         });
+        treasuryCueFault();
       }
     } finally {
       if (mounted) setState(() => _agentBusy = false);
@@ -834,6 +902,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                   : validateInferenceEndpoint(_endpoint.text))
               .toString();
       if (awLabTextOnly) validateLabModel(_model.text);
+      final kimi = !awLabTextOnly && isKimiInferenceEndpoint(endpoint);
       if (_model.text.trim().isEmpty || _key.text.isEmpty) {
         throw const FormatException(
           awLabTextOnly
@@ -863,10 +932,17 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         _toolCalls = const [];
         _liveReads = const [];
         _labRequestAudit = null;
-        _tab = 1;
+        if (awLabTextOnly) {
+          _tab = 1;
+        } else {
+          _screen = TreasuryScreen.assistant;
+          _menuGroup = TreasuryGroup.fluuix;
+        }
         _agentStatus = awLabTextOnly
-            ? 'labReadyStatus'
-            : 'openHumanLocalActive';
+            ? 'Laboratorio listo · endpoint $endpoint · modelo solicitado ${_model.text.trim()}'
+            : kimi
+            ? 'OpenHuman local activo · motor Kimi ${_model.text.trim()} en api.moonshot.ai'
+            : 'OpenHuman local activo · inferencia en ${Uri.parse(endpoint).host}';
       });
     } catch (e) {
       if (mounted) {
@@ -874,6 +950,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           _agentReady = false;
           _agentError = _safeError(e);
         });
+        treasuryCueFault();
       }
     } finally {
       if (mounted) setState(() => _agentBusy = false);
@@ -915,8 +992,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         _liveReads = turn.liveReads;
         _finishLabAudit('response_received', durationMs: turn.durationMs);
         _agentStatus = awLabTextOnly
-            ? 'labResponseReceivedStatus'
-            : 'turnCompletedStatus';
+            ? 'Respuesta recibida · cotejá el ID con el registro de tu servidor'
+            : 'Turno completado por OpenHuman';
       });
     } catch (e) {
       if (mounted) {
@@ -924,6 +1001,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           _agentError = _safeError(e);
           _finishLabAudit('error');
         });
+        treasuryCueFault();
       }
       try {
         final status = await _agent.status();
@@ -955,7 +1033,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _agentError = _safeError(e));
+      if (mounted) {
+        setState(() => _agentError = _safeError(e));
+        treasuryCueFault();
+      }
     }
   }
 
@@ -974,7 +1055,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         _agentError = null;
         _toolCalls = const [];
         _liveReads = const [];
-        _agentStatus = 'agentStoppedStatus';
+        _agentStatus = 'Agente detenido y conversación local descartada';
       });
     } catch (e) {
       if (mounted) {
@@ -982,8 +1063,11 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           () => _agentError =
               'No se pudo verificar que el runtime se haya detenido: ${_safeError(e)}',
         );
+        treasuryCueFault();
       }
     } finally {
+      // Forget persisted credentials even when a missing native library cannot
+      // be reset. A runtime failure remains visible and is never called success.
       if (mounted) {
         setState(() {
           _key.clear();
@@ -1000,6 +1084,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               () => _settingsError =
                   'No se pudo confirmar el borrado de la clave guardada.',
             );
+            treasuryCueFault();
           }
         }
         if (mounted) setState(() => _agentBusy = false);
@@ -1020,20 +1105,22 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     if (awLabTextOnly) return;
     final proposal = _proposal;
     if (proposal == null || _busy) return;
-    final l10n = AppLocalizations.of(context);
     setState(() {
       _recipient.text = proposal.recipient;
       _amount.text = formatUnits(proposal.units, 6);
-      _cajaPanel = CajaPanel.pay;
-      _tab = 0;
+      _screen = TreasuryScreen.payments;
+      _menuGroup = TreasuryGroup.treasury;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.proposalValidatedCopied)),
+      const SnackBar(
+        content: Text(
+          'Propuesta validada y copiada. Revisá destinatario, importe y comisión antes de firmar.',
+        ),
+      ),
     );
   }
 
   Future<void> _open(String url) async {
-    final l10n = AppLocalizations.of(context);
     try {
       final opened = await launchUrl(
         Uri.parse(url),
@@ -1041,21 +1128,44 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       );
       if (!opened && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.couldNotOpenLink)),
+          const SnackBar(content: Text('No se pudo abrir el enlace.')),
         );
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.couldNotOpenLink)),
+          const SnackBar(content: Text('No se pudo abrir el enlace.')),
         );
       }
     }
   }
 
-  void _showCajaPanel(CajaPanel panel) => setState(() => _cajaPanel = panel);
+  void _mutate(VoidCallback update) => setState(update);
 
-  void _openSettingsTab() => setState(() => _tab = 2);
+  void _openSettingsTab() => awLabTextOnly
+      ? setState(() => _tab = 2)
+      : _openScreen(TreasuryScreen.account);
+
+  void _openScreen(TreasuryScreen screen) {
+    setState(() {
+      _screen = screen;
+      _menuGroup = treasuryItem(screen).group;
+    });
+  }
+
+  void _toggleTreasuryNav() => setState(() => _navOpen = !_navOpen);
+
+  void _closeTreasuryNav() {
+    if (!_navOpen) return;
+    setState(() => _navOpen = false);
+  }
+
+  void _rememberMenuGroup(TreasuryGroup group) =>
+      setState(() => _menuGroup = group);
+
+  void _setCorridor(String value) => setState(() => _corridor = value);
+
+  void _setFactorAsset(String value) => setState(() => _factorAsset = value);
 
   void _noteEndpointEdited() {
     _settingsTouched = true;
@@ -1063,154 +1173,92 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     setState(() {});
   }
 
+  void _useKimiEngine() {
+    final previous = Uri.tryParse(_endpoint.text.trim());
+    if (previous?.host != 'api.moonshot.ai') _key.clear();
+    _endpoint.text = kimiInferenceRoot;
+    _model.text = kimiModelId;
+    setState(() {
+      _settingsTouched = true;
+      _agentError = null;
+    });
+  }
+
   void _setRememberKey(bool? value) => setState(() {
     _rememberKey = value ?? false;
     _settingsTouched = true;
   });
 
-  int get _selectedNav {
-    if (awLabTextOnly) return _tab - 1;
-    return switch (_tab) {
-      0 => 0,
-      1 => 1,
-      3 => 2,
-      _ => 3,
-    };
-  }
-
-  int _tabForNav(int value) {
-    if (awLabTextOnly) return value + 1;
-    return switch (value) {
-      0 => 0,
-      1 => 1,
-      2 => 3,
-      _ => 2,
-    };
-  }
-
-  String _getNetworkStatusText(AppLocalizations l10n) {
-    if (_networkStatus == 'connectionPending') return l10n.connectionPending;
-    if (_networkStatus == 'rpcVerified') return l10n.rpcVerified;
-    return _networkStatus;
-  }
-
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            if (!awLabTextOnly)
-              FluuixContextBar(
-                activeLayer: l10n.navCaja,
-                chainName: 'Arc Testnet',
-                rpcConnected: _networkVerified,
-                railName: 'Twin · ARGt',
-                walletConnected: _wallet.connected,
-                walletAddress: _wallet.address,
-                isTestnet: true,
-              ),
-            AppBar(
-              title: Text(awLabTextOnly ? l10n.appTitleLab : l10n.appTitle),
-              actions: [
-                if (!awLabTextOnly)
-                  IconButton(
-                    onPressed: () => setState(() => _missions = !_missions),
-                    icon: Icon(
-                      _missions ? Icons.dashboard_outlined : Icons.flag_outlined,
-                    ),
-                    tooltip: _missions ? l10n.ordersViewTooltip : l10n.missionViewTooltip,
-                  ),
-                if (!awLabTextOnly)
-                  IconButton(
-                    onPressed: _busy ? null : _checkNetwork,
-                    icon: const Icon(Icons.refresh),
-                    tooltip: l10n.refreshArcTooltip,
-                  ),
-              ],
-            ),
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 660),
-                  child: ListView(
-                    key: ValueKey(_tab),
-                    padding: const EdgeInsets.all(20),
-                    children: [
-                      if (awLabTextOnly) ...[_labBanner(l10n), const SizedBox(height: 16)],
-                      if (!awLabTextOnly && _missions) ...[
-                        _ordenesCard(l10n),
-                        const SizedBox(height: 16),
-                      ],
-                      if (!awLabTextOnly && _tab == 0) ..._cajaView(l10n),
-                      if (_tab == 1) ..._agentView(l10n),
-                      if (!awLabTextOnly && _tab == 3) ..._redView(l10n),
-                      if (_tab == 2) ..._settingsView(l10n),
-                      const SizedBox(height: 24),
-                      Text(
-                        awLabTextOnly ? l10n.footerLab : l10n.footerArcTestnet,
-                        style: const TextStyle(
-                          color: FluuixColors.textMuted,
-                          fontSize: 12,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
+  Widget build(BuildContext context) =>
+      awLabTextOnly ? _labScaffold() : _treasuryScaffold();
+
+  Widget _labScaffold() => Scaffold(
+    appBar: AppBar(title: const Text('AW · Laboratorio de texto')),
+    body: SafeArea(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 660),
+          child: ListView(
+            key: ValueKey(_tab),
+            padding: const EdgeInsets.all(20),
+            children: [
+              _labBanner(),
+              const SizedBox(height: 16),
+              if (_tab == 1) ..._agentView(),
+              if (_tab == 2) ..._settingsView(),
+              const SizedBox(height: 24),
+              const Text(
+                'AW no cambia de proveedor automáticamente. Confirmá que el servidor autorizado ejecuta un modelo local; recibir texto no demuestra por sí solo su procedencia.',
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 12,
+                  height: 1.5,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedNav,
-        onDestinationSelected: (value) =>
-            setState(() => _tab = _tabForNav(value)),
-        destinations: [
-          if (!awLabTextOnly)
-            NavigationDestination(
-              icon: const Icon(Icons.account_balance_wallet_outlined),
-              label: l10n.navCaja,
-            ),
-          NavigationDestination(
-            icon: const Icon(Icons.psychology_outlined),
-            label: l10n.navAgente,
-          ),
-          if (!awLabTextOnly)
-            NavigationDestination(
-              icon: const Icon(Icons.hub_outlined),
-              label: l10n.navRed,
-            ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            label: l10n.navAjustes,
-          ),
-        ],
-      ),
-    );
-  }
+    ),
+    bottomNavigationBar: NavigationBar(
+      selectedIndex: _tab - 1,
+      onDestinationSelected: (value) => setState(() => _tab = value + 1),
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.psychology_outlined),
+          label: 'Agente',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.settings_outlined),
+          label: 'Ajustes',
+        ),
+      ],
+    ),
+  );
 
-  Widget _labBanner(AppLocalizations l10n) => _card(
+  Widget _labBanner() => _card(
     children: [
-      Text(
-        l10n.labBannerTitle,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+      const Text(
+        'Laboratorio · sólo texto',
+        style: TextStyle(fontWeight: FontWeight.bold),
       ),
       const SizedBox(height: 8),
-      Text(l10n.labBannerDesc),
+      const Text(
+        'Wallet, pagos, propuestas y consultas Arc deshabilitados. '
+        'El agente no dispone de herramientas. '
+        'Este modo queda fijo al compilar la app.',
+      ),
     ],
   );
 
   Widget _card({required List<Widget> children}) => SizedBox(
     width: double.infinity,
     child: Material(
-      color: FluuixColors.surface,
+      color: const Color(0xff191923),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: FluuixColors.border),
+        side: const BorderSide(color: Color(0xff353347)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -1228,13 +1276,21 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: FluuixColors.error.withValues(alpha: 0.15),
+        color: const Color(0xff37222b),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: FluuixColors.error.withValues(alpha: 0.3)),
       ),
-      child: Text(
-        message,
-        style: const TextStyle(color: FluuixColors.error, height: 1.4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const FaultMark(size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(color: Color(0xffffc4cf), height: 1.4),
+            ),
+          ),
+        ],
       ),
     ),
   );
