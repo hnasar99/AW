@@ -10,6 +10,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  go_router: ^14.0.0
   http: ^1.6.0
   reown_sign: 1.4.1
   reown_core: 1.5.1

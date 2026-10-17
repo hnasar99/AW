@@ -761,4 +761,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageChinese => '中文';
+
+  @override
+  String get navInicio => 'Home';
+
+  @override
+  String get navRieles => 'Rails';
+
+  @override
+  String get navMas => 'More';
+
+  @override
+  String get homeWelcome => 'Welcome to FluuiX';
+
+  @override
+  String get homeConnectedStatus => 'Wallet connected';
+
+  @override
+  String get homeDisconnectedStatus => 'Wallet disconnected';
+
+  @override
+  String get homeLayers => 'Layers';
+
+  @override
+  String get homeLayerCajaDesc => 'Payments and balance';
+
+  @override
+  String get homeLayerRielesDesc => 'Local instruments';
+
+  @override
+  String get homeLayerAgenteDesc => 'Smart assistant';
+
+  @override
+  String get homeLayerRedTitle => 'Network';
+
+  @override
+  String get homeLayerRedDesc => 'FluuiX modules';
+
+  @override
+  String get homeQuickActions => 'Quick actions';
+
+  @override
+  String get homeAskAgent => 'Ask';
+
+  @override
+  String get homeSystemStatus => 'System status';
+
+  @override
+  String get passageComingSoon => 'Coming soon';
+
+  @override
+  String get passageDescription =>
+      'The CCTP bridge enables native USDC movement between chains. When active, you can pass funds from Arbitrum or other networks.';
+
+  @override
+  String get capPolicyTitle => 'Limit policy';
+
+  @override
+  String get rielesTitle => 'Rails';
+
+  @override
+  String get rielesDescription =>
+      'Rails connect different instruments with the box. Each rail has its own balance and conditions.';
+
+  @override
+  String get rielUsdcNative => 'Native USDC';
+
+  @override
+  String get rielActive => 'Active';
+
+  @override
+  String get rielesHowItWorks => 'How rails work';
+
+  @override
+  String get rielesExplanation =>
+      'A rail is a settlement channel between the box and an instrument. The local rail (Twin) enables operations with tokenized pesos. The reserve (cirBTC) is a savings instrument. USDC is Arc\'s native balance.';
+
+  @override
+  String get paymentChecklist => 'Checklist';
+
+  @override
+  String get checkRpcConnected => 'RPC connected';
+
+  @override
+  String get checkWalletConnected => 'Wallet connected';
+
+  @override
+  String get checkArcSupported => 'Arc authorized';
+
+  @override
+  String get checkWithinLimit => 'Within daily limit';
+
+  @override
+  String get paymentSheetDisclaimer =>
+      'FluuiX prepares the order and displays it for review. Your external wallet requests the signature. Model text does not authorize or sign payments.';
+
+  @override
+  String get sheetChainRail => 'Chain and rail';
+
+  @override
+  String get sheetNoAuthNoSign => 'Does not authorize or sign';
+
+  @override
+  String get proposalSheetTitle => 'Agent proposal';
+
+  @override
+  String get proposalFromAgent => 'OpenHuman proposes this transfer';
+
+  @override
+  String get proposalNotFound => 'Proposal not found';
+
+  @override
+  String get proposalDisclaimer =>
+      'The agent only proposes. Signature requires your review in the wallet. Verify recipient, amount, and fee before approving.';
+
+  @override
+  String get proposalCopyToForm => 'Copy to form';
 }

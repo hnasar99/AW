@@ -726,4 +726,118 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get languageChinese => '中文';
+
+  @override
+  String get navInicio => '首页';
+
+  @override
+  String get navRieles => '通道';
+
+  @override
+  String get navMas => '更多';
+
+  @override
+  String get homeWelcome => '欢迎使用 FluuiX';
+
+  @override
+  String get homeConnectedStatus => '钱包已连接';
+
+  @override
+  String get homeDisconnectedStatus => '钱包未连接';
+
+  @override
+  String get homeLayers => '层级';
+
+  @override
+  String get homeLayerCajaDesc => '支付和余额';
+
+  @override
+  String get homeLayerRielesDesc => '本地工具';
+
+  @override
+  String get homeLayerAgenteDesc => '智能助手';
+
+  @override
+  String get homeLayerRedTitle => '网络';
+
+  @override
+  String get homeLayerRedDesc => 'FluuiX 模块';
+
+  @override
+  String get homeQuickActions => '快速操作';
+
+  @override
+  String get homeAskAgent => '询问';
+
+  @override
+  String get homeSystemStatus => '系统状态';
+
+  @override
+  String get passageComingSoon => '即将推出';
+
+  @override
+  String get passageDescription =>
+      'CCTP 桥接允许在链之间原生移动 USDC。激活后，您可以从 Arbitrum 或其他网络转移资金。';
+
+  @override
+  String get capPolicyTitle => '限额政策';
+
+  @override
+  String get rielesTitle => '通道';
+
+  @override
+  String get rielesDescription => '通道将不同的工具与钱包连接起来。每个通道都有自己的余额和条件。';
+
+  @override
+  String get rielUsdcNative => '原生 USDC';
+
+  @override
+  String get rielActive => '活跃';
+
+  @override
+  String get rielesHowItWorks => '通道如何工作';
+
+  @override
+  String get rielesExplanation =>
+      '通道是钱包和工具之间的结算渠道。本地通道 (Twin) 允许使用代币化的比索进行操作。储备 (cirBTC) 是一种储蓄工具。USDC 是 Arc 的原生余额。';
+
+  @override
+  String get paymentChecklist => '检查清单';
+
+  @override
+  String get checkRpcConnected => 'RPC 已连接';
+
+  @override
+  String get checkWalletConnected => '钱包已连接';
+
+  @override
+  String get checkArcSupported => 'Arc 已授权';
+
+  @override
+  String get checkWithinLimit => '在每日限额内';
+
+  @override
+  String get paymentSheetDisclaimer =>
+      'FluuiX 准备订单并显示以供审核。您的外部钱包请求签名。模型文本不授权或签署付款。';
+
+  @override
+  String get sheetChainRail => '链和通道';
+
+  @override
+  String get sheetNoAuthNoSign => '不授权也不签名';
+
+  @override
+  String get proposalSheetTitle => '代理提案';
+
+  @override
+  String get proposalFromAgent => 'OpenHuman 提议此转账';
+
+  @override
+  String get proposalNotFound => '未找到提案';
+
+  @override
+  String get proposalDisclaimer => '代理仅提议。签名需要您在钱包中审核。批准前请验证收款人、金额和费用。';
+
+  @override
+  String get proposalCopyToForm => '复制到表单';
 }

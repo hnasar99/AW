@@ -1433,6 +1433,228 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'中文'**
   String get languageChinese;
+
+  /// Bottom navigation: home tab
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio'**
+  String get navInicio;
+
+  /// Bottom navigation: rails tab
+  ///
+  /// In es, this message translates to:
+  /// **'Rieles'**
+  String get navRieles;
+
+  /// Bottom navigation: more tab
+  ///
+  /// In es, this message translates to:
+  /// **'Más'**
+  String get navMas;
+
+  /// Home screen welcome message
+  ///
+  /// In es, this message translates to:
+  /// **'Bienvenido a FluuiX'**
+  String get homeWelcome;
+
+  /// Home screen: wallet connected status
+  ///
+  /// In es, this message translates to:
+  /// **'Wallet conectada'**
+  String get homeConnectedStatus;
+
+  /// Home screen: wallet disconnected status
+  ///
+  /// In es, this message translates to:
+  /// **'Wallet desconectada'**
+  String get homeDisconnectedStatus;
+
+  /// Home screen: layers section title
+  ///
+  /// In es, this message translates to:
+  /// **'Capas'**
+  String get homeLayers;
+
+  /// Home screen: caja layer description
+  ///
+  /// In es, this message translates to:
+  /// **'Pagos y saldo'**
+  String get homeLayerCajaDesc;
+
+  /// Home screen: rieles layer description
+  ///
+  /// In es, this message translates to:
+  /// **'Instrumentos locales'**
+  String get homeLayerRielesDesc;
+
+  /// Home screen: agente layer description
+  ///
+  /// In es, this message translates to:
+  /// **'Asistente inteligente'**
+  String get homeLayerAgenteDesc;
+
+  /// Home screen: network layer title
+  ///
+  /// In es, this message translates to:
+  /// **'Red'**
+  String get homeLayerRedTitle;
+
+  /// Home screen: network layer description
+  ///
+  /// In es, this message translates to:
+  /// **'Módulos FluuiX'**
+  String get homeLayerRedDesc;
+
+  /// Home screen: quick actions title
+  ///
+  /// In es, this message translates to:
+  /// **'Acciones rápidas'**
+  String get homeQuickActions;
+
+  /// Home screen: ask agent button
+  ///
+  /// In es, this message translates to:
+  /// **'Preguntar'**
+  String get homeAskAgent;
+
+  /// Home screen: system status title
+  ///
+  /// In es, this message translates to:
+  /// **'Estado del sistema'**
+  String get homeSystemStatus;
+
+  /// Passage screen: coming soon title
+  ///
+  /// In es, this message translates to:
+  /// **'Próximamente'**
+  String get passageComingSoon;
+
+  /// Passage screen: description
+  ///
+  /// In es, this message translates to:
+  /// **'El puente CCTP permite mover USDC entre cadenas de forma nativa. Cuando esté activo, podrás pasar fondos desde Arbitrum u otras redes.'**
+  String get passageDescription;
+
+  /// Cap screen: policy title
+  ///
+  /// In es, this message translates to:
+  /// **'Política de límites'**
+  String get capPolicyTitle;
+
+  /// Rails screen: title
+  ///
+  /// In es, this message translates to:
+  /// **'Rieles'**
+  String get rielesTitle;
+
+  /// Rails screen: description
+  ///
+  /// In es, this message translates to:
+  /// **'Los rieles conectan diferentes instrumentos con la caja. Cada riel tiene su propio saldo y condiciones.'**
+  String get rielesDescription;
+
+  /// Rails: native USDC rail
+  ///
+  /// In es, this message translates to:
+  /// **'USDC nativo'**
+  String get rielUsdcNative;
+
+  /// Rails: active status
+  ///
+  /// In es, this message translates to:
+  /// **'Activo'**
+  String get rielActive;
+
+  /// Rails: how it works title
+  ///
+  /// In es, this message translates to:
+  /// **'Cómo funcionan los rieles'**
+  String get rielesHowItWorks;
+
+  /// Rails: explanation
+  ///
+  /// In es, this message translates to:
+  /// **'Un riel es un canal de liquidación entre la caja y un instrumento. El riel local (Twin) permite operar con pesos tokenizados. La reserva (cirBTC) es un instrumento de ahorro. USDC es el saldo nativo de Arc.'**
+  String get rielesExplanation;
+
+  /// Payment: checklist title
+  ///
+  /// In es, this message translates to:
+  /// **'Lista de verificación'**
+  String get paymentChecklist;
+
+  /// Payment check: RPC connected
+  ///
+  /// In es, this message translates to:
+  /// **'RPC conectado'**
+  String get checkRpcConnected;
+
+  /// Payment check: wallet connected
+  ///
+  /// In es, this message translates to:
+  /// **'Wallet conectada'**
+  String get checkWalletConnected;
+
+  /// Payment check: Arc supported
+  ///
+  /// In es, this message translates to:
+  /// **'Arc autorizado'**
+  String get checkArcSupported;
+
+  /// Payment check: within daily limit
+  ///
+  /// In es, this message translates to:
+  /// **'Dentro del límite diario'**
+  String get checkWithinLimit;
+
+  /// Payment screen disclaimer
+  ///
+  /// In es, this message translates to:
+  /// **'FluuiX arma la orden y la muestra para revisión. Tu wallet externa solicita la firma. El texto del modelo no autoriza ni firma pagos.'**
+  String get paymentSheetDisclaimer;
+
+  /// Sheet: chain and rail label
+  ///
+  /// In es, this message translates to:
+  /// **'Cadena y riel'**
+  String get sheetChainRail;
+
+  /// Sheet: no auth no sign warning
+  ///
+  /// In es, this message translates to:
+  /// **'No autoriza ni firma'**
+  String get sheetNoAuthNoSign;
+
+  /// Proposal sheet: title
+  ///
+  /// In es, this message translates to:
+  /// **'Propuesta del agente'**
+  String get proposalSheetTitle;
+
+  /// Proposal sheet: from agent note
+  ///
+  /// In es, this message translates to:
+  /// **'OpenHuman propone esta transferencia'**
+  String get proposalFromAgent;
+
+  /// Proposal sheet: not found
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontró la propuesta'**
+  String get proposalNotFound;
+
+  /// Proposal sheet: disclaimer
+  ///
+  /// In es, this message translates to:
+  /// **'El agente sólo propone. La firma requiere tu revisión en la wallet. Verificá destinatario, importe y comisión antes de aprobar.'**
+  String get proposalDisclaimer;
+
+  /// Proposal sheet: copy to form button
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar al formulario'**
+  String get proposalCopyToForm;
 }
 
 class _AppLocalizationsDelegate

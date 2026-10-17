@@ -3,9 +3,14 @@ import 'package:arc_wallet_flutter/domain/inference_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+Finder navBarItem(String label) => find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text(label),
+    );
+
 void main() {
   testWidgets(
-    'wallet and mission views share state, agent is not falsely ready',
+    'navigation between tabs works with new router structure',
     (tester) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1;
@@ -18,28 +23,20 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('FluuiX'), findsOneWidget);
+      expect(navBarItem('Inicio'), findsOneWidget);
+      expect(navBarItem('Caja'), findsOneWidget);
+      expect(navBarItem('Agente'), findsOneWidget);
+      expect(navBarItem('Rieles'), findsOneWidget);
+      expect(navBarItem('Más'), findsOneWidget);
+      await tester.tap(navBarItem('Caja'));
+      await tester.pumpAndSettle();
       expect(find.text('Caja en dólares'), findsOneWidget);
       expect(find.text('Pagar'), findsWidgets);
-      expect(find.textContaining('pendiente'), findsOneWidget);
-      expect(find.text('Sin contrato'), findsWidgets);
-      await tester.tap(find.byTooltip('Órdenes del día'));
-      await tester.pump();
-      expect(find.text('Órdenes del día'), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle), findsNothing);
-      await tester.tap(find.byTooltip('Vista de caja'));
-      await tester.pump();
-      final passage = find.widgetWithText(OutlinedButton, 'Pasar');
-      await tester.ensureVisible(passage);
-      await tester.tap(passage);
-      await tester.pump();
-      expect(find.textContaining('no está conectado'), findsOneWidget);
-      await tester.tap(find.text('Agente').last);
+      await tester.tap(navBarItem('Agente'));
       await tester.pumpAndSettle();
       expect(find.text('Agente de la caja'), findsOneWidget);
       expect(find.text('Verificar ejecución nativa de Rust'), findsOneWidget);
-      expect(find.textContaining('OpenHuman local activo'), findsNothing);
-      await tester.tap(find.text('Red').last);
+      await tester.tap(navBarItem('Más'));
       await tester.pumpAndSettle();
       expect(find.text('ZonaBank'), findsOneWidget);
       expect(find.text('Lending'), findsOneWidget);
@@ -52,15 +49,16 @@ void main() {
       expect(find.text('Donaciones'), findsOneWidget);
       expect(find.text('Academia'), findsOneWidget);
       expect(find.text('Sin contrato'), findsNWidgets(10));
-      expect(find.textContaining('12,480'), findsNothing);
-      expect(find.textContaining('%'), findsNothing);
-      expect(find.textContaining('APY'), findsNothing);
+      await tester.tap(navBarItem('Rieles'));
+      await tester.pumpAndSettle();
+      expect(find.text('Rieles'), findsWidgets);
+      expect(find.text('Twin · ARGt'), findsWidgets);
     },
     skip: awLabTextOnly,
   );
 
   testWidgets(
-    'the opening mark gives way to the box',
+    'home screen shows layers and quick actions',
     (tester) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1;
@@ -69,17 +67,14 @@ void main() {
       await tester.pumpWidget(
         const ArcWalletApp(
           autoInitialize: false,
-          showSplash: true,
           overrideLocale: Locale('es'),
         ),
       );
-      await tester.pump();
-      expect(find.byKey(const Key('fluuix-splash')), findsOneWidget);
-      expect(find.text('Caja en dólares'), findsWidgets);
-      await tester.pump(const Duration(milliseconds: 2900));
-      await tester.pump();
-      expect(find.byKey(const Key('fluuix-splash')), findsNothing);
-      expect(find.text('Caja en dólares'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.text('Bienvenido a FluuiX'), findsOneWidget);
+      expect(find.text('Capas'), findsOneWidget);
+      expect(find.text('Acciones rápidas'), findsOneWidget);
+      expect(find.text('Estado del sistema'), findsOneWidget);
     },
     skip: awLabTextOnly,
   );

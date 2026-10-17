@@ -769,4 +769,120 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get languageChinese => '中文';
+
+  @override
+  String get navInicio => 'Start';
+
+  @override
+  String get navRieles => 'Schienen';
+
+  @override
+  String get navMas => 'Mehr';
+
+  @override
+  String get homeWelcome => 'Willkommen bei FluuiX';
+
+  @override
+  String get homeConnectedStatus => 'Wallet verbunden';
+
+  @override
+  String get homeDisconnectedStatus => 'Wallet getrennt';
+
+  @override
+  String get homeLayers => 'Ebenen';
+
+  @override
+  String get homeLayerCajaDesc => 'Zahlungen und Guthaben';
+
+  @override
+  String get homeLayerRielesDesc => 'Lokale Instrumente';
+
+  @override
+  String get homeLayerAgenteDesc => 'Intelligenter Assistent';
+
+  @override
+  String get homeLayerRedTitle => 'Netzwerk';
+
+  @override
+  String get homeLayerRedDesc => 'FluuiX-Module';
+
+  @override
+  String get homeQuickActions => 'Schnellaktionen';
+
+  @override
+  String get homeAskAgent => 'Fragen';
+
+  @override
+  String get homeSystemStatus => 'Systemstatus';
+
+  @override
+  String get passageComingSoon => 'Demnächst';
+
+  @override
+  String get passageDescription =>
+      'Die CCTP-Brücke ermöglicht native USDC-Bewegung zwischen Chains. Wenn aktiv, können Sie Gelder von Arbitrum oder anderen Netzwerken übertragen.';
+
+  @override
+  String get capPolicyTitle => 'Limitrichtlinie';
+
+  @override
+  String get rielesTitle => 'Schienen';
+
+  @override
+  String get rielesDescription =>
+      'Schienen verbinden verschiedene Instrumente mit der Kasse. Jede Schiene hat ihr eigenes Guthaben und Bedingungen.';
+
+  @override
+  String get rielUsdcNative => 'Natives USDC';
+
+  @override
+  String get rielActive => 'Aktiv';
+
+  @override
+  String get rielesHowItWorks => 'Wie Schienen funktionieren';
+
+  @override
+  String get rielesExplanation =>
+      'Eine Schiene ist ein Abwicklungskanal zwischen der Kasse und einem Instrument. Die lokale Schiene (Twin) ermöglicht Operationen mit tokenisierten Pesos. Die Reserve (cirBTC) ist ein Sparinstrument. USDC ist das native Guthaben von Arc.';
+
+  @override
+  String get paymentChecklist => 'Checkliste';
+
+  @override
+  String get checkRpcConnected => 'RPC verbunden';
+
+  @override
+  String get checkWalletConnected => 'Wallet verbunden';
+
+  @override
+  String get checkArcSupported => 'Arc autorisiert';
+
+  @override
+  String get checkWithinLimit => 'Innerhalb des Tageslimits';
+
+  @override
+  String get paymentSheetDisclaimer =>
+      'FluuiX bereitet die Bestellung vor und zeigt sie zur Überprüfung an. Ihre externe Wallet fordert die Unterschrift an. Modelltext autorisiert oder signiert keine Zahlungen.';
+
+  @override
+  String get sheetChainRail => 'Chain und Schiene';
+
+  @override
+  String get sheetNoAuthNoSign => 'Autorisiert oder signiert nicht';
+
+  @override
+  String get proposalSheetTitle => 'Agentenvorschlag';
+
+  @override
+  String get proposalFromAgent => 'OpenHuman schlägt diese Überweisung vor';
+
+  @override
+  String get proposalNotFound => 'Vorschlag nicht gefunden';
+
+  @override
+  String get proposalDisclaimer =>
+      'Der Agent schlägt nur vor. Die Unterschrift erfordert Ihre Überprüfung in der Wallet. Überprüfen Sie Empfänger, Betrag und Gebühr vor der Genehmigung.';
+
+  @override
+  String get proposalCopyToForm => 'Zum Formular kopieren';
 }

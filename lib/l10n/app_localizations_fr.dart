@@ -765,4 +765,120 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get languageChinese => '中文';
+
+  @override
+  String get navInicio => 'Accueil';
+
+  @override
+  String get navRieles => 'Rails';
+
+  @override
+  String get navMas => 'Plus';
+
+  @override
+  String get homeWelcome => 'Bienvenue sur FluuiX';
+
+  @override
+  String get homeConnectedStatus => 'Portefeuille connecté';
+
+  @override
+  String get homeDisconnectedStatus => 'Portefeuille déconnecté';
+
+  @override
+  String get homeLayers => 'Couches';
+
+  @override
+  String get homeLayerCajaDesc => 'Paiements et solde';
+
+  @override
+  String get homeLayerRielesDesc => 'Instruments locaux';
+
+  @override
+  String get homeLayerAgenteDesc => 'Assistant intelligent';
+
+  @override
+  String get homeLayerRedTitle => 'Réseau';
+
+  @override
+  String get homeLayerRedDesc => 'Modules FluuiX';
+
+  @override
+  String get homeQuickActions => 'Actions rapides';
+
+  @override
+  String get homeAskAgent => 'Demander';
+
+  @override
+  String get homeSystemStatus => 'État du système';
+
+  @override
+  String get passageComingSoon => 'Bientôt disponible';
+
+  @override
+  String get passageDescription =>
+      'Le pont CCTP permet de déplacer des USDC nativement entre les chaînes. Une fois actif, vous pourrez transférer des fonds depuis Arbitrum ou d\'autres réseaux.';
+
+  @override
+  String get capPolicyTitle => 'Politique de limites';
+
+  @override
+  String get rielesTitle => 'Rails';
+
+  @override
+  String get rielesDescription =>
+      'Les rails connectent différents instruments avec la caisse. Chaque rail a son propre solde et ses conditions.';
+
+  @override
+  String get rielUsdcNative => 'USDC natif';
+
+  @override
+  String get rielActive => 'Actif';
+
+  @override
+  String get rielesHowItWorks => 'Comment fonctionnent les rails';
+
+  @override
+  String get rielesExplanation =>
+      'Un rail est un canal de règlement entre la caisse et un instrument. Le rail local (Twin) permet d\'opérer avec des pesos tokenisés. La réserve (cirBTC) est un instrument d\'épargne. USDC est le solde natif d\'Arc.';
+
+  @override
+  String get paymentChecklist => 'Liste de vérification';
+
+  @override
+  String get checkRpcConnected => 'RPC connecté';
+
+  @override
+  String get checkWalletConnected => 'Portefeuille connecté';
+
+  @override
+  String get checkArcSupported => 'Arc autorisé';
+
+  @override
+  String get checkWithinLimit => 'Dans la limite quotidienne';
+
+  @override
+  String get paymentSheetDisclaimer =>
+      'FluuiX prépare l\'ordre et l\'affiche pour révision. Votre portefeuille externe demande la signature. Le texte du modèle n\'autorise ni ne signe les paiements.';
+
+  @override
+  String get sheetChainRail => 'Chaîne et rail';
+
+  @override
+  String get sheetNoAuthNoSign => 'N\'autorise ni ne signe';
+
+  @override
+  String get proposalSheetTitle => 'Proposition de l\'agent';
+
+  @override
+  String get proposalFromAgent => 'OpenHuman propose ce transfert';
+
+  @override
+  String get proposalNotFound => 'Proposition introuvable';
+
+  @override
+  String get proposalDisclaimer =>
+      'L\'agent ne fait que proposer. La signature nécessite votre révision dans le portefeuille. Vérifiez le destinataire, le montant et les frais avant d\'approuver.';
+
+  @override
+  String get proposalCopyToForm => 'Copier vers le formulaire';
 }
