@@ -686,20 +686,47 @@
   "homeLayers": "Capas",
   "@homeLayers": {"description": "Home screen: layers section title"},
 
-  "homeLayerCajaDesc": "Pagos y saldo",
-  "@homeLayerCajaDesc": {"description": "Home screen: caja layer description"},
+  "homeLayerAgentes": "Agentes",
+  "@homeLayerAgentes": {"description": "Home screen: agents layer title"},
+
+  "homeLayerAgentesDesc": "IA que propone operaciones",
+  "@homeLayerAgentesDesc": {"description": "Home screen: agents layer description"},
+
+  "homeLayerRieles": "Rieles",
+  "@homeLayerRieles": {"description": "Home screen: rails layer title"},
 
   "homeLayerRielesDesc": "Instrumentos locales",
-  "@homeLayerRielesDesc": {"description": "Home screen: rieles layer description"},
+  "@homeLayerRielesDesc": {"description": "Home screen: rails layer description"},
 
-  "homeLayerAgenteDesc": "Asistente inteligente",
-  "@homeLayerAgenteDesc": {"description": "Home screen: agente layer description"},
+  "homeLayerContratos": "Contratos",
+  "@homeLayerContratos": {"description": "Home screen: contracts layer title"},
 
-  "homeLayerRedTitle": "Red",
-  "@homeLayerRedTitle": {"description": "Home screen: network layer title"},
+  "homeLayerContratosDesc": "Contratos inteligentes",
+  "@homeLayerContratosDesc": {"description": "Home screen: contracts layer description"},
 
-  "homeLayerRedDesc": "Módulos FluuiX",
-  "@homeLayerRedDesc": {"description": "Home screen: network layer description"},
+  "homeLayerWallets": "Wallets",
+  "@homeLayerWallets": {"description": "Home screen: wallets layer title"},
+
+  "homeLayerWalletsDesc": "Gestión de billeteras",
+  "@homeLayerWalletsDesc": {"description": "Home screen: wallets layer description"},
+
+  "homeLayerSettlement": "Settlement",
+  "@homeLayerSettlement": {"description": "Home screen: settlement layer title"},
+
+  "homeLayerSettlementDesc": "Liquidación final",
+  "@homeLayerSettlementDesc": {"description": "Home screen: settlement layer description"},
+
+  "homeLayerMultichain": "Multichain",
+  "@homeLayerMultichain": {"description": "Home screen: multichain layer title"},
+
+  "homeLayerMultichainDesc": "Puentes entre cadenas",
+  "@homeLayerMultichainDesc": {"description": "Home screen: multichain layer description"},
+
+  "layerStateActive": "Activo",
+  "@layerStateActive": {"description": "Layer state: active"},
+
+  "layerStatePartial": "Parcial",
+  "@layerStatePartial": {"description": "Layer state: partial/pending"},
 
   "homeQuickActions": "Acciones rápidas",
   "@homeQuickActions": {"description": "Home screen: quick actions title"},

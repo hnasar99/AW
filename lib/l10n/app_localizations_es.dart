@@ -791,19 +791,46 @@ class AppLocalizationsEs extends AppLocalizations {
   String get homeLayers => 'Capas';
 
   @override
-  String get homeLayerCajaDesc => 'Pagos y saldo';
+  String get homeLayerAgentes => 'Agentes';
+
+  @override
+  String get homeLayerAgentesDesc => 'IA que propone operaciones';
+
+  @override
+  String get homeLayerRieles => 'Rieles';
 
   @override
   String get homeLayerRielesDesc => 'Instrumentos locales';
 
   @override
-  String get homeLayerAgenteDesc => 'Asistente inteligente';
+  String get homeLayerContratos => 'Contratos';
 
   @override
-  String get homeLayerRedTitle => 'Red';
+  String get homeLayerContratosDesc => 'Contratos inteligentes';
 
   @override
-  String get homeLayerRedDesc => 'Módulos FluuiX';
+  String get homeLayerWallets => 'Wallets';
+
+  @override
+  String get homeLayerWalletsDesc => 'Gestión de billeteras';
+
+  @override
+  String get homeLayerSettlement => 'Settlement';
+
+  @override
+  String get homeLayerSettlementDesc => 'Liquidación final';
+
+  @override
+  String get homeLayerMultichain => 'Multichain';
+
+  @override
+  String get homeLayerMultichainDesc => 'Puentes entre cadenas';
+
+  @override
+  String get layerStateActive => 'Activo';
+
+  @override
+  String get layerStatePartial => 'Parcial';
 
   @override
   String get homeQuickActions => 'Acciones rápidas';

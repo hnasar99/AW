@@ -749,19 +749,46 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeLayers => '层级';
 
   @override
-  String get homeLayerCajaDesc => '支付和余额';
+  String get homeLayerAgentes => '代理';
+
+  @override
+  String get homeLayerAgentesDesc => 'AI 提议操作';
+
+  @override
+  String get homeLayerRieles => '轨道';
 
   @override
   String get homeLayerRielesDesc => '本地工具';
 
   @override
-  String get homeLayerAgenteDesc => '智能助手';
+  String get homeLayerContratos => '合约';
 
   @override
-  String get homeLayerRedTitle => '网络';
+  String get homeLayerContratosDesc => '智能合约';
 
   @override
-  String get homeLayerRedDesc => 'FluuiX 模块';
+  String get homeLayerWallets => '钱包';
+
+  @override
+  String get homeLayerWalletsDesc => '钱包管理';
+
+  @override
+  String get homeLayerSettlement => '结算';
+
+  @override
+  String get homeLayerSettlementDesc => '最终结算';
+
+  @override
+  String get homeLayerMultichain => '多链';
+
+  @override
+  String get homeLayerMultichainDesc => '跨链桥接';
+
+  @override
+  String get layerStateActive => '活跃';
+
+  @override
+  String get layerStatePartial => '部分';
 
   @override
   String get homeQuickActions => '快速操作';

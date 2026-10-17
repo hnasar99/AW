@@ -7,6 +7,26 @@ import '../router.dart';
 import '../ui/context_bar.dart';
 import '../ui/theme.dart';
 
+enum _LayerState { active, partial, sinContrato }
+
+class _LayerData {
+  const _LayerData({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.state,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final _LayerState state;
+  final VoidCallback onTap;
+}
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.appState});
 
@@ -131,6 +151,61 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildLayersSection(BuildContext context, AppLocalizations l10n) {
+    final layers = <_LayerData>[
+      _LayerData(
+        icon: Icons.psychology,
+        title: l10n.homeLayerAgentes,
+        subtitle: l10n.homeLayerAgentesDesc,
+        color: FluuixColors.success,
+        state: appState.agentReady
+            ? _LayerState.active
+            : _LayerState.partial,
+        onTap: () => context.go('/agente'),
+      ),
+      _LayerData(
+        icon: Icons.swap_horiz,
+        title: l10n.homeLayerRieles,
+        subtitle: l10n.homeLayerRielesDesc,
+        color: FluuixColors.lightBlue,
+        state: _LayerState.active,
+        onTap: () => context.go('/rieles'),
+      ),
+      _LayerData(
+        icon: Icons.description,
+        title: l10n.homeLayerContratos,
+        subtitle: l10n.homeLayerContratosDesc,
+        color: FluuixColors.textMuted,
+        state: _LayerState.sinContrato,
+        onTap: () => context.go('/mas'),
+      ),
+      _LayerData(
+        icon: Icons.account_balance_wallet,
+        title: l10n.homeLayerWallets,
+        subtitle: l10n.homeLayerWalletsDesc,
+        color: FluuixColors.gold,
+        state: appState.walletConnected
+            ? _LayerState.active
+            : _LayerState.partial,
+        onTap: () => context.go('/caja'),
+      ),
+      _LayerData(
+        icon: Icons.check_circle_outline,
+        title: l10n.homeLayerSettlement,
+        subtitle: l10n.homeLayerSettlementDesc,
+        color: FluuixColors.textMuted,
+        state: _LayerState.sinContrato,
+        onTap: () => context.go('/mas'),
+      ),
+      _LayerData(
+        icon: Icons.hub,
+        title: l10n.homeLayerMultichain,
+        subtitle: l10n.homeLayerMultichainDesc,
+        color: FluuixColors.textMuted,
+        state: _LayerState.sinContrato,
+        onTap: () => context.go('/mas'),
+      ),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -139,74 +214,43 @@ class HomeScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _layerCard(
-                context,
-                icon: Icons.account_balance_wallet,
-                title: l10n.navCaja,
-                subtitle: l10n.homeLayerCajaDesc,
-                color: FluuixColors.gold,
-                onTap: () => context.go('/caja'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _layerCard(
-                context,
-                icon: Icons.swap_horiz,
-                title: l10n.navRieles,
-                subtitle: l10n.homeLayerRielesDesc,
-                color: FluuixColors.lightBlue,
-                onTap: () => context.go('/rieles'),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _layerCard(
-                context,
-                icon: Icons.psychology,
-                title: l10n.navAgente,
-                subtitle: l10n.homeLayerAgenteDesc,
-                color: FluuixColors.success,
-                onTap: () => context.go('/agente'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _layerCard(
-                context,
-                icon: Icons.hub,
-                title: l10n.homeLayerRedTitle,
-                subtitle: l10n.homeLayerRedDesc,
-                color: FluuixColors.navy,
-                onTap: () => context.go('/mas'),
-              ),
-            ),
-          ],
-        ),
+        for (int i = 0; i < layers.length; i += 2) ...[
+          if (i > 0) const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _layerCardFromData(context, layers[i], l10n)),
+              const SizedBox(width: 12),
+              if (i + 1 < layers.length)
+                Expanded(child: _layerCardFromData(context, layers[i + 1], l10n))
+              else
+                const Expanded(child: SizedBox()),
+            ],
+          ),
+        ],
       ],
     );
   }
 
-  Widget _layerCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _layerCardFromData(BuildContext context, _LayerData data, AppLocalizations l10n) {
+    final stateColor = switch (data.state) {
+      _LayerState.active => FluuixColors.success,
+      _LayerState.partial => FluuixColors.gold,
+      _LayerState.sinContrato => FluuixColors.textMuted,
+    };
+    final stateText = switch (data.state) {
+      _LayerState.active => l10n.layerStateActive,
+      _LayerState.partial => l10n.layerStatePartial,
+      _LayerState.sinContrato => l10n.noContract,
+    };
+    final iconColor = data.state == _LayerState.sinContrato
+        ? FluuixColors.textMuted
+        : data.color;
+
     return Material(
       color: FluuixColors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        onTap: onTap,
+        onTap: data.onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(16),
@@ -217,18 +261,38 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: color, size: 22),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: iconColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(data.icon, color: iconColor, size: 22),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: stateColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      stateText,
+                      style: TextStyle(
+                        color: stateColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               Text(
-                title,
+                data.title,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -236,7 +300,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                subtitle,
+                data.subtitle,
                 style: TextStyle(
                   color: FluuixColors.textMuted,
                   fontSize: 12,

@@ -1476,35 +1476,89 @@ abstract class AppLocalizations {
   /// **'Capas'**
   String get homeLayers;
 
-  /// Home screen: caja layer description
+  /// Home screen: agents layer title
   ///
   /// In es, this message translates to:
-  /// **'Pagos y saldo'**
-  String get homeLayerCajaDesc;
+  /// **'Agentes'**
+  String get homeLayerAgentes;
 
-  /// Home screen: rieles layer description
+  /// Home screen: agents layer description
+  ///
+  /// In es, this message translates to:
+  /// **'IA que propone operaciones'**
+  String get homeLayerAgentesDesc;
+
+  /// Home screen: rails layer title
+  ///
+  /// In es, this message translates to:
+  /// **'Rieles'**
+  String get homeLayerRieles;
+
+  /// Home screen: rails layer description
   ///
   /// In es, this message translates to:
   /// **'Instrumentos locales'**
   String get homeLayerRielesDesc;
 
-  /// Home screen: agente layer description
+  /// Home screen: contracts layer title
   ///
   /// In es, this message translates to:
-  /// **'Asistente inteligente'**
-  String get homeLayerAgenteDesc;
+  /// **'Contratos'**
+  String get homeLayerContratos;
 
-  /// Home screen: network layer title
+  /// Home screen: contracts layer description
   ///
   /// In es, this message translates to:
-  /// **'Red'**
-  String get homeLayerRedTitle;
+  /// **'Contratos inteligentes'**
+  String get homeLayerContratosDesc;
 
-  /// Home screen: network layer description
+  /// Home screen: wallets layer title
   ///
   /// In es, this message translates to:
-  /// **'Módulos FluuiX'**
-  String get homeLayerRedDesc;
+  /// **'Wallets'**
+  String get homeLayerWallets;
+
+  /// Home screen: wallets layer description
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión de billeteras'**
+  String get homeLayerWalletsDesc;
+
+  /// Home screen: settlement layer title
+  ///
+  /// In es, this message translates to:
+  /// **'Settlement'**
+  String get homeLayerSettlement;
+
+  /// Home screen: settlement layer description
+  ///
+  /// In es, this message translates to:
+  /// **'Liquidación final'**
+  String get homeLayerSettlementDesc;
+
+  /// Home screen: multichain layer title
+  ///
+  /// In es, this message translates to:
+  /// **'Multichain'**
+  String get homeLayerMultichain;
+
+  /// Home screen: multichain layer description
+  ///
+  /// In es, this message translates to:
+  /// **'Puentes entre cadenas'**
+  String get homeLayerMultichainDesc;
+
+  /// Layer state: active
+  ///
+  /// In es, this message translates to:
+  /// **'Activo'**
+  String get layerStateActive;
+
+  /// Layer state: partial/pending
+  ///
+  /// In es, this message translates to:
+  /// **'Parcial'**
+  String get layerStatePartial;
 
   /// Home screen: quick actions title
   ///
