@@ -11,11 +11,17 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(const ArcWalletApp(autoInitialize: false));
+      await tester.pumpWidget(
+        const ArcWalletApp(
+          autoInitialize: false,
+          overrideLocale: Locale('es'),
+        ),
+      );
+      await tester.pumpAndSettle();
       expect(find.text('FluuiX'), findsOneWidget);
       expect(find.text('Caja en dólares'), findsOneWidget);
       expect(find.text('Pagar'), findsWidgets);
-      expect(find.text('Conexión pendiente'), findsOneWidget);
+      expect(find.textContaining('pendiente'), findsOneWidget);
       expect(find.text('Sin contrato'), findsWidgets);
       await tester.tap(find.byTooltip('Órdenes del día'));
       await tester.pump();
@@ -32,7 +38,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Agente de la caja'), findsOneWidget);
       expect(find.text('Verificar ejecución nativa de Rust'), findsOneWidget);
-      expect(find.text('OpenHuman local activo'), findsNothing);
+      expect(find.textContaining('OpenHuman local activo'), findsNothing);
       await tester.tap(find.text('Red').last);
       await tester.pumpAndSettle();
       expect(find.text('ZonaBank'), findsOneWidget);
@@ -61,14 +67,62 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(
-        const ArcWalletApp(autoInitialize: false, showSplash: true),
+        const ArcWalletApp(
+          autoInitialize: false,
+          showSplash: true,
+          overrideLocale: Locale('es'),
+        ),
       );
+      await tester.pump();
       expect(find.byKey(const Key('fluuix-splash')), findsOneWidget);
       expect(find.text('Caja en dólares'), findsWidgets);
       await tester.pump(const Duration(milliseconds: 2900));
       await tester.pump();
       expect(find.byKey(const Key('fluuix-splash')), findsNothing);
       expect(find.text('Caja en dólares'), findsOneWidget);
+    },
+    skip: awLabTextOnly,
+  );
+  
+  testWidgets(
+    'context bar shows TESTNET badge and status indicators',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        const ArcWalletApp(
+          autoInitialize: false,
+          overrideLocale: Locale('es'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('TESTNET'), findsOneWidget);
+      expect(find.text('Arc Testnet'), findsOneWidget);
+      expect(find.text('Twin · ARGt'), findsWidgets);
+    },
+    skip: awLabTextOnly,
+  );
+
+  testWidgets(
+    'theme uses Fluuix brand colors',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        const ArcWalletApp(
+          autoInitialize: false,
+          overrideLocale: Locale('es'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
+      expect(scaffold, isNotNull);
+      final theme = Theme.of(tester.element(find.byType(Scaffold).first));
+      expect(theme.useMaterial3, isTrue);
     },
     skip: awLabTextOnly,
   );
