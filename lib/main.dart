@@ -1151,7 +1151,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                       const SizedBox(height: 24),
                       Text(
                         awLabTextOnly ? l10n.footerLab : l10n.footerArcTestnet,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: FluuixColors.textMuted,
                           fontSize: 12,
                           height: 1.5,
@@ -1234,7 +1234,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       ),
       child: Text(
         message,
-        style: TextStyle(color: FluuixColors.error, height: 1.4),
+        style: const TextStyle(color: FluuixColors.error, height: 1.4),
       ),
     ),
   );

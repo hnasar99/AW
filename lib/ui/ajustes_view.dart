@@ -15,7 +15,7 @@ extension _AjustesView on _WalletHomeState {
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
-          value: _selectedLocale?.languageCode,
+          initialValue: _selectedLocale?.languageCode,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
           ),
@@ -93,7 +93,7 @@ extension _AjustesView on _WalletHomeState {
           if (_wallet.configured)
             Text(
               l10n.reownClientInitialized,
-              style: TextStyle(color: FluuixColors.success),
+              style: const TextStyle(color: FluuixColors.success),
             ),
         ],
       ),
@@ -161,7 +161,7 @@ extension _AjustesView on _WalletHomeState {
           awLabTextOnly
               ? l10n.labQueriesNote
               : l10n.queriesSentTo(Uri.tryParse(_endpoint.text)?.host ?? 'your provider'),
-          style: TextStyle(color: FluuixColors.textMuted),
+          style: const TextStyle(color: FluuixColors.textMuted),
         ),
         const SizedBox(height: 10),
         FilledButton(

@@ -9,7 +9,7 @@ extension _RedView on _WalletHomeState {
         const SizedBox(height: 8),
         Text(
           l10n.networkDescription,
-          style: TextStyle(color: FluuixColors.textMuted, height: 1.45),
+          style: const TextStyle(color: FluuixColors.textMuted, height: 1.45),
         ),
         const SizedBox(height: 16),
         _module(
@@ -96,12 +96,12 @@ extension _RedView on _WalletHomeState {
             ),
             Text(
               l10n.noContract,
-              style: TextStyle(color: FluuixColors.gold, fontSize: 12),
+              style: const TextStyle(color: FluuixColors.gold, fontSize: 12),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Text(body, style: TextStyle(color: FluuixColors.textMuted, height: 1.4)),
+        Text(body, style: const TextStyle(color: FluuixColors.textMuted, height: 1.4)),
         TextButton(
           onPressed: () => _open(url),
           child: Text(l10n.whatProductPublishes),

@@ -40,7 +40,7 @@ extension _AgenteView on _WalletHomeState {
     const SizedBox(height: 10),
     Text(
       awLabTextOnly ? l10n.agentLabDescription : l10n.agentDescription,
-      style: TextStyle(color: FluuixColors.textMuted, height: 1.5),
+      style: const TextStyle(color: FluuixColors.textMuted, height: 1.5),
     ),
     const SizedBox(height: 16),
     OutlinedButton.icon(
@@ -68,7 +68,7 @@ extension _AgenteView on _WalletHomeState {
             Text(l10n.agentBudget(_nativeStatus!.labContextTokens.toString())),
           Text(
             awLabTextOnly ? l10n.labTestDisclaimer : l10n.localTestDisclaimer,
-            style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
           ),
         ],
       ),
@@ -145,7 +145,7 @@ extension _AgenteView on _WalletHomeState {
           padding: const EdgeInsets.only(top: 8),
           child: Text(
             l10n.modelTextDisclaimer,
-            style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
           ),
         ),
       if (!awLabTextOnly && _toolCalls.isNotEmpty)
@@ -184,7 +184,7 @@ extension _AgenteView on _WalletHomeState {
       const SizedBox(height: 8),
       Text(
         awLabTextOnly ? l10n.labResponseDisclaimer : l10n.agentResponseDisclaimer,
-        style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+        style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
       ),
     ],
     if (awLabTextOnly && _labRequestAudit != null) ...[
@@ -199,7 +199,7 @@ extension _AgenteView on _WalletHomeState {
           const SizedBox(height: 8),
           Text(
             l10n.logMetadataNote,
-            style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
           ),
           TextButton(
             onPressed: () => Clipboard.setData(

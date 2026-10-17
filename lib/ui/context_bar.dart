@@ -27,9 +27,9 @@ class FluuixContextBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: FluuixColors.surface,
-        border: const Border(
+        border: Border(
           bottom: BorderSide(color: FluuixColors.border),
         ),
       ),

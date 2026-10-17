@@ -63,7 +63,7 @@ ThemeData fluuixTheme() {
     useMaterial3: true,
     colorScheme: colorScheme,
     scaffoldBackgroundColor: FluuixColors.backgroundDark,
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: FluuixColors.backgroundDark,
       foregroundColor: Colors.white,
       elevation: 0,

@@ -16,7 +16,7 @@ extension _CajaView on _WalletHomeState {
             const SizedBox(height: 4),
             Text(
               _getNetworkStatusText(l10n),
-              style: TextStyle(color: FluuixColors.textMuted, fontSize: 13),
+              style: const TextStyle(color: FluuixColors.textMuted, fontSize: 13),
             ),
             const SizedBox(height: 16),
             Text(
@@ -25,12 +25,12 @@ extension _CajaView on _WalletHomeState {
             ),
             Text(
               l10n.balanceUsdc,
-              style: TextStyle(color: FluuixColors.gold, fontSize: 16),
+              style: const TextStyle(color: FluuixColors.gold, fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
               l10n.arcTestnetSingleBalance,
-              style: TextStyle(
+              style: const TextStyle(
                 color: FluuixColors.textMuted,
                 fontSize: 12,
                 height: 1.4,
@@ -60,7 +60,7 @@ extension _CajaView on _WalletHomeState {
               SelectableText(_wallet.address!),
               Text(
                 l10n.sessionOnArcTestnet(_wallet.chainId?.toString() ?? '?'),
-                style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+                style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
               ),
               Wrap(
                 spacing: 8,
@@ -113,12 +113,12 @@ extension _CajaView on _WalletHomeState {
         if (_transaction == null && _savedReceipts.isEmpty)
           Text(
             l10n.noReceiptSaved,
-            style: TextStyle(color: FluuixColors.textMuted),
+            style: const TextStyle(color: FluuixColors.textMuted),
           )
         else ...[
           Text(
             l10n.hashIsReceipt,
-            style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
           ),
           const SizedBox(height: 8),
           if (_transaction != null) _transactionCard(l10n),
@@ -130,7 +130,7 @@ extension _CajaView on _WalletHomeState {
             children: [
               Text(
                 l10n.unresolvedRequest,
-                style: TextStyle(
+                style: const TextStyle(
                   color: FluuixColors.warning,
                   fontWeight: FontWeight.bold,
                 ),
@@ -165,13 +165,13 @@ extension _CajaView on _WalletHomeState {
     children: [
       Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
       const SizedBox(height: 6),
-      Text(instrument, style: TextStyle(color: FluuixColors.textMuted)),
+      Text(instrument, style: const TextStyle(color: FluuixColors.textMuted)),
       const SizedBox(height: 8),
-      Text(l10n.noContract, style: TextStyle(color: FluuixColors.gold)),
+      Text(l10n.noContract, style: const TextStyle(color: FluuixColors.gold)),
       const SizedBox(height: 4),
       Text(
         l10n.notAddedToBox,
-        style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+        style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
       ),
     ],
   );
@@ -206,7 +206,7 @@ extension _CajaView on _WalletHomeState {
     const SizedBox(height: 8),
     Text(
       l10n.payDescription,
-      style: TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.4),
+      style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.4),
     ),
     const SizedBox(height: 12),
     TextField(
@@ -270,12 +270,12 @@ extension _CajaView on _WalletHomeState {
     if (_wallet.address == null)
       Text(
         l10n.receiveConnectPrompt,
-        style: TextStyle(color: FluuixColors.textMuted, height: 1.4),
+        style: const TextStyle(color: FluuixColors.textMuted, height: 1.4),
       )
     else ...[
       Text(
         l10n.receiveDescription,
-        style: TextStyle(color: FluuixColors.textMuted, height: 1.4),
+        style: const TextStyle(color: FluuixColors.textMuted, height: 1.4),
       ),
       const SizedBox(height: 12),
       Center(
@@ -295,7 +295,7 @@ extension _CajaView on _WalletHomeState {
     const SizedBox(height: 8),
     Text(
       l10n.passageNotConnected,
-      style: TextStyle(color: FluuixColors.textMuted, height: 1.45),
+      style: const TextStyle(color: FluuixColors.textMuted, height: 1.45),
     ),
   ];
 
@@ -309,7 +309,7 @@ extension _CajaView on _WalletHomeState {
     const SizedBox(height: 8),
     Text(
       l10n.capPolicyExplanation,
-      style: TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.45),
+      style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.45),
     ),
   ];
 
@@ -387,7 +387,7 @@ extension _CajaView on _WalletHomeState {
         const SizedBox(height: 6),
         Text(
           l10n.ordersExplanation,
-          style: TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.4),
+          style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12, height: 1.4),
         ),
         const SizedBox(height: 8),
         ...steps.map(
