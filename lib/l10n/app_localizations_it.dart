@@ -766,4 +766,147 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get languageChinese => '中文';
+
+  @override
+  String get navInicio => 'Home';
+
+  @override
+  String get navRieles => 'Binari';
+
+  @override
+  String get navMas => 'Altro';
+
+  @override
+  String get homeWelcome => 'Benvenuto su FluuiX';
+
+  @override
+  String get homeConnectedStatus => 'Wallet connesso';
+
+  @override
+  String get homeDisconnectedStatus => 'Wallet disconnesso';
+
+  @override
+  String get homeLayers => 'Livelli';
+
+  @override
+  String get homeLayerAgentes => 'Agenti';
+
+  @override
+  String get homeLayerAgentesDesc => 'IA che propone operazioni';
+
+  @override
+  String get homeLayerRieles => 'Binari';
+
+  @override
+  String get homeLayerRielesDesc => 'Strumenti locali';
+
+  @override
+  String get homeLayerContratos => 'Contratti';
+
+  @override
+  String get homeLayerContratosDesc => 'Contratti intelligenti';
+
+  @override
+  String get homeLayerWallets => 'Portafogli';
+
+  @override
+  String get homeLayerWalletsDesc => 'Gestione portafogli';
+
+  @override
+  String get homeLayerSettlement => 'Regolamento';
+
+  @override
+  String get homeLayerSettlementDesc => 'Regolamento finale';
+
+  @override
+  String get homeLayerMultichain => 'Multichain';
+
+  @override
+  String get homeLayerMultichainDesc => 'Ponti tra catene';
+
+  @override
+  String get layerStateActive => 'Attivo';
+
+  @override
+  String get layerStatePartial => 'Parziale';
+
+  @override
+  String get homeQuickActions => 'Azioni rapide';
+
+  @override
+  String get homeAskAgent => 'Chiedi';
+
+  @override
+  String get homeSystemStatus => 'Stato del sistema';
+
+  @override
+  String get passageComingSoon => 'Prossimamente';
+
+  @override
+  String get passageDescription =>
+      'Il ponte CCTP consente il movimento nativo di USDC tra le catene. Quando attivo, potrai trasferire fondi da Arbitrum o altre reti.';
+
+  @override
+  String get capPolicyTitle => 'Politica dei limiti';
+
+  @override
+  String get rielesTitle => 'Binari';
+
+  @override
+  String get rielesDescription =>
+      'I binari collegano diversi strumenti con la cassa. Ogni binario ha il proprio saldo e condizioni.';
+
+  @override
+  String get rielUsdcNative => 'USDC nativo';
+
+  @override
+  String get rielActive => 'Attivo';
+
+  @override
+  String get rielesHowItWorks => 'Come funzionano i binari';
+
+  @override
+  String get rielesExplanation =>
+      'Un binario è un canale di regolamento tra la cassa e uno strumento. Il binario locale (Twin) permette di operare con pesos tokenizzati. La riserva (cirBTC) è uno strumento di risparmio. USDC è il saldo nativo di Arc.';
+
+  @override
+  String get paymentChecklist => 'Lista di controllo';
+
+  @override
+  String get checkRpcConnected => 'RPC connesso';
+
+  @override
+  String get checkWalletConnected => 'Wallet connesso';
+
+  @override
+  String get checkArcSupported => 'Arc autorizzato';
+
+  @override
+  String get checkWithinLimit => 'Entro il limite giornaliero';
+
+  @override
+  String get paymentSheetDisclaimer =>
+      'FluuiX prepara l\'ordine e lo visualizza per la revisione. Il tuo wallet esterno richiede la firma. Il testo del modello non autorizza né firma pagamenti.';
+
+  @override
+  String get sheetChainRail => 'Catena e binario';
+
+  @override
+  String get sheetNoAuthNoSign => 'Non autorizza né firma';
+
+  @override
+  String get proposalSheetTitle => 'Proposta dell\'agente';
+
+  @override
+  String get proposalFromAgent => 'OpenHuman propone questo trasferimento';
+
+  @override
+  String get proposalNotFound => 'Proposta non trovata';
+
+  @override
+  String get proposalDisclaimer =>
+      'L\'agente propone solo. La firma richiede la tua revisione nel wallet. Verifica destinatario, importo e commissione prima di approvare.';
+
+  @override
+  String get proposalCopyToForm => 'Copia nel modulo';
 }

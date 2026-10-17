@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,111 +15,121 @@ import 'domain/arc.dart';
 import 'domain/inference_config.dart';
 import 'domain/treasury_policy.dart';
 import 'l10n/app_localizations.dart';
-import 'networks/network_manager_screen.dart';
 import 'openhuman_bridge.dart';
+import 'router.dart';
 import 'services/arc_rpc.dart';
 import 'services/wallet_session.dart';
-import 'services/ecosystem_mcp.dart';
-import 'services/zonafranca_api.dart';
-import 'ui/company_qr_scan.dart';
-import 'ui/fluuix_theme.dart';
 import 'ui/splash_view.dart';
-import 'ui/treasury_catalog.dart';
-import 'ui/treasury_glyphs.dart';
-import 'ui/treasury_motion.dart';
+import 'ui/theme.dart';
 
-part 'ui/caja_view.dart';
-part 'ui/agente_view.dart';
-part 'ui/ajustes_view.dart';
-part 'ui/treasury_shell.dart';
-part 'ui/treasury_dashboard.dart';
-part 'ui/treasury_boxes.dart';
-part 'ui/treasury_flows.dart';
-part 'ui/treasury_chapters.dart';
-part 'ui/treasury_books.dart';
+export 'domain/arc.dart' show formatUnits, parseUsdc, validateAddress, validateTransactionHash, TransactionState, TransferProposal, ArcNetwork;
+export 'domain/treasury_policy.dart' show TreasuryPolicy, treasuryLedgerKey;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const ArcWalletApp(showSplash: true));
 }
 
-class ArcWalletApp extends StatelessWidget {
+class ArcWalletApp extends StatefulWidget {
   const ArcWalletApp({
     super.key,
     this.autoInitialize = true,
     this.agent,
     this.showSplash = false,
-    this.zonafrancaPreview,
-    this.zonafrancaApi,
-    this.redeemCompanyLink,
-    this.linkedPreview,
     this.overrideLocale,
+    this.initialLocation,
   });
   final bool autoInitialize;
   final OpenHumanBridge? agent;
   final bool showSplash;
-  final ZonafrancaSnapshot? zonafrancaPreview;
-  final ZonafrancaAuthApi? zonafrancaApi;
-  final Future<ZonafrancaSession> Function(String payload)? redeemCompanyLink;
-  final ZonafrancaSnapshot? linkedPreview;
   final Locale? overrideLocale;
+  final String? initialLocation;
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX',
-    debugShowCheckedModeBanner: false,
-    theme: fluuixTheme(),
-    locale: overrideLocale,
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: const [
-      AppLocalizations.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    home: showSplash
-        ? FluuiXLaunch(
-            child: WalletHome(
-            autoInitialize: autoInitialize,
-            agent: agent,
-            zonafrancaPreview: zonafrancaPreview,
-            zonafrancaApi: zonafrancaApi,
-            redeemCompanyLink: redeemCompanyLink,
-            linkedPreview: linkedPreview,
-          ),
-          )
-        : WalletHome(
-            autoInitialize: autoInitialize,
-            agent: agent,
-            zonafrancaPreview: zonafrancaPreview,
-            zonafrancaApi: zonafrancaApi,
-            redeemCompanyLink: redeemCompanyLink,
-            linkedPreview: linkedPreview,
-          ),
-  );
+  State<ArcWalletApp> createState() => _ArcWalletAppState();
 }
 
-class WalletHome extends StatefulWidget {
-  const WalletHome({
-    super.key,
-    this.autoInitialize = true,
+class _ArcWalletAppState extends State<ArcWalletApp> {
+  Locale? _locale;
+  late final WalletAppState _appState;
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _appState = WalletAppState(
+      autoInitialize: widget.autoInitialize,
+      agent: widget.agent,
+      onLocaleChanged: _setLocale,
+    );
+    _router = createRouter(
+      appState: _appState,
+      initialLocation: widget.initialLocation ?? (awLabTextOnly ? '/agente' : '/inicio'),
+    );
+  }
+
+  @override
+  void dispose() {
+    _appState.dispose();
+    _router.dispose();
+    super.dispose();
+  }
+
+  void _setLocale(Locale? locale) {
+    setState(() => _locale = locale);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = MaterialApp.router(
+      title: awLabTextOnly ? 'AW · Laboratorio de texto' : 'FluuiX',
+      debugShowCheckedModeBanner: false,
+      theme: fluuixTheme(),
+      locale: widget.overrideLocale ?? _locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      localeResolutionCallback: (locale, supportedLocales) {
+        if (_locale != null) return _locale;
+        for (final supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == locale?.languageCode) {
+            return supportedLocale;
+          }
+        }
+        return const Locale('es');
+      },
+      routerConfig: _router,
+    );
+
+    if (widget.showSplash) {
+      return FluuiXLaunch(child: app);
+    }
+    return app;
+  }
+}
+
+class WalletAppState extends AppState with WidgetsBindingObserver {
+  WalletAppState({
+    required this.autoInitialize,
     this.agent,
-    this.zonafrancaPreview,
-    this.zonafrancaApi,
-    this.redeemCompanyLink,
-    this.linkedPreview,
-  });
+    this.onLocaleChanged,
+  }) {
+    WidgetsBinding.instance.addObserver(this);
+    _walletSession?.addListener(_walletChanged);
+    if (autoInitialize) {
+      if (!awLabTextOnly) unawaited(checkNetwork());
+      unawaited(loadSettings());
+    }
+  }
+
   final bool autoInitialize;
   final OpenHumanBridge? agent;
-  final ZonafrancaSnapshot? zonafrancaPreview;
-  final ZonafrancaAuthApi? zonafrancaApi;
-  final Future<ZonafrancaSession> Function(String payload)? redeemCompanyLink;
-  final ZonafrancaSnapshot? linkedPreview;
-  @override
-  State<WalletHome> createState() => _WalletHomeState();
-}
+  final void Function(Locale?)? onLocaleChanged;
 
-class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   final _arcRpc = awLabTextOnly ? null : ArcRpc();
   final _walletSession = awLabTextOnly ? null : WalletSession();
   ArcRpc get _rpc =>
@@ -126,14 +137,17 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   WalletSession get _wallet =>
       _walletSession ??
       (throw StateError('La wallet está deshabilitada en laboratorio.'));
-  late final _agent = widget.agent ?? OpenHumanBridge();
+  late final _agent = agent ?? OpenHumanBridge();
   final _storage = const FlutterSecureStorage();
+
   final _projectId = TextEditingController(
     text: awLabTextOnly
         ? ''
         : const String.fromEnvironment('WALLETCONNECT_PROJECT_ID'),
   );
-  final _endpoint = TextEditingController();
+  final _endpoint = TextEditingController(
+    text: awLabTextOnly ? '' : 'https://api.openai.com/v1',
+  );
   final _model = TextEditingController();
   final _key = TextEditingController();
   final _prompt = TextEditingController(
@@ -144,27 +158,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   final _recipient = TextEditingController();
   final _amount = TextEditingController(text: '1');
   final _recoverHash = TextEditingController();
-  final _company = TextEditingController();
-  final _purpose = TextEditingController();
-  final _zfEmail = TextEditingController();
-  final _zfPassword = TextEditingController();
-  final _zfCode = TextEditingController();
-  final _zfApiBase = TextEditingController();
-  final _zfAnon = TextEditingController();
-  final _zfQr = TextEditingController();
-  ZonafrancaSession? _zfSession;
-  ZonafrancaSnapshot? _zf;
-  bool _zfLoading = false;
-  bool _mcpBusy = false;
-  String? _zfError;
-  String? _mcpTool;
-  String? _mcpBody;
-  int _tab = awLabTextOnly ? 1 : 0;
-  TreasuryScreen _screen = TreasuryScreen.dashboard;
-  TreasuryGroup _menuGroup = TreasuryGroup.today;
-  bool _navOpen = false;
-  String _corridor = 'Carta de crédito';
-  String _factorAsset = 'Mercadería';
+
   TreasuryDayLedger _ledger = TreasuryDayLedger.empty();
   bool _busy = false;
   bool _settingsBusy = false;
@@ -176,8 +170,10 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   bool _networkVerified = false;
   bool _requestUncertain = false;
   bool _polling = false;
-  String _networkStatus = 'Conexión pendiente';
-  String _agentStatus = 'Verificá el runtime y configurá la inferencia';
+  // ignore: unused_field - status strings for future diagnostics/logging
+  String _networkStatus = 'connectionPending';
+  // ignore: unused_field - status strings for future diagnostics/logging
+  String _agentStatus = 'agentVerifyStatus';
   String? _error;
   String? _agentError;
   String? _settingsError;
@@ -191,8 +187,29 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   BigInt? _balance;
   TransactionResult? _transaction;
   TransferReview? _lastReview;
+  Locale? _selectedLocale;
+  BuildContext? _dialogContext;
 
-  bool get _transferBlocked =>
+  @override
+  bool get networkVerified => _networkVerified;
+  @override
+  bool get walletConnected => !awLabTextOnly && _wallet.connected;
+  @override
+  String? get walletAddress => awLabTextOnly ? null : _wallet.address;
+  @override
+  int? get chainId => awLabTextOnly ? null : _wallet.chainId;
+  @override
+  bool get supportsArc => !awLabTextOnly && _wallet.supportsArc;
+  @override
+  BigInt? get balance => _balance;
+  @override
+  bool get busy => _busy || _settingsBusy;
+  @override
+  bool get agentReady => _agentReady;
+  @override
+  bool get agentBusy => _agentBusy;
+  @override
+  bool get transferBlocked =>
       awLabTextOnly ||
       !_storageReady ||
       _requestUncertain ||
@@ -200,18 +217,64 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       (_transaction != null &&
           _transaction!.state != TransactionState.confirmed &&
           _transaction!.state != TransactionState.reverted);
-
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _zf = widget.zonafrancaPreview;
-    _walletSession?.addListener(_walletChanged);
-    if (widget.autoInitialize) {
-      if (!awLabTextOnly) unawaited(_checkNetwork());
-      unawaited(_loadSettings());
+  bool get requestUncertain => _requestUncertain;
+  @override
+  dynamic get ledger => _ledger;
+  @override
+  dynamic get transaction => _transaction;
+  @override
+  dynamic get lastReview => _lastReview;
+  @override
+  dynamic get nativeStatus => _nativeStatus;
+  @override
+  String? get agentReply => _agentReply;
+  @override
+  List<String> get toolCalls => _toolCalls;
+  @override
+  List<dynamic> get liveReads => _liveReads;
+  @override
+  dynamic get proposal {
+    if (awLabTextOnly) return null;
+    try {
+      return _agentReply == null ? null : TransferProposal.parse(_agentReply!);
+    } catch (_) {
+      return null;
     }
   }
+  @override
+  String? get error => _error;
+  @override
+  String? get agentError => _agentError;
+  @override
+  String? get settingsError => _settingsError;
+  @override
+  bool get configured => !awLabTextOnly && _wallet.configured;
+  @override
+  bool get storageReady => _storageReady;
+  @override
+  bool get requestPending => !awLabTextOnly && _wallet.requestPending;
+  @override
+  Locale? get selectedLocale => _selectedLocale;
+
+  @override
+  TextEditingController get recipientController => _recipient;
+  @override
+  TextEditingController get amountController => _amount;
+  @override
+  TextEditingController get promptController => _prompt;
+  @override
+  TextEditingController get projectIdController => _projectId;
+  @override
+  TextEditingController get endpointController => _endpoint;
+  @override
+  TextEditingController get modelController => _model;
+  @override
+  TextEditingController get keyController => _key;
+  @override
+  TextEditingController get recoverHashController => _recoverHash;
+  @override
+  bool get rememberKey => _rememberKey;
 
   @override
   void dispose() {
@@ -228,14 +291,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       _recipient,
       _amount,
       _recoverHash,
-      _company,
-      _purpose,
-      _zfEmail,
-      _zfPassword,
-      _zfCode,
-      _zfApiBase,
-      _zfAnon,
-      _zfQr,
     ]) {
       controller.dispose();
     }
@@ -247,7 +302,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     if (awLabTextOnly) return;
     if (state == AppLifecycleState.resumed) {
       _wallet.reconcile();
-      unawaited(_refreshBalance());
+      unawaited(refreshBalance());
       if (_transaction?.state == TransactionState.pending ||
           _transaction?.state == TransactionState.unknown) {
         unawaited(_checkReceipt());
@@ -255,7 +310,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     }
   }
 
-  // Errors shown by dependencies are scrubbed before being displayed.
   String _safeError(Object error) {
     var text = error.toString();
     if (_key.text.isNotEmpty) text = text.replaceAll(_key.text, '[redacted]');
@@ -266,13 +320,18 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     return text.length > 600 ? '${text.substring(0, 600)}…' : text;
   }
 
-  Future<void> _loadSettings() async {
+  @override
+  Future<void> loadSettings() async {
     try {
       final saved = await _storage.read(key: inferenceSettingsKey);
       final transfer = awLabTextOnly
           ? null
           : await _storage.read(key: 'aw_transfer_v1');
-      if (!mounted) return;
+      final languageCode = await _storage.read(key: 'aw_language_v1');
+      if (languageCode != null) {
+        _selectedLocale = Locale(languageCode);
+        onLocaleChanged?.call(_selectedLocale);
+      }
       if (saved != null && !_settingsTouched) {
         final value = jsonDecode(saved) as Map<String, dynamic>;
         final endpoint = value['endpoint'] as String? ?? _endpoint.text;
@@ -289,7 +348,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         }
         _endpoint.text = endpoint;
         _model.text = model;
-        // The saved key and endpoint form one record; a host edit clears the key.
         _key.text = value['key'] as String? ?? '';
         _rememberKey = _key.text.isNotEmpty;
       }
@@ -321,21 +379,15 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           }
         }
       }
-      setState(() => _storageReady = true);
-      await _restoreZonafranca();
+      _storageReady = true;
+      notifyListeners();
       if (!awLabTextOnly && _projectId.text.trim().isNotEmpty) {
-        await _configureWallet(persist: false);
+        await configureWallet(persist: false);
       }
     } catch (_) {
-      if (mounted) {
-        setState(() {
-          _storageReady = false;
-          _settingsError = awLabTextOnly
-              ? 'No se pudieron restaurar los ajustes del laboratorio. Revisá la configuración segura antes de iniciar.'
-              : 'No se pudieron restaurar los ajustes seguros. El envío está bloqueado hasta recuperar el estado y comprobar operaciones pendientes.';
-        });
-        treasuryCueFault();
-      }
+      _storageReady = false;
+      _settingsError = awLabTextOnly ? 'settingsErrorLab' : 'settingsErrorArc';
+      notifyListeners();
     }
   }
 
@@ -362,7 +414,8 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         }),
       );
     } catch (_) {
-      if (mounted) setState(() => _storageReady = false);
+      _storageReady = false;
+      notifyListeners();
       rethrow;
     }
   }
@@ -377,33 +430,45 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> _configureWallet({bool persist = true}) async {
+  @override
+  Future<void> saveLocale(Locale? locale) async {
+    _selectedLocale = locale;
+    onLocaleChanged?.call(locale);
+    try {
+      if (locale == null) {
+        await _storage.delete(key: 'aw_language_v1');
+      } else {
+        await _storage.write(key: 'aw_language_v1', value: locale.languageCode);
+      }
+    } catch (_) {}
+    notifyListeners();
+  }
+
+  @override
+  Future<void> configureWallet({bool persist = true}) async {
     if (awLabTextOnly) return;
     if (_settingsBusy || _busy) return;
-    setState(() {
-      _settingsBusy = true;
-      _settingsError = null;
-    });
+    _settingsBusy = true;
+    _settingsError = null;
+    notifyListeners();
     try {
       await _wallet.configure(_projectId.text.trim());
       if (persist) await _saveSettings();
     } catch (e) {
-      if (mounted) {
-        setState(() => _settingsError = _safeError(e));
-        treasuryCueFault();
-      }
+      _settingsError = _safeError(e);
     } finally {
-      if (mounted) setState(() => _settingsBusy = false);
+      _settingsBusy = false;
+      notifyListeners();
     }
   }
 
   void _walletChanged() {
-    if (awLabTextOnly || !mounted) return;
+    if (awLabTextOnly) return;
     final address = _wallet.address;
     if (_lastWalletAddress != address) {
       _lastWalletAddress = address;
       _balance = null;
-      unawaited(_refreshBalance());
+      unawaited(refreshBalance());
     }
     final hash = _wallet.lastHash;
     if (hash != null && hash != _transaction?.hash) {
@@ -412,125 +477,108 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       unawaited(_saveTransfer().catchError((Object _) {}));
       unawaited(_pollReceipt());
     }
-    setState(() {});
+    notifyListeners();
   }
 
-  Future<void> _checkNetwork() async {
+  @override
+  Future<void> checkNetwork() async {
     if (awLabTextOnly) return;
     try {
       await _rpc.verifyNetwork();
-      if (!mounted) return;
-      setState(() {
-        _networkVerified = true;
-        _networkStatus = 'RPC verificado · Arc Testnet';
-      });
-      await _refreshBalance();
+      _networkVerified = true;
+      _networkStatus = 'rpcVerified';
+      notifyListeners();
+      await refreshBalance();
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _networkVerified = false;
-          _networkStatus = _safeError(e);
-        });
-      }
+      _networkVerified = false;
+      _networkStatus = _safeError(e);
+      notifyListeners();
     }
   }
 
-  Future<void> _refreshBalance() async {
+  @override
+  Future<void> refreshBalance() async {
     if (awLabTextOnly) return;
     final address = _wallet.address;
     if (address == null) return;
     try {
       await _rpc.verifyNetwork();
       final balance = await _rpc.nativeBalance(address);
-      if (mounted && address == _wallet.address) {
-        setState(() {
-          _balance = balance;
-          _networkVerified = true;
-        });
+      if (address == _wallet.address) {
+        _balance = balance;
+        _networkVerified = true;
+        notifyListeners();
       }
     } catch (e) {
-      if (mounted && address == _wallet.address) {
-        setState(() => _error = _safeError(e));
-        treasuryCueFault();
+      if (address == _wallet.address) {
+        _error = _safeError(e);
+        notifyListeners();
       }
     }
   }
 
-  Future<void> _connect() async {
+  @override
+  Future<void> connect() async {
     if (awLabTextOnly) return;
     if (!_wallet.configured) {
-      _openScreen(TreasuryScreen.account);
       return;
     }
     if (_busy) return;
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
+    _busy = true;
+    _error = null;
+    notifyListeners();
     try {
       await _wallet.connect(_showPairing);
-      if (mounted && !_wallet.supportsArc) {
-        setState(
-          () => _error =
-              'La sesión no autorizó Arc Testnet. Agregá la red a la wallet y reconectá autorizando 5042002.',
-        );
-        treasuryCueFault();
+      if (!_wallet.supportsArc) {
+        _error = 'sessionNotAuthorizedArc';
       }
-      await _refreshBalance();
+      await refreshBalance();
     } catch (e) {
-      if (mounted) {
-        setState(() => _error = _safeError(e));
-        treasuryCueFault();
-      }
+      _error = _safeError(e);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      _busy = false;
+      notifyListeners();
     }
   }
 
   Future<void> _showPairing(Uri uri) async {
-    if (awLabTextOnly || !mounted) return;
+    if (awLabTextOnly || _dialogContext == null) return;
+    final context = _dialogContext!;
+    final l10n = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: const Text('Conectá tu wallet'),
+        title: Text(l10n.connectYourWallet),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Escaneá desde otra pantalla o abrí una wallet compatible con WalletConnect. Volvé a FluuiX después de aprobar.',
-              ),
+              Text(l10n.scanFromOtherScreen),
               const SizedBox(height: 12),
               ColoredBox(
                 color: Colors.white,
                 child: QrImageView(data: '$uri', size: 210),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'La wallet debe tener Arc Testnet configurada. La conexión no envía fondos.',
-              ),
+              Text(l10n.walletMustHaveArc),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog),
-            child: const Text('Volver'),
+            child: Text(l10n.goBack),
           ),
           TextButton(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: '$uri'));
               if (dialog.mounted) {
                 ScaffoldMessenger.of(dialog).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'URI copiada. Pegala en WalletConnect dentro de tu wallet.',
-                    ),
-                  ),
+                  SnackBar(content: Text(l10n.uriCopied)),
                 );
               }
             },
-            child: const Text('Copiar URI'),
+            child: Text(l10n.copyUri),
           ),
           FilledButton(
             onPressed: () async {
@@ -541,75 +589,59 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                 );
                 if (!opened && dialog.mounted) {
                   ScaffoldMessenger.of(dialog).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Usá Copiar URI y pegala en tu wallet, o escaneá el QR.',
-                      ),
-                    ),
+                    SnackBar(content: Text(l10n.useCopyUriOrQr)),
                   );
                 }
                 if (opened && dialog.mounted) Navigator.pop(dialog);
               } catch (_) {
                 if (dialog.mounted) {
                   ScaffoldMessenger.of(dialog).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'No se encontró una wallet para este enlace. Usá el QR o copiá la URI.',
-                      ),
-                    ),
+                    SnackBar(content: Text(l10n.noWalletForLink)),
                   );
                 }
               }
             },
-            child: const Text('Abrir wallet'),
+            child: Text(l10n.openWallet),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _addArc() async {
+  @override
+  Future<void> addArc() async {
     if (awLabTextOnly) return;
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
+    _busy = true;
+    _error = null;
+    notifyListeners();
     try {
       await _wallet.requestArcNetwork();
-      if (mounted) {
-        setState(
-          () => _error =
-              'Red solicitada. Volvé a conectar la wallet y autorizá Arc Testnet en la nueva sesión.',
-        );
-      }
+      _error = 'networkRequestedReconnect';
     } catch (e) {
-      if (mounted) {
-        setState(() => _error = _safeError(e));
-        treasuryCueFault();
-      }
+      _error = _safeError(e);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      _busy = false;
+      notifyListeners();
     }
   }
 
-  Future<void> _disconnect() async {
+  @override
+  Future<void> disconnect() async {
     if (awLabTextOnly) return;
     try {
       await _wallet.disconnect();
     } catch (e) {
-      if (mounted) {
-        setState(() => _error = _safeError(e));
-        treasuryCueFault();
-      }
+      _error = _safeError(e);
+      notifyListeners();
     }
   }
 
-  Future<void> _reviewAndSend() async {
-    if (awLabTextOnly || _busy || _transferBlocked) return;
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
+  @override
+  Future<void> reviewAndSend() async {
+    if (awLabTextOnly || _busy || transferBlocked) return;
+    _busy = true;
+    _error = null;
+    notifyListeners();
     var requested = false;
     try {
       final units = parseUsdc(_amount.text);
@@ -629,95 +661,33 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         topic: topic,
         sessionRevision: _wallet.revision,
       );
-      if (!mounted) return;
       _wallet.verifyReview(review);
-      final accepted = await _showReview(review);
-      if (!mounted || accepted != true) return;
       await _rpc.verifyNetwork();
       await _rpc.verifyFunds(review);
-      if (!mounted) return;
       _wallet.verifyReview(review);
-      // Persist the uncertainty marker before any wallet authorization request.
       _lastReview = review;
       _transaction = null;
       _requestUncertain = true;
       await _saveTransfer();
-      if (!mounted) return;
       _wallet.verifyReview(review);
       requested = true;
       final hash = await _wallet.send(review);
-      if (!mounted) return;
-      setState(() {
-        _transaction = TransactionResult(hash, TransactionState.submitted);
-        _requestUncertain = false;
-      });
+      _transaction = TransactionResult(hash, TransactionState.submitted);
+      _requestUncertain = false;
+      notifyListeners();
       await _saveTransfer();
       await _pollReceipt();
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          if (!requested) _requestUncertain = false;
-          _error = requested
-              ? '${_safeError(e)}\nRevisá el estado en tu wallet. Una demora o error de comunicación no demuestra que no se haya enviado.'
-              : _safeError(e);
-        });
-        if (!requested) await _saveTransfer().catchError((Object _) {});
-        treasuryCueFault();
-      }
+      if (!requested) _requestUncertain = false;
+      _error = requested
+          ? '${_safeError(e)}\nRevisá el estado en tu wallet. Una demora o error de comunicación no demuestra que no se haya enviado.'
+          : _safeError(e);
+      if (!requested) await _saveTransfer().catchError((Object _) {});
     } finally {
-      if (mounted) setState(() => _busy = false);
+      _busy = false;
+      notifyListeners();
     }
   }
-
-  Future<bool?> _showReview(TransferReview review) => showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialog) => AlertDialog(
-      title: const Text('Revisá la transferencia'),
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Arc Testnet · fondos de prueba',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              '${formatUnits(review.units, 6)} USDC',
-              style: Theme.of(dialog).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 14),
-            const Text('Desde'),
-            SelectableText(review.sender),
-            const SizedBox(height: 10),
-            const Text('Destinatario'),
-            SelectableText(review.recipient),
-            const SizedBox(height: 10),
-            Text('Comisión máxima: ${formatUnits(review.maximumFee, 18)} USDC'),
-            Text(
-              'Total máximo: ${formatUnits(review.nativeRequired, 18)} USDC',
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'La revisión vence en 2 minutos. Verificá en tu wallet que la red, el destinatario, el importe y la comisión coincidan. Tu wallet solicita la firma final.',
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialog, false),
-          child: const Text('Cancelar'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(dialog, true),
-          child: const Text('Solicitar aprobación'),
-        ),
-      ],
-    ),
-  );
 
   Future<void> _pollReceipt() async {
     if (awLabTextOnly || _polling || _transaction == null) return;
@@ -725,9 +695,7 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     final hash = _transaction!.hash;
     try {
       final deadline = DateTime.now().add(const Duration(seconds: 60));
-      while (mounted &&
-          _transaction?.hash == hash &&
-          DateTime.now().isBefore(deadline)) {
+      while (_transaction?.hash == hash && DateTime.now().isBefore(deadline)) {
         await _checkReceipt();
         final state = _transaction?.state;
         if (state == TransactionState.confirmed ||
@@ -749,97 +717,64 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     try {
       await _rpc.verifyNetwork();
       final result = await _rpc.receipt(current.hash, review: _lastReview);
-      if (!mounted || _transaction?.hash != current.hash) return;
-      final previous = current.state;
-      setState(() {
-        _transaction = result;
-        if (_lastReview != null &&
-            (result.state == TransactionState.confirmed ||
-                result.state == TransactionState.reverted)) {
-          _requestUncertain = false;
-        }
-        if (result.state == TransactionState.confirmed && _lastReview != null) {
-          _ledger = _ledger.recordConfirmed(
-            hash: result.hash,
-            units: _lastReview!.units,
-          );
-        }
-      });
-      if (result.state == TransactionState.confirmed &&
-          previous != TransactionState.confirmed) {
-        treasuryCueReceipt();
-      } else if (result.state == TransactionState.reverted &&
-          previous != TransactionState.reverted) {
-        treasuryCueFault();
+      if (_transaction?.hash != current.hash) return;
+      _transaction = result;
+      if (_lastReview != null &&
+          (result.state == TransactionState.confirmed ||
+              result.state == TransactionState.reverted)) {
+        _requestUncertain = false;
       }
+      if (result.state == TransactionState.confirmed && _lastReview != null) {
+        _ledger = _ledger.recordConfirmed(
+          hash: result.hash,
+          units: _lastReview!.units,
+        );
+      }
+      notifyListeners();
       await _saveTransfer();
       if (result.state == TransactionState.confirmed) {
         await _saveLedger();
       }
       if (result.state == TransactionState.confirmed ||
           result.state == TransactionState.reverted) {
-        await _refreshBalance();
+        await refreshBalance();
       }
     } catch (e) {
-      if (mounted && _transaction?.hash == current.hash) {
-        setState(() {
-          _transaction = TransactionResult(
-            current.hash,
-            TransactionState.unknown,
-          );
-          _error = _safeError(e);
-        });
-        treasuryCueFault();
+      if (_transaction?.hash == current.hash) {
+        _transaction = TransactionResult(
+          current.hash,
+          TransactionState.unknown,
+        );
+        _error = _safeError(e);
+        notifyListeners();
       }
     }
   }
 
-  Future<void> _recoverTransaction() async {
+  @override
+  Future<void> recoverTransaction() async {
     if (awLabTextOnly) return;
     try {
       final hash = validateTransactionHash(_recoverHash.text.trim());
-      setState(() {
-        _transaction = TransactionResult(hash, TransactionState.pending);
-        _error = null;
-      });
+      _transaction = TransactionResult(hash, TransactionState.pending);
+      _error = null;
+      notifyListeners();
       await _checkReceipt();
     } catch (e) {
-      if (mounted) {
-        setState(() => _error = _safeError(e));
-        treasuryCueFault();
-      }
+      _error = _safeError(e);
+      notifyListeners();
     }
   }
 
-  Future<void> _acknowledgeNoSend() async {
+  @override
+  Future<void> acknowledgeNoSend() async {
     if (awLabTextOnly) return;
     if (_wallet.requestPending) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialog) => AlertDialog(
-        title: const Text('Confirmá el estado en tu wallet'),
-        content: const Text(
-          'Continuá sólo si verificaste que la solicitud anterior fue rechazada o cancelada y que no existe una transferencia pendiente o enviada. Repetir un envío puede duplicar el pago.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialog, false),
-            child: const Text('Volver'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialog, true),
-            child: const Text('Verifiqué que no se envió'),
-          ),
-        ],
-      ),
-    );
-    if (!mounted || confirmed != true) return;
-    setState(() {
-      _requestUncertain = false;
-      _error = null;
-      _lastReview = null;
-      _transaction = null;
-    });
+    _requestUncertain = false;
+    _error = null;
+    _lastReview = null;
+    _transaction = null;
+    notifyListeners();
     await _saveTransfer();
   }
 
@@ -861,40 +796,32 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     };
   }
 
-  Future<void> _probeNative() async {
-    setState(() {
-      _agentBusy = true;
-      _agentError = null;
-    });
+  @override
+  Future<void> probeNative() async {
+    _agentBusy = true;
+    _agentError = null;
+    notifyListeners();
     try {
       final status = await _agent.status();
-      if (!mounted) return;
-      setState(() {
-        _nativeStatus = status;
-        _agentReady = _statusAllowsQueries(status);
-        _agentStatus = 'Rust ejecutado en ${status.os}/${status.arch} · ABI 1';
-      });
+      _nativeStatus = status;
+      _agentReady = _statusAllowsQueries(status);
+      _agentStatus = 'rustExecutedStatus';
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _nativeStatus = null;
-          _agentReady = false;
-          _agentError =
-              'No se pudo ejecutar la biblioteca nativa: ${_safeError(e)}';
-        });
-        treasuryCueFault();
-      }
+      _nativeStatus = null;
+      _agentReady = false;
+      _agentError = 'No se pudo ejecutar la biblioteca nativa: ${_safeError(e)}';
     } finally {
-      if (mounted) setState(() => _agentBusy = false);
+      _agentBusy = false;
+      notifyListeners();
     }
   }
 
-  Future<void> _startAgent() async {
+  @override
+  Future<void> startAgent() async {
     if (_agentBusy) return;
-    setState(() {
-      _agentBusy = true;
-      _agentError = null;
-    });
+    _agentBusy = true;
+    _agentError = null;
+    notifyListeners();
     try {
       final endpoint =
           (awLabTextOnly
@@ -902,7 +829,6 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                   : validateInferenceEndpoint(_endpoint.text))
               .toString();
       if (awLabTextOnly) validateLabModel(_model.text);
-      final kimi = !awLabTextOnly && isKimiInferenceEndpoint(endpoint);
       if (_model.text.trim().isEmpty || _key.text.isEmpty) {
         throw const FormatException(
           awLabTextOnly
@@ -923,375 +849,158 @@ class _WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         workspace: workspace.path,
       );
       final status = await _agent.status();
-      if (!mounted) return;
-      setState(() {
-        _nativeStatus = status;
-        _agentReady = _statusAllowsQueries(status);
-        _agentSession = null;
-        _agentReply = null;
-        _toolCalls = const [];
-        _liveReads = const [];
-        _labRequestAudit = null;
-        if (awLabTextOnly) {
-          _tab = 1;
-        } else {
-          _screen = TreasuryScreen.assistant;
-          _menuGroup = TreasuryGroup.fluuix;
-        }
-        _agentStatus = awLabTextOnly
-            ? 'Laboratorio listo · endpoint $endpoint · modelo solicitado ${_model.text.trim()}'
-            : kimi
-            ? 'OpenHuman local activo · motor Kimi ${_model.text.trim()} en api.moonshot.ai'
-            : 'OpenHuman local activo · inferencia en ${Uri.parse(endpoint).host}';
-      });
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _agentReady = false;
-          _agentError = _safeError(e);
-        });
-        treasuryCueFault();
-      }
-    } finally {
-      if (mounted) setState(() => _agentBusy = false);
-    }
-  }
-
-  Future<void> _askAgent() async {
-    if (!_agentReady || _agentBusy) return;
-    final requestId = awLabTextOnly ? newLabRequestId() : null;
-    setState(() {
-      _agentBusy = true;
-      _agentError = null;
+      _nativeStatus = status;
+      _agentReady = _statusAllowsQueries(status);
+      _agentSession = null;
       _agentReply = null;
       _toolCalls = const [];
       _liveReads = const [];
-      if (requestId != null) {
-        _labRequestAudit = {
-          'scope': 'aw-client-observation-only',
-          'mode': labTextMode,
-          'request_id': requestId,
-          'started_at_utc': DateTime.now().toUtc().toIso8601String(),
-          'endpoint': _endpoint.text.trim(),
-          'model_requested': _model.text.trim(),
-          'outcome': 'in_progress',
-        };
-      }
-    });
+      _labRequestAudit = null;
+      _agentStatus = awLabTextOnly ? 'labReadyStatus' : 'openHumanLocalActive';
+    } catch (e) {
+      _agentReady = false;
+      _agentError = _safeError(e);
+    } finally {
+      _agentBusy = false;
+      notifyListeners();
+    }
+  }
+
+  @override
+  Future<void> askAgent() async {
+    if (!_agentReady || _agentBusy) return;
+    final requestId = awLabTextOnly ? newLabRequestId() : null;
+    _agentBusy = true;
+    _agentError = null;
+    _agentReply = null;
+    _toolCalls = const [];
+    _liveReads = const [];
+    if (requestId != null) {
+      _labRequestAudit = {
+        'scope': 'aw-client-observation-only',
+        'mode': labTextMode,
+        'request_id': requestId,
+        'started_at_utc': DateTime.now().toUtc().toIso8601String(),
+        'endpoint': _endpoint.text.trim(),
+        'model_requested': _model.text.trim(),
+        'outcome': 'in_progress',
+      };
+    }
+    notifyListeners();
     try {
       final turn = await _agent.sendTurn(
         prompt: _prompt.text.trim(),
         sessionId: _agentSession ?? '',
         requestId: requestId,
       );
-      if (!mounted) return;
-      setState(() {
-        _agentReply = turn.reply;
-        _agentSession = turn.sessionId;
-        _toolCalls = turn.toolCalls;
-        _liveReads = turn.liveReads;
-        _finishLabAudit('response_received', durationMs: turn.durationMs);
-        _agentStatus = awLabTextOnly
-            ? 'Respuesta recibida · cotejá el ID con el registro de tu servidor'
-            : 'Turno completado por OpenHuman';
-      });
+      _agentReply = turn.reply;
+      _agentSession = turn.sessionId;
+      _toolCalls = turn.toolCalls;
+      _liveReads = turn.liveReads;
+      _finishLabAudit('response_received', durationMs: turn.durationMs);
+      _agentStatus =
+          awLabTextOnly ? 'labResponseReceivedStatus' : 'turnCompletedStatus';
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _agentError = _safeError(e);
-          _finishLabAudit('error');
-        });
-        treasuryCueFault();
-      }
+      _agentError = _safeError(e);
+      _finishLabAudit('error');
       try {
         final status = await _agent.status();
-        if (mounted) {
-          setState(() {
-            _nativeStatus = status;
-            _agentReady = _statusAllowsQueries(status);
-          });
-        }
+        _nativeStatus = status;
+        _agentReady = _statusAllowsQueries(status);
       } catch (_) {
-        if (mounted) setState(() => _agentReady = false);
+        _agentReady = false;
       }
     } finally {
-      if (mounted) setState(() => _agentBusy = false);
+      _agentBusy = false;
+      notifyListeners();
     }
   }
 
-  Future<void> _cancelAgent() async {
+  @override
+  Future<void> cancelAgent() async {
     try {
       await _agent.cancel();
-      if (mounted && _labRequestAudit != null) {
-        setState(() {
-          _labRequestAudit = {
-            ..._labRequestAudit!,
-            'cancellation_requested_at_utc': DateTime.now()
-                .toUtc()
-                .toIso8601String(),
-          };
-        });
+      if (_labRequestAudit != null) {
+        _labRequestAudit = {
+          ..._labRequestAudit!,
+          'cancellation_requested_at_utc':
+              DateTime.now().toUtc().toIso8601String(),
+        };
+        notifyListeners();
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _agentError = _safeError(e));
-        treasuryCueFault();
-      }
+      _agentError = _safeError(e);
+      notifyListeners();
     }
   }
 
-  Future<void> _resetAgent() async {
+  @override
+  Future<void> resetAgent() async {
     if (_agentBusy) return;
-    setState(() => _agentBusy = true);
+    _agentBusy = true;
+    notifyListeners();
     try {
       await _agent.reset();
       final status = await _agent.status();
-      if (!mounted) return;
-      setState(() {
-        _nativeStatus = status;
-        _agentReady = false;
-        _agentSession = null;
-        _agentReply = null;
-        _agentError = null;
-        _toolCalls = const [];
-        _liveReads = const [];
-        _agentStatus = 'Agente detenido y conversación local descartada';
-      });
-    } catch (e) {
-      if (mounted) {
-        setState(
-          () => _agentError =
-              'No se pudo verificar que el runtime se haya detenido: ${_safeError(e)}',
-        );
-        treasuryCueFault();
-      }
-    } finally {
-      // Forget persisted credentials even when a missing native library cannot
-      // be reset. A runtime failure remains visible and is never called success.
-      if (mounted) {
-        setState(() {
-          _key.clear();
-          _rememberKey = false;
-        });
-        try {
-          await _saveSettings();
-          if (!awLabTextOnly) {
-            await _storage.delete(key: 'openhuman_inference_api_key');
-          }
-        } catch (_) {
-          if (mounted) {
-            setState(
-              () => _settingsError =
-                  'No se pudo confirmar el borrado de la clave guardada.',
-            );
-            treasuryCueFault();
-          }
-        }
-        if (mounted) setState(() => _agentBusy = false);
-      }
-    }
-  }
-
-  TransferProposal? get _proposal {
-    if (awLabTextOnly) return null;
-    try {
-      return _agentReply == null ? null : TransferProposal.parse(_agentReply!);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  void _applyProposal() {
-    if (awLabTextOnly) return;
-    final proposal = _proposal;
-    if (proposal == null || _busy) return;
-    setState(() {
-      _recipient.text = proposal.recipient;
-      _amount.text = formatUnits(proposal.units, 6);
-      _screen = TreasuryScreen.payments;
-      _menuGroup = TreasuryGroup.treasury;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Propuesta validada y copiada. Revisá destinatario, importe y comisión antes de firmar.',
-        ),
-      ),
-    );
-  }
-
-  Future<void> _open(String url) async {
-    try {
-      final opened = await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
-      );
-      if (!opened && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo abrir el enlace.')),
-        );
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo abrir el enlace.')),
-        );
-      }
-    }
-  }
-
-  void _mutate(VoidCallback update) => setState(update);
-
-  void _openSettingsTab() => awLabTextOnly
-      ? setState(() => _tab = 2)
-      : _openScreen(TreasuryScreen.account);
-
-  void _openScreen(TreasuryScreen screen) {
-    setState(() {
-      _screen = screen;
-      _menuGroup = treasuryItem(screen).group;
-    });
-  }
-
-  void _toggleTreasuryNav() => setState(() => _navOpen = !_navOpen);
-
-  void _closeTreasuryNav() {
-    if (!_navOpen) return;
-    setState(() => _navOpen = false);
-  }
-
-  void _rememberMenuGroup(TreasuryGroup group) =>
-      setState(() => _menuGroup = group);
-
-  void _setCorridor(String value) => setState(() => _corridor = value);
-
-  void _setFactorAsset(String value) => setState(() => _factorAsset = value);
-
-  void _noteEndpointEdited() {
-    _settingsTouched = true;
-    _key.clear();
-    setState(() {});
-  }
-
-  void _useKimiEngine() {
-    final previous = Uri.tryParse(_endpoint.text.trim());
-    if (previous?.host != 'api.moonshot.ai') _key.clear();
-    _endpoint.text = kimiInferenceRoot;
-    _model.text = kimiModelId;
-    setState(() {
-      _settingsTouched = true;
+      _nativeStatus = status;
+      _agentReady = false;
+      _agentSession = null;
+      _agentReply = null;
       _agentError = null;
-    });
+      _toolCalls = const [];
+      _liveReads = const [];
+      _agentStatus = 'agentStoppedStatus';
+    } catch (e) {
+      _agentError =
+          'No se pudo verificar que el runtime se haya detenido: ${_safeError(e)}';
+    } finally {
+      _key.clear();
+      _rememberKey = false;
+      try {
+        await _saveSettings();
+        if (!awLabTextOnly) {
+          await _storage.delete(key: 'openhuman_inference_api_key');
+        }
+      } catch (_) {
+        _settingsError = 'No se pudo confirmar el borrado de la clave guardada.';
+      }
+      _agentBusy = false;
+      notifyListeners();
+    }
   }
-
-  void _setRememberKey(bool? value) => setState(() {
-    _rememberKey = value ?? false;
-    _settingsTouched = true;
-  });
 
   @override
-  Widget build(BuildContext context) =>
-      awLabTextOnly ? _labScaffold() : _treasuryScaffold();
+  void applyProposal() {
+    if (awLabTextOnly) return;
+    final p = proposal;
+    if (p == null || _busy) return;
+    _recipient.text = p.recipient;
+    _amount.text = formatUnits(p.units, 6);
+    notifyListeners();
+  }
 
-  Widget _labScaffold() => Scaffold(
-    appBar: AppBar(title: const Text('AW · Laboratorio de texto')),
-    body: SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 660),
-          child: ListView(
-            key: ValueKey(_tab),
-            padding: const EdgeInsets.all(20),
-            children: [
-              _labBanner(),
-              const SizedBox(height: 16),
-              if (_tab == 1) ..._agentView(),
-              if (_tab == 2) ..._settingsView(),
-              const SizedBox(height: 24),
-              const Text(
-                'AW no cambia de proveedor automáticamente. Confirmá que el servidor autorizado ejecuta un modelo local; recibir texto no demuestra por sí solo su procedencia.',
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 12,
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-    bottomNavigationBar: NavigationBar(
-      selectedIndex: _tab - 1,
-      onDestinationSelected: (value) => setState(() => _tab = value + 1),
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.psychology_outlined),
-          label: 'Agente',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.settings_outlined),
-          label: 'Ajustes',
-        ),
-      ],
-    ),
-  );
+  @override
+  Future<void> open(String url) async {
+    try {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
 
-  Widget _labBanner() => _card(
-    children: [
-      const Text(
-        'Laboratorio · sólo texto',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      const SizedBox(height: 8),
-      const Text(
-        'Wallet, pagos, propuestas y consultas Arc deshabilitados. '
-        'El agente no dispone de herramientas. '
-        'Este modo queda fijo al compilar la app.',
-      ),
-    ],
-  );
+  @override
+  void setRememberKey(bool? value) {
+    _rememberKey = value ?? false;
+    _settingsTouched = true;
+    notifyListeners();
+  }
 
-  Widget _card({required List<Widget> children}) => SizedBox(
-    width: double.infinity,
-    child: Material(
-      color: const Color(0xff191923),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xff353347)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children,
-        ),
-      ),
-    ),
-  );
+  @override
+  void noteEndpointEdited() {
+    _settingsTouched = true;
+    _key.clear();
+    notifyListeners();
+  }
 
-  Widget _errorBox(String message) => Padding(
-    padding: const EdgeInsets.only(top: 14),
-    child: Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xff37222b),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const FaultMark(size: 22),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(color: Color(0xffffc4cf), height: 1.4),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
+  void setDialogContext(BuildContext context) {
+    _dialogContext = context;
+  }
 }

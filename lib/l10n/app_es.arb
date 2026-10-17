@@ -663,5 +663,143 @@
   "@languageItalian": {"description": "Italian language option"},
 
   "languageChinese": "中文",
-  "@languageChinese": {"description": "Chinese language option"}
+  "@languageChinese": {"description": "Chinese language option"},
+
+  "navInicio": "Inicio",
+  "@navInicio": {"description": "Bottom navigation: home tab"},
+
+  "navRieles": "Rieles",
+  "@navRieles": {"description": "Bottom navigation: rails tab"},
+
+  "navMas": "Más",
+  "@navMas": {"description": "Bottom navigation: more tab"},
+
+  "homeWelcome": "Bienvenido a FluuiX",
+  "@homeWelcome": {"description": "Home screen welcome message"},
+
+  "homeConnectedStatus": "Wallet conectada",
+  "@homeConnectedStatus": {"description": "Home screen: wallet connected status"},
+
+  "homeDisconnectedStatus": "Wallet desconectada",
+  "@homeDisconnectedStatus": {"description": "Home screen: wallet disconnected status"},
+
+  "homeLayers": "Capas",
+  "@homeLayers": {"description": "Home screen: layers section title"},
+
+  "homeLayerAgentes": "Agentes",
+  "@homeLayerAgentes": {"description": "Home screen: agents layer title"},
+
+  "homeLayerAgentesDesc": "IA que propone operaciones",
+  "@homeLayerAgentesDesc": {"description": "Home screen: agents layer description"},
+
+  "homeLayerRieles": "Rieles",
+  "@homeLayerRieles": {"description": "Home screen: rails layer title"},
+
+  "homeLayerRielesDesc": "Instrumentos locales",
+  "@homeLayerRielesDesc": {"description": "Home screen: rails layer description"},
+
+  "homeLayerContratos": "Contratos",
+  "@homeLayerContratos": {"description": "Home screen: contracts layer title"},
+
+  "homeLayerContratosDesc": "Contratos inteligentes",
+  "@homeLayerContratosDesc": {"description": "Home screen: contracts layer description"},
+
+  "homeLayerWallets": "Wallets",
+  "@homeLayerWallets": {"description": "Home screen: wallets layer title"},
+
+  "homeLayerWalletsDesc": "Gestión de billeteras",
+  "@homeLayerWalletsDesc": {"description": "Home screen: wallets layer description"},
+
+  "homeLayerSettlement": "Settlement",
+  "@homeLayerSettlement": {"description": "Home screen: settlement layer title"},
+
+  "homeLayerSettlementDesc": "Liquidación final",
+  "@homeLayerSettlementDesc": {"description": "Home screen: settlement layer description"},
+
+  "homeLayerMultichain": "Multichain",
+  "@homeLayerMultichain": {"description": "Home screen: multichain layer title"},
+
+  "homeLayerMultichainDesc": "Puentes entre cadenas",
+  "@homeLayerMultichainDesc": {"description": "Home screen: multichain layer description"},
+
+  "layerStateActive": "Activo",
+  "@layerStateActive": {"description": "Layer state: active"},
+
+  "layerStatePartial": "Parcial",
+  "@layerStatePartial": {"description": "Layer state: partial/pending"},
+
+  "homeQuickActions": "Acciones rápidas",
+  "@homeQuickActions": {"description": "Home screen: quick actions title"},
+
+  "homeAskAgent": "Preguntar",
+  "@homeAskAgent": {"description": "Home screen: ask agent button"},
+
+  "homeSystemStatus": "Estado del sistema",
+  "@homeSystemStatus": {"description": "Home screen: system status title"},
+
+  "passageComingSoon": "Próximamente",
+  "@passageComingSoon": {"description": "Passage screen: coming soon title"},
+
+  "passageDescription": "El puente CCTP permite mover USDC entre cadenas de forma nativa. Cuando esté activo, podrás pasar fondos desde Arbitrum u otras redes.",
+  "@passageDescription": {"description": "Passage screen: description"},
+
+  "capPolicyTitle": "Política de límites",
+  "@capPolicyTitle": {"description": "Cap screen: policy title"},
+
+  "rielesTitle": "Rieles",
+  "@rielesTitle": {"description": "Rails screen: title"},
+
+  "rielesDescription": "Los rieles conectan diferentes instrumentos con la caja. Cada riel tiene su propio saldo y condiciones.",
+  "@rielesDescription": {"description": "Rails screen: description"},
+
+  "rielUsdcNative": "USDC nativo",
+  "@rielUsdcNative": {"description": "Rails: native USDC rail"},
+
+  "rielActive": "Activo",
+  "@rielActive": {"description": "Rails: active status"},
+
+  "rielesHowItWorks": "Cómo funcionan los rieles",
+  "@rielesHowItWorks": {"description": "Rails: how it works title"},
+
+  "rielesExplanation": "Un riel es un canal de liquidación entre la caja y un instrumento. El riel local (Twin) permite operar con pesos tokenizados. La reserva (cirBTC) es un instrumento de ahorro. USDC es el saldo nativo de Arc.",
+  "@rielesExplanation": {"description": "Rails: explanation"},
+
+  "paymentChecklist": "Lista de verificación",
+  "@paymentChecklist": {"description": "Payment: checklist title"},
+
+  "checkRpcConnected": "RPC conectado",
+  "@checkRpcConnected": {"description": "Payment check: RPC connected"},
+
+  "checkWalletConnected": "Wallet conectada",
+  "@checkWalletConnected": {"description": "Payment check: wallet connected"},
+
+  "checkArcSupported": "Arc autorizado",
+  "@checkArcSupported": {"description": "Payment check: Arc supported"},
+
+  "checkWithinLimit": "Dentro del límite diario",
+  "@checkWithinLimit": {"description": "Payment check: within daily limit"},
+
+  "paymentSheetDisclaimer": "FluuiX arma la orden y la muestra para revisión. Tu wallet externa solicita la firma. El texto del modelo no autoriza ni firma pagos.",
+  "@paymentSheetDisclaimer": {"description": "Payment screen disclaimer"},
+
+  "sheetChainRail": "Cadena y riel",
+  "@sheetChainRail": {"description": "Sheet: chain and rail label"},
+
+  "sheetNoAuthNoSign": "No autoriza ni firma",
+  "@sheetNoAuthNoSign": {"description": "Sheet: no auth no sign warning"},
+
+  "proposalSheetTitle": "Propuesta del agente",
+  "@proposalSheetTitle": {"description": "Proposal sheet: title"},
+
+  "proposalFromAgent": "OpenHuman propone esta transferencia",
+  "@proposalFromAgent": {"description": "Proposal sheet: from agent note"},
+
+  "proposalNotFound": "No se encontró la propuesta",
+  "@proposalNotFound": {"description": "Proposal sheet: not found"},
+
+  "proposalDisclaimer": "El agente sólo propone. La firma requiere tu revisión en la wallet. Verificá destinatario, importe y comisión antes de aprobar.",
+  "@proposalDisclaimer": {"description": "Proposal sheet: disclaimer"},
+
+  "proposalCopyToForm": "Copiar al formulario",
+  "@proposalCopyToForm": {"description": "Proposal sheet: copy to form button"}
 }
