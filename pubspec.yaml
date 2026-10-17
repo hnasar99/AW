@@ -7,6 +7,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   http: ^1.6.0
   reown_sign: 1.4.1
   reown_core: 1.5.1
@@ -22,5 +25,6 @@ dev_dependencies:
   flutter_lints: ^4.0.0
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/brand/fluuix_logo.png
