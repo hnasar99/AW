@@ -74,7 +74,7 @@ class AgentProposalSheet extends StatelessWidget {
                         ),
                         Text(
                           l10n.proposalFromAgent,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: FluuixColors.textMuted,
                             fontSize: 14,
                           ),
@@ -105,7 +105,7 @@ class AgentProposalSheet extends StatelessWidget {
                         color: FluuixColors.testnetBadge.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Arc Testnet',
                         style: TextStyle(
                           color: FluuixColors.testnetBadge,
@@ -144,7 +144,7 @@ class AgentProposalSheet extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.warning_amber,
                           color: FluuixColors.warning,
                           size: 20,
@@ -152,7 +152,7 @@ class AgentProposalSheet extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           l10n.sheetNoAuthNoSign,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: FluuixColors.warning,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -163,7 +163,7 @@ class AgentProposalSheet extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       l10n.proposalDisclaimer,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: FluuixColors.textMuted,
                         fontSize: 13,
                         height: 1.4,
@@ -210,7 +210,7 @@ class AgentProposalSheet extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   color: FluuixColors.textMuted,
                   fontSize: 12,
                 ),

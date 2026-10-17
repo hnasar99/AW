@@ -69,7 +69,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     Text(
                       l10n.footerArcTestnet,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: FluuixColors.textMuted,
                         fontSize: 12,
                         height: 1.5,
@@ -119,7 +119,7 @@ class HomeScreen extends StatelessWidget {
                     appState.walletConnected
                         ? l10n.homeConnectedStatus
                         : l10n.homeDisconnectedStatus,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: FluuixColors.textMuted,
                       fontSize: 14,
                     ),
@@ -140,7 +140,7 @@ class HomeScreen extends StatelessWidget {
           ),
           Text(
             l10n.balanceUsdc,
-            style: TextStyle(
+            style: const TextStyle(
               color: FluuixColors.gold,
               fontSize: 16,
             ),
@@ -301,7 +301,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 data.subtitle,
-                style: TextStyle(
+                style: const TextStyle(
                   color: FluuixColors.textMuted,
                   fontSize: 12,
                   height: 1.3,

@@ -39,7 +39,7 @@ class RielesScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     l10n.rielesDescription,
-                    style: TextStyle(color: FluuixColors.textMuted, height: 1.45),
+                    style: const TextStyle(color: FluuixColors.textMuted, height: 1.45),
                   ),
                   const SizedBox(height: 24),
                   _buildRailCard(
@@ -81,7 +81,7 @@ class RielesScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         l10n.rielesExplanation,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: FluuixColors.textMuted,
                           height: 1.45,
                         ),
@@ -91,7 +91,7 @@ class RielesScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   Text(
                     l10n.footerArcTestnet,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: FluuixColors.textMuted,
                       fontSize: 12,
                       height: 1.5,
@@ -146,7 +146,7 @@ class RielesScreen extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: FluuixColors.textMuted,
                       fontSize: 14,
                     ),

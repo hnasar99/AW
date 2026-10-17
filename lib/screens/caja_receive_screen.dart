@@ -52,7 +52,7 @@ class CajaReceiveScreen extends StatelessWidget {
                         if (appState.walletAddress == null)
                           Text(
                             l10n.receiveConnectPrompt,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: FluuixColors.textMuted,
                               height: 1.4,
                             ),
@@ -60,7 +60,7 @@ class CajaReceiveScreen extends StatelessWidget {
                         else ...[
                           Text(
                             l10n.receiveDescription,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: FluuixColors.textMuted,
                               height: 1.4,
                             ),

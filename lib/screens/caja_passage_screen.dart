@@ -59,7 +59,7 @@ class CajaPassageScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.info_outline,
                                 color: FluuixColors.warning,
                               ),
@@ -67,7 +67,7 @@ class CajaPassageScreen extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   l10n.passageNotConnected,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: FluuixColors.textMuted,
                                     height: 1.45,
                                   ),
@@ -87,7 +87,7 @@ class CajaPassageScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           l10n.passageDescription,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: FluuixColors.textMuted,
                             height: 1.45,
                           ),

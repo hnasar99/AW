@@ -108,7 +108,7 @@ class _PaymentReviewSheetState extends State<PaymentReviewSheet> {
                 ),
                 child: Text(
                   l10n.arcTestnetTestFunds,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: FluuixColors.testnetBadge,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
@@ -127,7 +127,7 @@ class _PaymentReviewSheetState extends State<PaymentReviewSheet> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
+                    const Text(
                       'Arc Testnet',
                       style: TextStyle(
                         color: FluuixColors.textMuted,
@@ -182,12 +182,12 @@ class _PaymentReviewSheetState extends State<PaymentReviewSheet> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: FluuixColors.warning, size: 20),
+                    const Icon(Icons.info_outline, color: FluuixColors.warning, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         l10n.sheetNoAuthNoSign,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: FluuixColors.warning,
                           fontSize: 13,
                           height: 1.4,
@@ -200,7 +200,7 @@ class _PaymentReviewSheetState extends State<PaymentReviewSheet> {
               const SizedBox(height: 20),
               Text(
                 l10n.reviewExpiry,
-                style: TextStyle(
+                style: const TextStyle(
                   color: FluuixColors.textMuted,
                   fontSize: 12,
                   height: 1.4,
@@ -283,7 +283,7 @@ class _PaymentReviewSheetState extends State<PaymentReviewSheet> {
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   color: FluuixColors.textMuted,
                   fontSize: 12,
                 ),

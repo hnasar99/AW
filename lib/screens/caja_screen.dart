@@ -57,7 +57,7 @@ class CajaScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     Text(
                       l10n.footerArcTestnet,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: FluuixColors.textMuted,
                         fontSize: 12,
                         height: 1.5,
@@ -83,7 +83,7 @@ class CajaScreen extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           appState.networkVerified ? l10n.rpcVerified : l10n.connectionPending,
-          style: TextStyle(color: FluuixColors.textMuted, fontSize: 13),
+          style: const TextStyle(color: FluuixColors.textMuted, fontSize: 13),
         ),
         const SizedBox(height: 16),
         Text(
@@ -94,12 +94,12 @@ class CajaScreen extends StatelessWidget {
         ),
         Text(
           l10n.balanceUsdc,
-          style: TextStyle(color: FluuixColors.gold, fontSize: 16),
+          style: const TextStyle(color: FluuixColors.gold, fontSize: 16),
         ),
         const SizedBox(height: 8),
         Text(
           l10n.arcTestnetSingleBalance,
-          style: TextStyle(
+          style: const TextStyle(
             color: FluuixColors.textMuted,
             fontSize: 12,
             height: 1.4,
@@ -131,7 +131,7 @@ class CajaScreen extends StatelessWidget {
           SelectableText(appState.walletAddress!),
           Text(
             l10n.sessionOnArcTestnet(appState.chainId?.toString() ?? '?'),
-            style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
           ),
           Wrap(
             spacing: 8,
@@ -169,13 +169,13 @@ class CajaScreen extends StatelessWidget {
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text(instrument, style: TextStyle(color: FluuixColors.textMuted)),
+          Text(instrument, style: const TextStyle(color: FluuixColors.textMuted)),
           const SizedBox(height: 8),
-          Text(l10n.noContract, style: TextStyle(color: FluuixColors.gold)),
+          Text(l10n.noContract, style: const TextStyle(color: FluuixColors.gold)),
           const SizedBox(height: 4),
           Text(
             l10n.notAddedToBox,
-            style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
           ),
         ],
       );
@@ -263,12 +263,12 @@ class CajaScreen extends StatelessWidget {
         if (appState.transaction == null && savedReceipts.isEmpty)
           Text(
             l10n.noReceiptSaved,
-            style: TextStyle(color: FluuixColors.textMuted),
+            style: const TextStyle(color: FluuixColors.textMuted),
           )
         else ...[
           Text(
             l10n.hashIsReceipt,
-            style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+            style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
           ),
           const SizedBox(height: 8),
           if (appState.transaction != null) _transactionCard(context, l10n),
@@ -336,7 +336,7 @@ class CajaScreen extends StatelessWidget {
       children: [
         Text(
           l10n.unresolvedRequest,
-          style: TextStyle(
+          style: const TextStyle(
             color: FluuixColors.warning,
             fontWeight: FontWeight.bold,
           ),
@@ -399,7 +399,7 @@ class CajaScreen extends StatelessWidget {
     ),
     child: Text(
       message,
-      style: TextStyle(color: FluuixColors.error, height: 1.4),
+      style: const TextStyle(color: FluuixColors.error, height: 1.4),
     ),
   );
 }

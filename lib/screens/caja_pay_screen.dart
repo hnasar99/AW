@@ -52,7 +52,7 @@ class CajaPayScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           l10n.payDescription,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: FluuixColors.textMuted,
                             fontSize: 12,
                             height: 1.4,
@@ -133,7 +133,7 @@ class CajaPayScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       l10n.paymentSheetDisclaimer,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: FluuixColors.textMuted,
                         fontSize: 12,
                         height: 1.4,
@@ -266,7 +266,7 @@ class CajaPayScreen extends StatelessWidget {
     ),
     child: Text(
       message,
-      style: TextStyle(color: FluuixColors.error, height: 1.4),
+      style: const TextStyle(color: FluuixColors.error, height: 1.4),
     ),
   );
 }

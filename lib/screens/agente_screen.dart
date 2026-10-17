@@ -52,7 +52,7 @@ class AgenteScreen extends StatelessWidget {
                     awLabTextOnly
                         ? l10n.agentLabDescription
                         : l10n.agentDescription,
-                    style: TextStyle(color: FluuixColors.textMuted, height: 1.5),
+                    style: const TextStyle(color: FluuixColors.textMuted, height: 1.5),
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
@@ -94,7 +94,7 @@ class AgenteScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   Text(
                     awLabTextOnly ? l10n.footerLab : l10n.footerArcTestnet,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: FluuixColors.textMuted,
                       fontSize: 12,
                       height: 1.5,
@@ -146,7 +146,7 @@ class AgenteScreen extends StatelessWidget {
           Text(l10n.agentBudget(status.labContextTokens.toString())),
         Text(
           awLabTextOnly ? l10n.labTestDisclaimer : l10n.localTestDisclaimer,
-          style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+          style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
         ),
       ],
     );
@@ -227,7 +227,7 @@ class AgenteScreen extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               l10n.modelTextDisclaimer,
-              style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+              style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
             ),
           ),
         if (!awLabTextOnly && appState.toolCalls.isNotEmpty)
@@ -257,7 +257,7 @@ class AgenteScreen extends StatelessWidget {
           awLabTextOnly
               ? l10n.labResponseDisclaimer
               : l10n.agentResponseDisclaimer,
-          style: TextStyle(color: FluuixColors.textMuted, fontSize: 12),
+          style: const TextStyle(color: FluuixColors.textMuted, fontSize: 12),
         ),
       ],
     );
@@ -334,7 +334,7 @@ class AgenteScreen extends StatelessWidget {
       ),
       child: Text(
         message,
-        style: TextStyle(color: FluuixColors.error, height: 1.4),
+        style: const TextStyle(color: FluuixColors.error, height: 1.4),
       ),
     ),
   );

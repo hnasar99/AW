@@ -61,7 +61,7 @@ class MasScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   Text(
                     awLabTextOnly ? l10n.footerLab : l10n.footerArcTestnet,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: FluuixColors.textMuted,
                       fontSize: 12,
                       height: 1.5,
@@ -138,7 +138,7 @@ class MasScreen extends StatelessWidget {
         if (appState.configured)
           Text(
             l10n.reownClientInitialized,
-            style: TextStyle(color: FluuixColors.success),
+            style: const TextStyle(color: FluuixColors.success),
           ),
       ],
     );
@@ -215,7 +215,7 @@ class MasScreen extends StatelessWidget {
                   Uri.tryParse(appState.endpointController.text)?.host ??
                       'your provider',
                 ),
-          style: TextStyle(color: FluuixColors.textMuted),
+          style: const TextStyle(color: FluuixColors.textMuted),
         ),
         const SizedBox(height: 10),
         FilledButton(
@@ -273,7 +273,7 @@ class MasScreen extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           l10n.networkDescription,
-          style: TextStyle(color: FluuixColors.textMuted, height: 1.45),
+          style: const TextStyle(color: FluuixColors.textMuted, height: 1.45),
         ),
         const SizedBox(height: 16),
         _module(l10n.zonaBankTitle, l10n.zonaBankDesc, 'https://fluuix.com/zonabank', l10n),
@@ -311,12 +311,12 @@ class MasScreen extends StatelessWidget {
                 ),
                 Text(
                   l10n.noContract,
-                  style: TextStyle(color: FluuixColors.gold, fontSize: 12),
+                  style: const TextStyle(color: FluuixColors.gold, fontSize: 12),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(body, style: TextStyle(color: FluuixColors.textMuted, height: 1.4)),
+            Text(body, style: const TextStyle(color: FluuixColors.textMuted, height: 1.4)),
             TextButton(
               onPressed: () => appState.open(url),
               child: Text(l10n.whatProductPublishes),
@@ -351,7 +351,7 @@ class MasScreen extends StatelessWidget {
       ),
       child: Text(
         message,
-        style: TextStyle(color: FluuixColors.error, height: 1.4),
+        style: const TextStyle(color: FluuixColors.error, height: 1.4),
       ),
     ),
   );

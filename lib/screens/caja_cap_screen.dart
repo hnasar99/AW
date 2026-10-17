@@ -98,7 +98,7 @@ class CajaCapScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           l10n.capPolicyExplanation,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: FluuixColors.textMuted,
                             fontSize: 14,
                             height: 1.45,
