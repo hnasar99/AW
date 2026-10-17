@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'theme.dart';
+
 /// Opening mark for a real launch. Tests omit it by leaving [FluuiXLaunch] out.
 class FluuiXLaunch extends StatefulWidget {
   const FluuiXLaunch({super.key, required this.child});
@@ -99,7 +101,7 @@ class _SplashStage extends StatelessWidget {
 
     return AbsorbPointer(
       child: DecoratedBox(
-        decoration: const BoxDecoration(color: Color(0xff07080c)),
+        decoration: const BoxDecoration(color: FluuixColors.backgroundDark),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -123,7 +125,7 @@ class _SplashStage extends StatelessWidget {
                             Text(
                               'FluuiX',
                               style: TextStyle(
-                                color: Color(0xfff4efe6),
+                                color: Colors.white,
                                 fontSize: 28,
                                 fontWeight: FontWeight.w300,
                                 letterSpacing: 7,
@@ -133,7 +135,7 @@ class _SplashStage extends StatelessWidget {
                             Text(
                               'Caja en dólares',
                               style: TextStyle(
-                                color: Color(0xffc6a35a),
+                                color: FluuixColors.gold,
                                 fontSize: 13,
                                 letterSpacing: 1.4,
                               ),
@@ -171,13 +173,13 @@ class _Mark extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff3d7adf).withValues(alpha: 0.55 * pulse),
+            color: FluuixColors.lightBlue.withValues(alpha: 0.55 * pulse),
             blurRadius: 42,
             spreadRadius: 2,
             offset: const Offset(-18, 0),
           ),
           BoxShadow(
-            color: const Color(0xffe0c27a).withValues(alpha: 0.5 * pulse),
+            color: FluuixColors.gold.withValues(alpha: 0.5 * pulse),
             blurRadius: 42,
             spreadRadius: 2,
             offset: const Offset(18, 0),
@@ -240,20 +242,20 @@ class _BrandLightsPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.drawRect(
       Offset.zero & size,
-      Paint()..color = const Color(0xff07080c),
+      Paint()..color = FluuixColors.backgroundDark,
     );
     _orb(
       canvas,
       size,
       Offset(size.width * (0.18 + 0.04 * math.sin(t * math.pi * 2)), size.height * 0.40),
-      const Color(0xff3d7adf),
+      FluuixColors.lightBlue,
       0.62 * pulse,
     );
     _orb(
       canvas,
       size,
       Offset(size.width * (0.82 - 0.04 * math.sin(t * math.pi * 2)), size.height * 0.52),
-      const Color(0xffe0c27a),
+      FluuixColors.gold,
       0.55 * pulse,
     );
     if (!reduce) {
@@ -261,7 +263,7 @@ class _BrandLightsPainter extends CustomPainter {
         canvas,
         size,
         Offset(size.width * 0.5, size.height * 0.46),
-        const Color(0xfff7f1e4),
+        FluuixColors.goldBright,
         0.12 * pulse,
       );
     }

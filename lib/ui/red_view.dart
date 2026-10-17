@@ -1,79 +1,85 @@
 part of '../main.dart';
 
 extension _RedView on _WalletHomeState {
-  List<Widget> _redView() => [
+  List<Widget> _redView(AppLocalizations l10n) => [
     Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Red FluuiX', style: Theme.of(context).textTheme.headlineSmall),
+        Text(l10n.networkTitle, style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 8),
-        const Text(
-          'Cada módulo está sin contrato hasta que el operador entregue '
-          'endpoint, autenticación y catálogo. No hay saldos, tasas ni préstamos.',
-          style: TextStyle(color: Colors.white70, height: 1.45),
+        Text(
+          l10n.networkDescription,
+          style: TextStyle(color: FluuixColors.textMuted, height: 1.45),
         ),
         const SizedBox(height: 16),
         _module(
-          'ZonaBank',
-          'Cuentas, contactos, intents y rieles de liquidación. '
-              'ZonaBank no guarda claves y no es un banco licenciado.',
+          l10n.zonaBankTitle,
+          l10n.zonaBankDesc,
           'https://fluuix.com/zonabank',
+          l10n,
         ),
         _module(
-          'Lending',
-          'El mapa público habla de financiamiento contra colateral tokenizado. '
-              'No hay catálogo, tasa ni préstamo en esta app.',
+          l10n.lendingTitle,
+          l10n.lendingDesc,
           'https://fluuix.com/ecosystem',
+          l10n,
         ),
         _module(
-          'ZonaFranca',
-          'Registro y trazabilidad de mercancía y logística. Solo lectura cuando haya catálogo.',
+          l10n.zonaFrancaTitle,
+          l10n.zonaFrancaDesc,
           'https://fluuix.com/zf',
+          l10n,
         ),
         _module(
-          'TTN',
-          'Instrumentos ya emitidos por TokenizaTuNegocio. '
-              'Emitir un token no es una orden del teléfono.',
+          l10n.ttnTitle,
+          l10n.ttnDesc,
           'https://fluuix.com/ttn',
+          l10n,
         ),
         const SizedBox(height: 8),
-        Text('Capital', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.capitalSection, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         _module(
-          'Fideicomisos',
-          'Vehículo de capital del mismo motor. Sin posición que mostrar.',
+          l10n.fideicomisosTitle,
+          l10n.fideicomisosDesc,
           'https://fluuix.com/fideicomiso',
+          l10n,
         ),
         _module(
-          'Fondos',
-          'Vehículo de capital del mismo motor. Sin posición que mostrar.',
+          l10n.fondosTitle,
+          l10n.fondosDesc,
           'https://fluuix.com/fondos',
+          l10n,
         ),
         _module(
-          'Crowd',
-          'Financiamiento con la comunidad. Sin campaña cargada.',
+          l10n.crowdTitle,
+          l10n.crowdDesc,
           'https://fluuix.com/financiamiento',
+          l10n,
         ),
         _module(
-          'Licitaciones',
-          'Compras con recibo verificable. Sin proceso cargado.',
+          l10n.licitacionesTitle,
+          l10n.licitacionesDesc,
           'https://fluuix.com/licitaciones',
+          l10n,
         ),
         _module(
-          'Donaciones',
-          'Donación con trazabilidad. Sin campaña cargada.',
+          l10n.donacionesTitle,
+          l10n.donacionesDesc,
           'https://fluuix.com/donaciones',
+          l10n,
         ),
         _module(
-          'Academia',
-          'Formación de TokenizaTuNegocio. No mueve fondos.',
+          l10n.academiaTitle,
+          l10n.academiaDesc,
           'https://fluuix.com/academia',
+          l10n,
         ),
       ],
     ),
   ];
 
-  Widget _module(String title, String body, String url) => Padding(
+  Widget _module(String title, String body, String url, AppLocalizations l10n) => Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: _card(
       children: [
@@ -88,17 +94,17 @@ extension _RedView on _WalletHomeState {
                 ),
               ),
             ),
-            const Text(
-              'Sin contrato',
-              style: TextStyle(color: Color(0xffe4d3b0), fontSize: 12),
+            Text(
+              l10n.noContract,
+              style: TextStyle(color: FluuixColors.gold, fontSize: 12),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Text(body, style: const TextStyle(color: Colors.white70, height: 1.4)),
+        Text(body, style: TextStyle(color: FluuixColors.textMuted, height: 1.4)),
         TextButton(
           onPressed: () => _open(url),
-          child: const Text('Qué publica el producto'),
+          child: Text(l10n.whatProductPublishes),
         ),
       ],
     ),

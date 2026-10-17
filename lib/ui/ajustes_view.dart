@@ -1,23 +1,74 @@
 part of '../main.dart';
 
 extension _AjustesView on _WalletHomeState {
-  List<Widget> _settingsView() => [
+  List<Widget> _settingsView(AppLocalizations l10n) => [
     Text(
-      awLabTextOnly ? 'Configuración del laboratorio' : 'Ajustes',
+      awLabTextOnly ? l10n.settingsLabTitle : l10n.settingsTitle,
       style: Theme.of(context).textTheme.headlineSmall,
+    ),
+    const SizedBox(height: 16),
+    _card(
+      children: [
+        Text(
+          l10n.languageSettings,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          value: _selectedLocale?.languageCode,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+          items: [
+            DropdownMenuItem<String>(
+              value: null,
+              child: Text(l10n.languageAuto),
+            ),
+            DropdownMenuItem<String>(
+              value: 'es',
+              child: Text(l10n.languageSpanish),
+            ),
+            DropdownMenuItem<String>(
+              value: 'en',
+              child: Text(l10n.languageEnglish),
+            ),
+            DropdownMenuItem<String>(
+              value: 'pt',
+              child: Text(l10n.languagePortuguese),
+            ),
+            DropdownMenuItem<String>(
+              value: 'fr',
+              child: Text(l10n.languageFrench),
+            ),
+            DropdownMenuItem<String>(
+              value: 'de',
+              child: Text(l10n.languageGerman),
+            ),
+            DropdownMenuItem<String>(
+              value: 'it',
+              child: Text(l10n.languageItalian),
+            ),
+            DropdownMenuItem<String>(
+              value: 'zh',
+              child: Text(l10n.languageChinese),
+            ),
+          ],
+          onChanged: (value) {
+            _saveLocale(value == null ? null : Locale(value));
+          },
+        ),
+      ],
     ),
     const SizedBox(height: 16),
     if (!awLabTextOnly)
       _card(
         children: [
-          const Text(
-            'WalletConnect / Reown',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          Text(
+            l10n.walletConnectTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Ingresá el Project ID de tu proyecto. Se puede cambiar sin recompilar. La sesión de wallet permanece sólo en memoria; al reiniciar la app se vuelve a conectar. FluuiX no pide la frase semilla ni la clave privada.',
-          ),
+          Text(l10n.walletConnectDescription),
           const SizedBox(height: 12),
           TextField(
             controller: _projectId,
@@ -25,9 +76,9 @@ extension _AjustesView on _WalletHomeState {
             enableSuggestions: false,
             enabled: !_settingsBusy && !_busy && !_wallet.requestPending,
             onChanged: (_) => _settingsTouched = true,
-            decoration: const InputDecoration(
-              labelText: 'Project ID',
-              hintText: '32 caracteres hexadecimales',
+            decoration: InputDecoration(
+              labelText: l10n.projectIdLabel,
+              hintText: l10n.projectIdHint,
             ),
           ),
           const SizedBox(height: 8),
@@ -36,30 +87,26 @@ extension _AjustesView on _WalletHomeState {
                 ? null
                 : _configureWallet,
             child: Text(
-              _settingsBusy ? 'Conectando…' : 'Guardar y conectar Reown',
+              _settingsBusy ? l10n.connecting : l10n.saveAndConnectReown,
             ),
           ),
           if (_wallet.configured)
-            const Text(
-              'Cliente Reown inicializado',
-              style: TextStyle(color: Colors.greenAccent),
+            Text(
+              l10n.reownClientInitialized,
+              style: TextStyle(color: FluuixColors.success),
             ),
         ],
       ),
     const SizedBox(height: 16),
     _card(
       children: [
-        const Text(
-          awLabTextOnly
-              ? 'Servidor de texto local'
-              : 'Inferencia para OpenHuman',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        Text(
+          awLabTextOnly ? l10n.inferenceLabTitle : l10n.inferenceTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: 8),
-        const Text(
-          awLabTextOnly
-              ? 'Ingresá la IP loopback literal y la ruta /v1 del transporte que estableciste hacia tu servidor autorizado. Elegí un modelo que ya esté instalado allí. No hay endpoint ni modelo predeterminados.'
-              : 'Elegí un endpoint compatible con OpenAI y el modelo habilitado por tu proveedor. El modelo usa Internet; el runtime Rust se ejecuta en el teléfono.',
+        Text(
+          awLabTextOnly ? l10n.inferenceLabDescription : l10n.inferenceDescription,
         ),
         const SizedBox(height: 12),
         TextField(
@@ -70,13 +117,9 @@ extension _AjustesView on _WalletHomeState {
           keyboardType: TextInputType.url,
           enableSuggestions: false,
           onChanged: (_) => _noteEndpointEdited(),
-          decoration: const InputDecoration(
-            labelText: awLabTextOnly
-                ? 'Endpoint loopback /v1'
-                : 'Endpoint HTTPS',
-            hintText: awLabTextOnly
-                ? 'Completá tu endpoint autorizado'
-                : 'https://provider.example/v1',
+          decoration: InputDecoration(
+            labelText: awLabTextOnly ? l10n.endpointLabLabel : l10n.endpointLabel,
+            hintText: awLabTextOnly ? l10n.endpointLabHint : l10n.endpointHint,
           ),
         ),
         const SizedBox(height: 12),
@@ -87,11 +130,9 @@ extension _AjustesView on _WalletHomeState {
           autocorrect: false,
           enableSuggestions: false,
           onChanged: (_) => _settingsTouched = true,
-          decoration: const InputDecoration(
-            labelText: 'ID del modelo',
-            hintText: awLabTextOnly
-                ? 'ID exacto del modelo local instalado'
-                : 'Modelo habilitado en tu proveedor',
+          decoration: InputDecoration(
+            labelText: l10n.modelLabel,
+            hintText: awLabTextOnly ? l10n.modelLabHint : l10n.modelHint,
           ),
         ),
         const SizedBox(height: 12),
@@ -103,13 +144,9 @@ extension _AjustesView on _WalletHomeState {
           autocorrect: false,
           enableSuggestions: false,
           onChanged: (_) => _settingsTouched = true,
-          decoration: const InputDecoration(
-            labelText: awLabTextOnly
-                ? 'Clave o marcador del servidor'
-                : 'API key de inferencia',
-            helperText: awLabTextOnly
-                ? 'Un marcador sintético no protege ni autentica el servidor.'
-                : null,
+          decoration: InputDecoration(
+            labelText: awLabTextOnly ? l10n.apiKeyLabLabel : l10n.apiKeyLabel,
+            helperText: awLabTextOnly ? l10n.apiKeyLabHelper : null,
             helperMaxLines: 2,
           ),
         ),
@@ -117,55 +154,49 @@ extension _AjustesView on _WalletHomeState {
           contentPadding: EdgeInsets.zero,
           value: _rememberKey,
           onChanged: _agentReady || _agentBusy ? null : _setRememberKey,
-          title: const Text(
-            'Recordar la clave en el almacenamiento seguro del sistema',
-          ),
+          title: Text(l10n.rememberKey),
         ),
         const SizedBox(height: 6),
         Text(
           awLabTextOnly
-              ? 'Las consultas se envían únicamente al endpoint indicado. Los ajustes del laboratorio se guardan separados de los del modo Arc.'
-              : 'Al activar y consultar, enviás tus mensajes y el contexto necesario a ${Uri.tryParse(_endpoint.text)?.host ?? 'tu proveedor'}.',
-          style: const TextStyle(color: Colors.white70),
+              ? l10n.labQueriesNote
+              : l10n.queriesSentTo(Uri.tryParse(_endpoint.text)?.host ?? 'your provider'),
+          style: TextStyle(color: FluuixColors.textMuted),
         ),
         const SizedBox(height: 10),
         FilledButton(
           onPressed: _agentReady || _agentBusy ? null : _startAgent,
           child: Text(
             _agentBusy
-                ? 'Inicializando…'
+                ? l10n.initializing
                 : awLabTextOnly
-                ? 'Iniciar laboratorio de texto'
-                : 'Activar OpenHuman con este proveedor',
+                ? l10n.startLabButton
+                : l10n.activateOpenHumanButton,
           ),
         ),
         OutlinedButton(
           onPressed: _agentBusy ? null : _resetAgent,
-          child: const Text('Detener agente y olvidar la clave'),
+          child: Text(l10n.stopAgentForgetKey),
         ),
       ],
     ),
     const SizedBox(height: 16),
     if (!awLabTextOnly)
       ExpansionTile(
-        title: const Text('Agregar Arc Testnet manualmente'),
+        title: Text(l10n.addArcTestnetManually),
         children: [
           _card(
             children: [
-              const Text(
-                'Nombre: Arc Testnet\nChain ID: 5042002\nMoneda nativa: USDC · 18 decimales',
-              ),
+              Text(l10n.arcManualInfo),
               const SelectableText(
                 'RPC: ${ArcNetwork.rpc}\nExplorador: ${ArcNetwork.explorer}',
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Agregá la red en tu wallet, luego reconectá autorizando Arc Testnet. Agregar una red no amplía automáticamente los permisos de una sesión existente.',
-              ),
+              Text(l10n.arcManualInstructions),
               TextButton(
                 onPressed: () =>
                     _open('https://docs.arc.io/arc/references/connect-to-arc'),
-                child: const Text('Documentación oficial'),
+                child: Text(l10n.officialDocs),
               ),
             ],
           ),
@@ -175,7 +206,7 @@ extension _AjustesView on _WalletHomeState {
     if (!_storageReady && !_settingsBusy)
       TextButton(
         onPressed: _loadSettings,
-        child: const Text('Volver a leer el estado seguro'),
+        child: Text(l10n.retrySecureStorage),
       ),
     if (_agentError != null) _errorBox(_agentError!),
   ];
